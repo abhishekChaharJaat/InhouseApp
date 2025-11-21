@@ -1,8 +1,9 @@
 import { useClerk, useUser } from "@clerk/clerk-expo";
-import { MaterialIcons } from "@expo/vector-icons";
+import { AntDesign, Feather, Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import React, { useState } from "react";
 import {
+  ActivityIndicator,
   Image,
   Modal,
   StyleSheet,
@@ -17,16 +18,21 @@ export const SignOutButton = () => {
   const { user } = useUser();
   const router = useRouter();
   const [open, setOpen] = useState(false);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   const fullName = `${user?.firstName || ""} ${user?.lastName || ""}`.trim();
 
   const handleSignOut = async () => {
+    if (isLoggingOut) return;
+    setIsLoggingOut(true);
     try {
-      setOpen(false);
       await signOut();
       router.replace("/");
     } catch (err) {
       console.error(JSON.stringify(err, null, 2));
+    } finally {
+      setIsLoggingOut(false);
+      setOpen(false);
     }
   };
 
@@ -38,37 +44,41 @@ export const SignOutButton = () => {
     <>
       {/* Profile icon button */}
       <TouchableOpacity
-        style={styles.button}
+        style={styles.avatarButton}
         onPress={() => setOpen(true)}
-        activeOpacity={0.8}
+        activeOpacity={0.9}
       >
         {user?.imageUrl ? (
           <Image source={{ uri: user.imageUrl }} style={styles.profileImage} />
         ) : (
-          <MaterialIcons name="account-circle" size={40} color="#fff" />
+          <View style={styles.avatarFallback}>
+            <Ionicons name="person" size={24} color="#fff" />
+          </View>
         )}
       </TouchableOpacity>
 
-      {/* Full-screen modal for dropdown + outside click */}
+      {/* Dropdown modal */}
       <Modal
         transparent
         visible={open}
         animationType="fade"
         onRequestClose={handleCloseDropdown}
       >
-        {/* Backdrop: screen par kahin bhi tap → close */}
         <TouchableOpacity
           activeOpacity={1}
           style={styles.modalBackdrop}
           onPress={handleCloseDropdown}
         >
-          {/* Dropdown pe tap karne se backdrop ka onPress trigger na ho */}
           <TouchableWithoutFeedback>
             <View style={styles.dropdown}>
-              <Text style={styles.name}>{fullName || "User"}</Text>
-              <Text style={styles.email}>
-                {user?.emailAddresses[0]?.emailAddress || ""}
-              </Text>
+              <View style={styles.userInfo}>
+                <View>
+                  <Text style={styles.name}>{fullName || "User"}</Text>
+                  <Text style={styles.email}>
+                    {user?.emailAddresses[0]?.emailAddress || ""}
+                  </Text>
+                </View>
+              </View>
 
               <TouchableOpacity
                 style={styles.dropdownButton}
@@ -77,26 +87,23 @@ export const SignOutButton = () => {
                   alert("Personalize clicked!");
                 }}
               >
-                <MaterialIcons
-                  name="settings"
-                  size={20}
-                  color="#000"
-                  style={styles.icon}
-                />
+                <Feather name="sliders" size={20} color="#444" />
                 <Text style={styles.dropdownButtonText}>Personalize</Text>
               </TouchableOpacity>
 
               <TouchableOpacity
                 style={styles.dropdownButton}
                 onPress={handleSignOut}
+                disabled={isLoggingOut}
               >
-                <MaterialIcons
-                  name="logout"
-                  size={20}
-                  color="#000"
-                  style={styles.icon}
-                />
-                <Text style={styles.dropdownButtonText}>Logout</Text>
+                {isLoggingOut ? (
+                  <ActivityIndicator size="small" color="#444" />
+                ) : (
+                  <AntDesign name="logout" size={20} color="#444" />
+                )}
+                <Text style={styles.dropdownButtonText}>
+                  {isLoggingOut ? "Logging out..." : "Logout"}
+                </Text>
               </TouchableOpacity>
             </View>
           </TouchableWithoutFeedback>
@@ -107,18 +114,26 @@ export const SignOutButton = () => {
 };
 
 const styles = StyleSheet.create({
-  button: {
-    backgroundColor: "black",
+  avatarButton: {
     borderRadius: 50,
-    padding: 2,
+    overflow: "hidden",
   },
+
   profileImage: {
     width: 40,
     height: 40,
     borderRadius: 50,
   },
 
-  // pura screen cover karega
+  avatarFallback: {
+    width: 40,
+    height: 40,
+    borderRadius: 50,
+    backgroundColor: "#3A3A3A",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+
   modalBackdrop: {
     ...StyleSheet.absoluteFillObject,
     justifyContent: "flex-start",
@@ -126,48 +141,117 @@ const styles = StyleSheet.create({
   },
 
   dropdown: {
-    marginTop: 120, // header height ke hisab se adjust kar lena
+    marginTop: 115,
     marginRight: 16,
-    width: 300,
+    width: 260,
     backgroundColor: "#fff",
-    borderRadius: 10,
+    borderRadius: 12,
+    paddingVertical: 14,
+    paddingHorizontal: 14,
     shadowColor: "#000",
-    shadowOpacity: 0.15,
-    shadowRadius: 5,
-    shadowOffset: { width: 0, height: 2 },
-    elevation: 5,
-    padding: 12,
+    shadowOpacity: 0.18,
+    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 4 },
+    elevation: 6,
     borderWidth: 1,
-    borderColor: "#c8c8c8",
+    borderColor: "#e0e0e0",
+  },
+
+  userInfo: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 14,
+    paddingBottom: 10,
+    borderBottomWidth: 1,
+    borderColor: "#e5e5e5",
+  },
+
+  avatarSmall: {
+    width: 36,
+    height: 36,
+    borderRadius: 50,
+    backgroundColor: "#3A3A3A",
+    justifyContent: "center",
+    alignItems: "center",
+    marginRight: 12,
+  },
+
+  avatarSmallImg: {
+    width: 36,
+    height: 36,
+    borderRadius: 50,
   },
 
   name: {
-    fontSize: 16,
+    fontSize: 15,
     fontWeight: "700",
-    marginBottom: 2,
+    color: "#333",
   },
+
   email: {
     fontSize: 13,
-    color: "#555",
-    marginBottom: 12,
-    paddingVertical: 10,
+    color: "#666",
+    marginTop: 2,
   },
+
   dropdownButton: {
     flexDirection: "row",
     alignItems: "center",
-    paddingVertical: 10,
-    borderRadius: 6,
-    marginBottom: 4,
-    borderTopWidth: 0.5,
-    borderColor: "#c8c8c8",
+    paddingVertical: 12,
+    borderRadius: 8,
+    marginTop: 4,
   },
+
   dropdownButtonText: {
-    fontWeight: "600",
+    marginLeft: 10,
     fontSize: 15,
-    marginLeft: 8,
-    color: "#000",
-  },
-  icon: {
-    opacity: 0.75,
+    fontWeight: "500",
+    color: "#333",
   },
 });
+
+const x = {
+  today: [],
+  yesterday: [],
+  previous_7_days: [],
+  previous_30_days: [
+    {
+      id: "0f90ce01-182b-48d9-97b3-85e1e0399bcd",
+      created_at: "2025-10-29T10:57:07.142000",
+      type: "ask",
+      title: "Contract Drafting Request",
+      messaging_disabled: false,
+      is_shared: true,
+      google_doc_id: null,
+    },
+    {
+      id: "da2f4991-b3e2-496c-bb08-994de73cd4cf",
+      created_at: "2025-10-29T11:08:19.124000",
+      type: "ask",
+      title: "IP Protection Advice",
+      messaging_disabled: false,
+      is_shared: true,
+      google_doc_id: null,
+    },
+    {
+      id: "dd7f8bfb-2f78-4f13-b8f8-8efb417f1bbb",
+      created_at: "2025-10-29T11:03:05.428000",
+      type: "ask",
+      title: "Company Formation Advice",
+      messaging_disabled: false,
+      is_shared: true,
+      google_doc_id: null,
+    },
+  ],
+  older: [
+    {
+      id: "6e03ec8f-7572-498b-abf7-60f55bc2afbb",
+      created_at: "2025-09-24T06:56:37.396000",
+      type: "draft",
+      title: "Drafting Customer Contract",
+      messaging_disabled: false,
+      is_shared: false,
+      google_doc_id: "1FW4xNKRYrvGzeKKm5jeif7N60po6pKAUms8Vv_bUSp0",
+    },
+  ],
+};

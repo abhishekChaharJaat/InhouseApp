@@ -22,16 +22,9 @@ export default function Signin() {
   const router = useRouter();
   const dispatch = useDispatch();
   const isSigningIn = useSelector((state: any) => state.auth.isSigningIn);
-  const signInError = useSelector((state: any) => state.auth.signInError);
 
   const [emailAddress, setEmailAddress] = React.useState("");
   const [password, setPassword] = React.useState("");
-
-  React.useEffect(() => {
-    if (signInError) {
-      Alert.alert("Error", signInError);
-    }
-  }, [signInError]);
 
   const onSignInPress = async () => {
     if (!isLoaded || isSigningIn) return;
@@ -40,6 +33,8 @@ export default function Signin() {
     );
     if (result.meta?.requestStatus === "fulfilled") {
       router.replace("/screens/home/Home");
+    } else if (result.meta?.requestStatus === "rejected") {
+      Alert.alert("Error", result.payload || "Failed to sign in");
     }
   };
 

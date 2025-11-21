@@ -22,19 +22,12 @@ export default function Signup() {
   const router = useRouter();
   const dispatch = useDispatch();
   const isSigningUp = useSelector((state: any) => state.auth.isSigningUp);
-  const signUpError = useSelector((state: any) => state.auth.signUpError);
 
   const [firstName, setFirstName] = React.useState("");
   const [lastName, setLastName] = React.useState("");
   const [emailAddress, setEmailAddress] = React.useState("");
   const [password, setPassword] = React.useState("");
   const [showPassword, setShowPassword] = React.useState(false);
-
-  React.useEffect(() => {
-    if (signUpError) {
-      Alert.alert("Error", signUpError);
-    }
-  }, [signUpError]);
 
   const onSignUpPress = async () => {
     if (!isLoaded || isSigningUp) return;
@@ -50,6 +43,8 @@ export default function Signup() {
     );
     if (result.meta?.requestStatus === "fulfilled") {
       router.replace("/screens/home/Home");
+    } else if (result.meta?.requestStatus === "rejected") {
+      Alert.alert("Error", result.payload || "Failed to sign up");
     }
   };
 

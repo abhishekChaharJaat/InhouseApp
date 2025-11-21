@@ -7,12 +7,10 @@ import ContactHelp from "./screens/popups/ContactHelp";
 import { store } from "./store";
 
 export default function RootLayout() {
-  const CLERK_PUBLISHABLE_KEY =
-    "pk_test_ZW5nYWdpbmctc3BhbmllbC03Ny5jbGVyay5hY2NvdW50cy5kZXYk";
   return (
     <Provider store={store}>
       <ClerkProvider
-        publishableKey={CLERK_PUBLISHABLE_KEY}
+        publishableKey={process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY}
         tokenCache={tokenCache}
       >
         <ContactHelp />

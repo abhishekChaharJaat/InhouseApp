@@ -12,12 +12,19 @@ import {
 } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
 
+// 👇 proper icons
+import {
+  Ionicons,
+  MaterialCommunityIcons,
+  MaterialIcons,
+} from "@expo/vector-icons";
+
 const { width } = Dimensions.get("window");
 const DRAWER_WIDTH = Math.min(width * 0.8, 280);
 
 export default function SideNav() {
   const [animation] = useState(new Animated.Value(0));
-  const [showTaskMenu, setShowTaskMenu] = useState(false); // 👈 dropdown state
+  const [showTaskMenu, setShowTaskMenu] = useState(false);
 
   const dispatch = useDispatch();
   const showSidenav = useSelector((state: any) => state.home.showSidenav);
@@ -46,7 +53,16 @@ export default function SideNav() {
     dispatch(setShowSidenav(false));
     switch (type) {
       case "ask_inhouse_ai": {
+        setShowTaskMenu(false);
         navigate("/screens/home/Home");
+        break;
+      }
+      case "chat-history": {
+        navigate("/screens/history/ChatHistory");
+        break;
+      }
+      case "chat-page": {
+        navigate("/screens/chat/ChatPage");
         break;
       }
       case "contact_help": {
@@ -86,10 +102,16 @@ export default function SideNav() {
           >
             <View style={styles.primaryLeft}>
               <View style={styles.primaryIconCircle}>
-                <Text style={styles.primaryIconText}>＋</Text>
+                {/* plus icon */}
+                <Ionicons name="add" size={18} />
               </View>
               <Text style={styles.primaryText}>Start New Task</Text>
             </View>
+            {/* optional chevron icon */}
+            <Ionicons
+              name={showTaskMenu ? "chevron-up" : "chevron-down"}
+              size={18}
+            />
           </TouchableOpacity>
 
           {/* Dropdown under Start New Task */}
@@ -101,7 +123,12 @@ export default function SideNav() {
                   handleClick("ask_inhouse_ai");
                 }}
               >
-                <Text style={styles.taskMenuIcon}>💬</Text>
+                {/* Chat icon */}
+                <Ionicons
+                  name="chatbubble-ellipses-outline"
+                  size={20}
+                  style={styles.taskMenuIcon}
+                />
                 <Text style={styles.taskMenuText}>Ask Inhouse AI</Text>
               </TouchableOpacity>
 
@@ -113,7 +140,12 @@ export default function SideNav() {
                   // navigate("/screens/documents/DraftDocument");
                 }}
               >
-                <Text style={styles.taskMenuIcon}>📝</Text>
+                {/* Document icon */}
+                <MaterialIcons
+                  name="description"
+                  size={20}
+                  style={styles.taskMenuIcon}
+                />
                 <Text style={styles.taskMenuText}>Draft Legal Document</Text>
               </TouchableOpacity>
             </View>
@@ -122,20 +154,27 @@ export default function SideNav() {
           {/* Main menu items */}
           <View style={styles.menuSection}>
             <TouchableOpacity style={styles.menuItem} onPress={() => {}}>
-              <Text style={styles.menuIcon}>📁</Text>
+              {/* Folder icon */}
+              <MaterialIcons name="folder" size={20} style={styles.menuIcon} />
               <Text style={styles.menuText}>Document Library</Text>
             </TouchableOpacity>
 
             <TouchableOpacity
               style={styles.menuItem}
-              onPress={() => {
-                navigate("/screens/chat/ChatPage");
-                dispatch(setShowSidenav(false));
-                setShowTaskMenu(false);
-              }}
+              onPress={() => handleClick("chat-history")}
             >
-              <Text style={styles.menuIcon}>↺</Text>
+              {/* History icon */}
+              <MaterialIcons name="history" size={20} style={styles.menuIcon} />
               <Text style={styles.menuText}>Chat History</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.menuItem}
+              onPress={() => handleClick("chat-page")}
+            >
+              {/* History icon */}
+              <MaterialIcons name="history" size={20} style={styles.menuIcon} />
+              <Text style={styles.menuText}>Chat Page</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -143,7 +182,12 @@ export default function SideNav() {
         {/* Bottom actions */}
         <View style={styles.bottomSection}>
           <TouchableOpacity style={styles.menuItem} onPress={() => {}}>
-            <Text style={styles.menuIcon}>💼</Text>
+            {/* Briefcase icon */}
+            <MaterialCommunityIcons
+              name="briefcase-outline"
+              size={20}
+              style={styles.menuIcon}
+            />
             <Text style={[styles.menuText, styles.linkText]}>
               Contact Lawyer
             </Text>
@@ -155,7 +199,12 @@ export default function SideNav() {
               handleClick("contact_help");
             }}
           >
-            <Text style={styles.menuIcon}>❓</Text>
+            {/* Help / question icon */}
+            <Ionicons
+              name="help-circle-outline"
+              size={20}
+              style={styles.menuIcon}
+            />
             <Text style={[styles.menuText, styles.linkText]}>Contact Help</Text>
           </TouchableOpacity>
         </View>
@@ -200,7 +249,7 @@ const styles = StyleSheet.create({
 
   drawerOverlay: {
     ...StyleSheet.absoluteFillObject,
-    zIndex: 1, // sits above rest of drawer, but below dropdown
+    zIndex: 1,
   },
 
   // Header
@@ -248,16 +297,9 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     marginRight: 10,
   },
-  primaryIconText: {
-    fontSize: 16,
-  },
   primaryText: {
     fontSize: 16,
     fontWeight: "500",
-  },
-  chevron: {
-    fontSize: 18,
-    marginLeft: 8,
   },
 
   // dropdown styles
