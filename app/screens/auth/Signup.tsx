@@ -1,7 +1,9 @@
+import CustomSafeAreaView from "@/app/components/CustomSafeAreaView";
 import { useSignUp } from "@clerk/clerk-expo";
 import { useRouter } from "expo-router";
 import React from "react";
 import {
+  ActivityIndicator,
   Alert,
   KeyboardAvoidingView,
   Platform,
@@ -12,10 +14,15 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { useDispatch, useSelector } from "react-redux";
+import { signUpUser } from "../../store/authSlice";
 
 export default function Signup() {
   const { signUp, isLoaded, setActive } = useSignUp();
   const router = useRouter();
+  const dispatch = useDispatch();
+  const isSigningUp = useSelector((state: any) => state.auth.isSigningUp);
+  const signUpError = useSelector((state: any) => state.auth.signUpError);
 
   const [firstName, setFirstName] = React.useState("");
   const [lastName, setLastName] = React.useState("");
@@ -23,180 +30,208 @@ export default function Signup() {
   const [password, setPassword] = React.useState("");
   const [showPassword, setShowPassword] = React.useState(false);
 
-  const onSignUpPress = async () => {
-    if (!isLoaded) return;
+  React.useEffect(() => {
+    if (signUpError) {
+      Alert.alert("Error", signUpError);
+    }
+  }, [signUpError]);
 
-    try {
-      const signUpAttempt = await signUp.create({
+  const onSignUpPress = async () => {
+    if (!isLoaded || isSigningUp) return;
+    const result = await (dispatch as any)(
+      signUpUser({
+        signUp,
+        setActive,
         firstName,
         lastName,
         emailAddress,
         password,
-      });
-
-      if (signUpAttempt.status === "complete") {
-        await setActive({ session: signUpAttempt.createdSessionId });
-        router.replace("/screens/home/Home");
-      } else {
-        console.error(JSON.stringify(signUpAttempt, null, 2));
-        Alert.alert("Signup incomplete", "Please check your details.");
-      }
-    } catch (err) {
-      console.error(JSON.stringify(err, null, 2));
-      Alert.alert("Error", "Failed to sign up. Please try again.");
+      })
+    );
+    if (result.meta?.requestStatus === "fulfilled") {
+      router.replace("/screens/home/Home");
     }
   };
 
   const onGooglePress = () => {
-    // TODO: wire this up with Clerk Google OAuth
     Alert.alert("Google sign-up", "Connect this to your Google OAuth flow.");
   };
 
   return (
-    <KeyboardAvoidingView
-      style={{ flex: 1, backgroundColor: "#ffffff" }}
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
-    >
-      <ScrollView
-        keyboardShouldPersistTaps="handled"
-        contentContainerStyle={styles.container}
+    <CustomSafeAreaView>
+      <KeyboardAvoidingView
+        style={{ flex: 1, backgroundColor: "#ffffff" }}
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
       >
-        <View style={styles.card}>
-          {/* Logo */}
-          <Text style={styles.logo}>inhouse</Text>
-
-          {/* Title */}
-          <Text style={styles.title}>Sign up to continue</Text>
-
-          {/* Google button */}
-          <TouchableOpacity
-            style={styles.googleButton}
-            activeOpacity={0.9}
-            onPress={onGooglePress}
-          >
-            <View style={styles.googleContent}>
-              {/* Placeholder G – replace with actual image if you have it */}
-              <View style={styles.googleIconCircle}>
-                <Text style={styles.googleIconText}>G</Text>
-              </View>
-              <Text style={styles.googleText}>Continue with Google</Text>
+        <ScrollView
+          keyboardShouldPersistTaps="handled"
+          contentContainerStyle={styles.container}
+        >
+          {/* Outer layout: logo top, form center, copyright bottom */}
+          <View style={styles.inner}>
+            {/* Top-left logo */}
+            <View style={styles.header}>
+              <Text style={styles.logo}>Inhouse</Text>
             </View>
-          </TouchableOpacity>
 
-          {/* Divider */}
-          <View style={styles.dividerRow}>
-            <View style={styles.dividerLine} />
-            <Text style={styles.dividerText}>or</Text>
-            <View style={styles.dividerLine} />
-          </View>
+            {/* Centered form card */}
+            <View style={styles.card}>
+              {/* Title */}
+              <Text style={styles.title}>Sign up to continue</Text>
 
-          {/* First name */}
-          <View style={styles.fieldGroup}>
-            <Text style={styles.fieldLabel}>First name</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="First name"
-              placeholderTextColor="#9CA3AF"
-              value={firstName}
-              onChangeText={setFirstName}
-            />
-          </View>
-
-          {/* Last name */}
-          <View style={styles.fieldGroup}>
-            <Text style={styles.fieldLabel}>Last name</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="Last name"
-              placeholderTextColor="#9CA3AF"
-              value={lastName}
-              onChangeText={setLastName}
-            />
-          </View>
-
-          {/* Email */}
-          <View style={styles.fieldGroup}>
-            <Text style={styles.fieldLabel}>Email address</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="Enter your email address"
-              placeholderTextColor="#9CA3AF"
-              autoCapitalize="none"
-              keyboardType="email-address"
-              value={emailAddress}
-              onChangeText={setEmailAddress}
-            />
-          </View>
-
-          {/* Password with simple eye toggle */}
-          <View style={styles.fieldGroup}>
-            <Text style={styles.fieldLabel}>Password</Text>
-            <View style={styles.passwordWrapper}>
-              <TextInput
-                style={[styles.input, styles.passwordInput]}
-                placeholder="Enter your password"
-                placeholderTextColor="#9CA3AF"
-                secureTextEntry={!showPassword}
-                value={password}
-                onChangeText={setPassword}
-              />
+              {/* Google button */}
               <TouchableOpacity
-                style={styles.eyeButton}
-                onPress={() => setShowPassword((prev) => !prev)}
-                activeOpacity={0.7}
+                style={styles.googleButton}
+                activeOpacity={0.9}
+                onPress={onGooglePress}
               >
-                <Text style={styles.eyeText}>{showPassword ? "🙈" : "👁"}</Text>
+                <View style={styles.googleContent}>
+                  <View style={styles.googleIconCircle}>
+                    <Text style={styles.googleIconText}>G</Text>
+                  </View>
+                  <Text style={styles.googleText}>Continue with Google</Text>
+                </View>
               </TouchableOpacity>
+
+              {/* Divider */}
+              <View style={styles.dividerRow}>
+                <View style={styles.dividerLine} />
+                <Text style={styles.dividerText}>or</Text>
+                <View style={styles.dividerLine} />
+              </View>
+
+              {/* First name */}
+              <View style={styles.fieldGroup}>
+                <Text style={styles.fieldLabel}>First name</Text>
+                <TextInput
+                  style={styles.input}
+                  placeholder="First name"
+                  placeholderTextColor="#9CA3AF"
+                  value={firstName}
+                  onChangeText={setFirstName}
+                />
+              </View>
+
+              {/* Last name */}
+              <View style={styles.fieldGroup}>
+                <Text style={styles.fieldLabel}>Last name</Text>
+                <TextInput
+                  style={styles.input}
+                  placeholder="Last name"
+                  placeholderTextColor="#9CA3AF"
+                  value={lastName}
+                  onChangeText={setLastName}
+                />
+              </View>
+
+              {/* Email */}
+              <View style={styles.fieldGroup}>
+                <Text style={styles.fieldLabel}>Email address</Text>
+                <TextInput
+                  style={styles.input}
+                  placeholder="Enter your email address"
+                  placeholderTextColor="#9CA3AF"
+                  autoCapitalize="none"
+                  keyboardType="email-address"
+                  value={emailAddress}
+                  onChangeText={setEmailAddress}
+                />
+              </View>
+
+              {/* Password with eye toggle */}
+              <View style={styles.fieldGroup}>
+                <Text style={styles.fieldLabel}>Password</Text>
+                <View style={styles.passwordWrapper}>
+                  <TextInput
+                    style={[styles.input, styles.passwordInput]}
+                    placeholder="Enter your password"
+                    placeholderTextColor="#9CA3AF"
+                    secureTextEntry={!showPassword}
+                    value={password}
+                    onChangeText={setPassword}
+                  />
+                  <TouchableOpacity
+                    style={styles.eyeButton}
+                    onPress={() => setShowPassword((prev) => !prev)}
+                    activeOpacity={0.7}
+                  >
+                    <Text style={styles.eyeText}>
+                      {showPassword ? "🙈" : "👁"}
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+
+              {/* Continue button */}
+              <TouchableOpacity
+                style={[
+                  styles.primaryButton,
+                  isSigningUp && styles.primaryButtonDisabled,
+                ]}
+                activeOpacity={0.9}
+                onPress={onSignUpPress}
+                disabled={isSigningUp}
+              >
+                {isSigningUp ? (
+                  <ActivityIndicator color="#ffffff" />
+                ) : (
+                  <Text style={styles.primaryButtonText}>
+                    Continue <Text style={styles.primaryButtonArrow}>▸</Text>
+                  </Text>
+                )}
+              </TouchableOpacity>
+
+              {/* Footer */}
+              <View style={styles.footer}>
+                <Text style={styles.footerText}>Already have an account?</Text>
+                <TouchableOpacity
+                  onPress={() => router.push("/screens/auth/Signin")}
+                >
+                  <Text style={styles.footerLink}> Sign in</Text>
+                </TouchableOpacity>
+              </View>
             </View>
-          </View>
 
-          {/* Continue button */}
-          <TouchableOpacity
-            style={styles.primaryButton}
-            activeOpacity={0.9}
-            onPress={onSignUpPress}
-          >
-            <Text style={styles.primaryButtonText}>
-              Continue <Text style={styles.primaryButtonArrow}>▸</Text>
+            {/* Bottom copyright */}
+            <Text style={styles.copyright}>
+              © 2025 Inhouse. All Rights Reserved
             </Text>
-          </TouchableOpacity>
-
-          {/* Footer */}
-          <View style={styles.footer}>
-            <Text style={styles.footerText}>Already have an account?</Text>
-            <TouchableOpacity
-              onPress={() => router.push("/screens/auth/Signin")}
-            >
-              <Text style={styles.footerLink}> Sign in</Text>
-            </TouchableOpacity>
           </View>
-        </View>
-      </ScrollView>
-    </KeyboardAvoidingView>
+        </ScrollView>
+      </KeyboardAvoidingView>
+    </CustomSafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flexGrow: 1,
-    justifyContent: "center",
-    paddingVertical: 40,
     paddingHorizontal: 24,
     backgroundColor: "#ffffff",
   },
+  inner: {
+    flex: 1,
+    justifyContent: "space-between", // header top, form middle, copyright bottom
+  },
+
+  // Header / logo
+  header: {
+    marginBottom: 24,
+  },
+  logo: {
+    fontSize: 26,
+    fontWeight: "700",
+    color: "#111827",
+    textAlign: "left", // top-left
+  },
+
+  // Card (form)
   card: {
     width: "100%",
     maxWidth: 360,
     alignSelf: "center",
   },
 
-  // Header
-  logo: {
-    fontSize: 26,
-    fontWeight: "700",
-    marginBottom: 24,
-    color: "#111827",
-  },
   title: {
     fontSize: 22,
     fontWeight: "700",
@@ -307,6 +342,9 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
+  primaryButtonDisabled: {
+    opacity: 0.7,
+  },
   primaryButtonText: {
     color: "#ffffff",
     fontSize: 16,
@@ -330,5 +368,13 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: "#1F6FEB",
     fontWeight: "600",
+  },
+
+  // Copyright bottom text
+  copyright: {
+    textAlign: "center",
+    fontSize: 12,
+    color: "#9CA3AF",
+    marginTop: 32,
   },
 });
