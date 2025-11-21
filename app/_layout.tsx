@@ -1,24 +1,26 @@
-import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
-import { Stack } from 'expo-router';
-import { StatusBar } from 'expo-status-bar';
-import 'react-native-reanimated';
-
-import { useColorScheme } from '@/hooks/use-color-scheme';
-
-export const unstable_settings = {
-  anchor: '(tabs)',
-};
+import { ClerkProvider } from "@clerk/clerk-expo";
+import { tokenCache } from "@clerk/clerk-expo/token-cache";
+import { Stack } from "expo-router";
+import { Provider } from "react-redux";
+import SideNav from "./screens/navs/Sidenav";
+import { store } from "./store";
 
 export default function RootLayout() {
-  const colorScheme = useColorScheme();
-
+  const CLERK_PUBLISHABLE_KEY =
+    "pk_test_ZW5nYWdpbmctc3BhbmllbC03Ny5jbGVyay5hY2NvdW50cy5kZXYk";
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Modal' }} />
-      </Stack>
-      <StatusBar style="auto" />
-    </ThemeProvider>
+    <Provider store={store}>
+      <ClerkProvider
+        publishableKey={CLERK_PUBLISHABLE_KEY}
+        tokenCache={tokenCache}
+      >
+        <SideNav />
+        <Stack
+          screenOptions={{
+            headerShown: false,
+          }}
+        />
+      </ClerkProvider>
+    </Provider>
   );
 }
