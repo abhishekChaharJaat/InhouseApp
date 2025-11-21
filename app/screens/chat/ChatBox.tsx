@@ -72,8 +72,8 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   input: {
-    minHeight: 40,
-    maxHeight: 120, // 👈 ~6 lines
+    minHeight: 60,
+    maxHeight: 120,
     fontSize: 15,
     color: "#111827",
     textAlignVertical: "top", // 👈 for proper multiline alignment

@@ -1,4 +1,4 @@
-import { setShowSidenav } from "@/app/store/homeSlice";
+import { setShowContactHelp, setShowSidenav } from "@/app/store/homeSlice";
 import { navigate } from "expo-router/build/global-state/routing";
 import React, { useEffect, useState } from "react";
 import {
@@ -43,10 +43,14 @@ export default function SideNav() {
   };
 
   const handleClick = (type: any) => {
+    dispatch(setShowSidenav(false));
     switch (type) {
       case "ask_inhouse_ai": {
-        dispatch(setShowSidenav(false));
         navigate("/screens/home/Home");
+        break;
+      }
+      case "contact_help": {
+        dispatch(setShowContactHelp(true));
         break;
       }
     }
@@ -69,7 +73,7 @@ export default function SideNav() {
 
         {/* Header */}
         <View style={styles.header}>
-          <Text style={styles.logoText}>inhouse</Text>
+          <Text style={styles.logoText}>Inhouse</Text>
         </View>
 
         {/* Content */}
@@ -145,7 +149,12 @@ export default function SideNav() {
             </Text>
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.menuItem} onPress={() => {}}>
+          <TouchableOpacity
+            style={styles.menuItem}
+            onPress={() => {
+              handleClick("contact_help");
+            }}
+          >
             <Text style={styles.menuIcon}>❓</Text>
             <Text style={[styles.menuText, styles.linkText]}>Contact Help</Text>
           </TouchableOpacity>
@@ -170,7 +179,7 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-    backgroundColor: "rgba(0,0,0,0.4)",
+    backgroundColor: "rgba(0,0,0,0.5)",
   },
   drawer: {
     position: "absolute",
@@ -181,8 +190,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#ffffff",
     paddingLeft: 10,
     paddingRight: 20,
-    paddingTop: 60,
-    paddingBottom: 24,
+    paddingVertical: 60,
     elevation: 6,
     shadowColor: "#000",
     shadowOpacity: 0.08,
@@ -201,6 +209,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-between",
     marginBottom: 32,
+    marginHorizontal: 10,
     zIndex: 2,
   },
   logoText: {
