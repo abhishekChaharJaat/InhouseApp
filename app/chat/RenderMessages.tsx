@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import Markdown from "react-native-markdown-display";
 import AttachmentsCard from "./components/AttachmentsCard";
+import LockedDocument from "./components/LockedDocument";
 import QuickActions from "./components/QuickActions";
 import UnlockedDocument from "./components/UnlockedDocument";
 
@@ -73,10 +74,12 @@ export default function RenderMessages({ message, threadId }: any) {
   }
 
   // ----- DOCUMENT GENERATED → use UnlockedDocument -----
-  if (
-    messageType === "locked_document_generated" ||
-    messageType === "document_generated"
-  ) {
+  if (messageType === "locked_document_generated") {
+    return <LockedDocument message={message} />;
+  }
+
+  // ----- DOCUMENT GENERATED → use UnlockedDocument -----
+  if (messageType === "document_generated") {
     return <UnlockedDocument message={message} />;
   }
 
@@ -112,7 +115,6 @@ export default function RenderMessages({ message, threadId }: any) {
 const styles = StyleSheet.create({
   wrapper: {
     marginVertical: 6,
-    paddingHorizontal: 16,
     alignItems: "flex-start",
   },
 
@@ -150,7 +152,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     alignItems: "center",
   },
-  infoText: { fontSize: 12, color: "#353535" },
+  infoText: { fontSize: 16, color: "#353535" },
 
   legalBox: {
     flexDirection: "row",
@@ -159,7 +161,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     alignItems: "center",
   },
-  legalText: { fontSize: 13, color: "#000" },
+  legalText: { fontSize: 14, color: "#000" },
 
   jsonDump: { fontSize: 10, color: "#444" },
 
