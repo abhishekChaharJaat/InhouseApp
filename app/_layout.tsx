@@ -10,6 +10,7 @@ import SideNav from "./components/navs/Sidenav";
 import ContactHelp from "./components/popups/ContactHelp";
 import SinglePlanModal from "./modals/signle-plan-modal";
 import { token } from "./data";
+import { WebSocketProvider } from "./providers/WebSocketProvider";
 function AppContent() {
   const { getToken, isSignedIn } = useAuth();
   const dispatch = useDispatch<AppDispatch>();
@@ -45,7 +46,7 @@ function AppContent() {
   }, [isSignedIn]);
 
   return (
-    <>
+    <WebSocketProvider>
       <ContactHelp />
       <SideNav />
       <SinglePlanModal />
@@ -54,7 +55,7 @@ function AppContent() {
           headerShown: false,
         }}
       />
-    </>
+    </WebSocketProvider>
   );
 }
 

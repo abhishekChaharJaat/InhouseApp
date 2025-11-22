@@ -14,17 +14,20 @@ export default function ChatBox({
   onSend,
   onAttach,
   placeholder = "Review a lease for...",
+  disabled = false,
 }: any) {
+  const isDisabled = disabled || value.trim().length === 0;
   return (
     <View style={styles.wrapper}>
-      <View style={styles.card}>
+      <View style={[styles.card, disabled && styles.cardDisabled]}>
         <TextInput
-          style={styles.input}
+          style={[styles.input, disabled && styles.inputDisabled]}
           value={value}
           onChangeText={onChangeText}
           placeholder={placeholder}
           placeholderTextColor="#9CA3AF"
           multiline
+          editable={!disabled}
         />
 
         <View style={styles.actionsRow}>
@@ -33,8 +36,13 @@ export default function ChatBox({
             onPress={onAttach}
             style={styles.circleButtonOutline}
             activeOpacity={0.8}
+            disabled={disabled}
           >
-            <Feather name="paperclip" size={18} color="#4B5563" />
+            <Feather
+              name="paperclip"
+              size={18}
+              color={disabled ? "#D1D5DB" : "#4B5563"}
+            />
           </TouchableOpacity>
 
           {/* Spacer pushes send icon to the right */}
@@ -42,8 +50,13 @@ export default function ChatBox({
 
           <TouchableOpacity
             onPress={onSend}
-            style={styles.circleButtonSolid}
+            style={
+              isDisabled
+                ? styles.circleButtonDisabled
+                : styles.circleButtonSolid
+            }
             activeOpacity={0.8}
+            disabled={disabled}
           >
             <Text style={styles.sendIcon}>↑</Text>
           </TouchableOpacity>
@@ -71,12 +84,20 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 4 },
     elevation: 3,
   },
+  cardDisabled: {
+    backgroundColor: "#F9FAFB",
+    borderColor: "#E5E7EB",
+    opacity: 0.9,
+  },
   input: {
     minHeight: 60,
     maxHeight: 120,
     fontSize: 15,
     color: "#111827",
     textAlignVertical: "top", // 👈 for proper multiline alignment
+  },
+  inputDisabled: {
+    color: "#9CA3AF",
   },
 
   actionsRow: {
@@ -98,9 +119,17 @@ const styles = StyleSheet.create({
     width: 36,
     height: 36,
     borderRadius: 18,
-    backgroundColor: "#7C7F84",
+    backgroundColor: "#1b2b48",
     alignItems: "center",
     justifyContent: "center",
+  },
+  circleButtonDisabled: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "#D1D5DB",
   },
   sendIcon: {
     fontSize: 18,

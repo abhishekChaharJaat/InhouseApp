@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, memo } from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import Markdown from "react-native-markdown-display";
 import AttachmentsCard from "./components/AttachmentsCard";
@@ -7,7 +7,7 @@ import LockedDocument from "./components/LockedDocument";
 import QuickActions from "./components/QuickActions";
 import UnlockedDocument from "./components/UnlockedDocument";
 
-export default function RenderMessages({ message, threadId }: any) {
+function RenderMessages({ message, threadId }: any) {
   const [expanded, setExpanded] = useState(false);
 
   const messageText =
@@ -179,6 +179,13 @@ const styles = StyleSheet.create({
     fontWeight: "500",
     color: "#3F65A9",
   },
+});
+
+// Export memoized version for performance
+export default memo(RenderMessages, (prevProps, nextProps) => {
+  // Only re-render if message ID or threadId changes
+  return prevProps.message?.id === nextProps.message?.id &&
+         prevProps.threadId === nextProps.threadId;
 });
 
 const markdownStyles = {

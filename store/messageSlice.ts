@@ -15,6 +15,21 @@ const initialState = {
   },
   loadingMessages: false,
   error: null as any,
+  // WebSocket related state
+  connectionStatus: "disconnected" as
+    | "connected"
+    | "connecting"
+    | "disconnected"
+    | "error",
+  awaitingResponse: false,
+  requestIds: [] as string[],
+  chatInputMessage: "",
+  isWsReconnected: false,
+  showConnectionErrorModal: false,
+  retryWS: false,
+  retryWSState: "idle" as "idle" | "retrying",
+  threadLastMsgType: "",
+  shouldRedirectToChat: false,
 };
 
 export const fetchThreadMessages = createAsyncThunk(
@@ -44,6 +59,74 @@ const messageSlice = createSlice({
   reducers: {
     clearError: (state) => {
       state.error = null;
+    },
+    // WebSocket connection management
+    setConnectionStatus: (state, action) => {
+      state.connectionStatus = action.payload;
+    },
+    setAwaitingResponse: (state, action) => {
+      state.awaitingResponse = action.payload;
+    },
+    setMessagingDisabled: (state, action) => {
+      state.threadData.messaging_disabled = action.payload;
+    },
+    // Message management
+    addMessage: (state, action) => {
+      const newMessages = action.payload.new_messages || [];
+      state.threadData.messages = [
+        ...state.threadData.messages,
+        ...newMessages,
+      ];
+    },
+    setChatInputMessage: (state, action) => {
+      state.chatInputMessage = action.payload;
+    },
+    // Thread management
+    setupNewThread: (state, action) => {
+      const { threadId, new_messages = [] } = action.payload;
+      state.threadData.id = threadId;
+      state.threadData.messages = new_messages;
+      state.shouldRedirectToChat = true; // Set flag to redirect
+    },
+    clearRedirectFlag: (state) => {
+      state.shouldRedirectToChat = false;
+    },
+    updateThreadDataTitle: (state, action) => {
+      if (action.payload.thread_id === state.threadData.id) {
+        state.threadData.title = action.payload.title;
+      }
+    },
+    // Request tracking
+    addRequestIds: (state, action) => {
+      state.requestIds.push(action.payload);
+    },
+    // Connection error handling
+    setShowConnectionErrorModal: (state, action) => {
+      state.showConnectionErrorModal = action.payload;
+    },
+    setRetryWS: (state, action) => {
+      state.retryWS = action.payload;
+    },
+    setRetryWSState: (state, action) => {
+      state.retryWSState = action.payload;
+    },
+    setIsWsReconnected: (state, action) => {
+      state.isWsReconnected = action.payload;
+    },
+    setThreadLastMsgType: (state, action) => {
+      state.threadLastMsgType = action.payload;
+    },
+    resetThreadData: (state) => {
+      state.threadData = {
+        id: null,
+        title: "",
+        messages: [],
+        message_feedback: {},
+        messaging_disabled: false,
+        reference_thread_id: null,
+        document_rating: {},
+      };
+      state.threadLastMsgType = "";
     },
   },
   extraReducers: (builder) => {
@@ -81,5 +164,22 @@ const messageSlice = createSlice({
   },
 });
 
-export const { clearError } = messageSlice.actions;
+export const {
+  clearError,
+  setConnectionStatus,
+  setAwaitingResponse,
+  setMessagingDisabled,
+  addMessage,
+  setChatInputMessage,
+  setupNewThread,
+  clearRedirectFlag,
+  updateThreadDataTitle,
+  addRequestIds,
+  setShowConnectionErrorModal,
+  setRetryWS,
+  setRetryWSState,
+  setIsWsReconnected,
+  setThreadLastMsgType,
+  resetThreadData,
+} = messageSlice.actions;
 export default messageSlice.reducer;
