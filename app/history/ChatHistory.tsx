@@ -13,8 +13,8 @@ import CustomSafeAreaView from "@/app/components/CustomSafeAreaView";
 import { history } from "@/app/data";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
-import Topnav from "../components/navs/Topnav";
 import { formatDateTime } from "../helpers";
+import Topnav from "../navs/Topnav";
 
 const ChatHistory = () => {
   const [query, setQuery] = useState("");

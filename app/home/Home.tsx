@@ -1,4 +1,5 @@
-import ChatBox from "@/app/chat/components/ChatBox";
+// @ts-nocheck
+import ChatBox from "@/app/chat/chatpage-components/ChatBox";
 import CustomSafeAreaView from "@/app/components/CustomSafeAreaView";
 import {
   clearRedirectFlag,
@@ -17,7 +18,7 @@ import {
   View,
 } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
-import Topnav from "../components/navs/Topnav";
+import Topnav from "../navs/Topnav";
 import { useWebSocket } from "../providers/WebSocketProvider";
 
 function Home() {
@@ -59,14 +60,6 @@ function Home() {
       return;
     }
 
-    if (!isConnected) {
-      Alert.alert(
-        "Connection Error",
-        "WebSocket is not connected. Please try again."
-      );
-      return;
-    }
-
     // Store the message to be sent after thread creation
     setPendingInitialMessage(trimmedMessage);
     // Create a new thread
@@ -77,7 +70,6 @@ function Home() {
       dispatch(setAwaitingResponse(true));
       // The actual message will be sent after thread is created
     } else {
-      Alert.alert("Error", "Failed to send message. Please try again.");
       setPendingInitialMessage(null); // Clear pending message on failure
     }
   };

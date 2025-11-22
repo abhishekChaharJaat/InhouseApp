@@ -6,10 +6,10 @@ import { AppState } from "react-native";
 import { Provider, useDispatch } from "react-redux";
 import { AppDispatch, store } from "../store";
 import { getUserMetadata } from "../store/onboardingSlice";
-import SideNav from "./components/navs/Sidenav";
-import ContactHelp from "./components/popups/ContactHelp";
-import SinglePlanModal from "./modals/signle-plan-modal";
+import ContactHelp from "./modals/ContactHelp";
 import { token } from "./data";
+import SinglePlanModal from "./modals/signle-plan-modal";
+import SideNav from "./navs/Sidenav";
 import { WebSocketProvider } from "./providers/WebSocketProvider";
 function AppContent() {
   const { getToken, isSignedIn } = useAuth();

@@ -3,7 +3,7 @@ import { useRouter } from "expo-router";
 import React from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { useDispatch } from "react-redux";
-import { setShowSidenav } from "../../../store/homeSlice";
+import { setShowSidenav } from "../../store/homeSlice";
 import { UserProfile } from "./UserProfile";
 
 export default function Topnav({ page, title }: any) {
