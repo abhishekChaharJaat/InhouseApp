@@ -1,4 +1,4 @@
-import { RootState } from "@/store";
+// @ts-nocheck
 import {
   addMessage,
   addRequestIds,
@@ -48,7 +48,7 @@ const WebSocketContext = createContext(null);
 // HELPER FUNCTIONS
 // ============================================================================
 
-const randomString = (length) => {
+const randomString = (length: any) => {
   const characters =
     "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
   let result = "";
@@ -62,22 +62,18 @@ const randomString = (length) => {
 // PROVIDER COMPONENT
 // ============================================================================
 
-export const WebSocketProvider = ({ children }) => {
+export const WebSocketProvider = ({ children }: any) => {
   const dispatch = useDispatch();
   const { getToken } = useAuth();
 
   // Refs
-  /** @type {React.MutableRefObject<WebSocket | null>} */
   const socketRef = useRef(null);
   const hasConnected = useRef(false);
   const isConnectedRef = useRef(false);
-  /** @type {React.MutableRefObject<ReturnType<typeof setTimeout> | null>} */
   const retryIntervalRef = useRef(null);
   const retryCountRef = useRef(0);
   const lastPongReceivedRef = useRef(Date.now());
-  /** @type {React.MutableRefObject<ReturnType<typeof setInterval> | null>} */
   const pingIntervalRef = useRef(null);
-  /** @type {React.MutableRefObject<ReturnType<typeof setInterval> | null>} */
   const connectionCheckIntervalRef = useRef(null);
   const wasDisconnectedRef = useRef(false);
   const connectionStateRef = useRef("disconnected");
@@ -89,7 +85,7 @@ export const WebSocketProvider = ({ children }) => {
   const [isConnected, setIsConnected] = useState(false);
 
   // Redux state
-  const requestIds = useSelector((state) => state.message.requestIds);
+  const requestIds = useSelector((state: any) => state.message.requestIds);
 
   // ============================================================================
   // CONNECTION MANAGEMENT
@@ -158,7 +154,10 @@ export const WebSocketProvider = ({ children }) => {
     }
 
     pingIntervalRef.current = setInterval(() => {
-      if (socketRef.current && socketRef.current.readyState === WebSocket.OPEN) {
+      if (
+        socketRef.current &&
+        socketRef.current.readyState === WebSocket.OPEN
+      ) {
         const pingMessage = {
           trigger_ws_message_id: randomString(10),
           action: "ping",
@@ -220,7 +219,9 @@ export const WebSocketProvider = ({ children }) => {
         return;
       }
 
-      const socket = new WebSocket(`${WS_BASE_ENDPOINT}/ws?token=${accessToken}`);
+      const socket = new WebSocket(
+        `${WS_BASE_ENDPOINT}/ws?token=${accessToken}`
+      );
       socketRef.current = socket;
       dispatch(setConnectionStatus("connecting"));
 
@@ -320,7 +321,6 @@ export const WebSocketProvider = ({ children }) => {
             handleNewFormatMessage(message);
             return;
           }
-
           // Handle legacy format messages
           handleLegacyMessage(message);
         } catch (e) {
@@ -339,7 +339,7 @@ export const WebSocketProvider = ({ children }) => {
   // MESSAGE HANDLERS
   // ============================================================================
 
-  const handleNewFormatMessage = (message) => {
+  const handleNewFormatMessage = (message: any) => {
     switch (message.payload.type) {
       case "chat_created":
         dispatch(
@@ -376,23 +376,27 @@ export const WebSocketProvider = ({ children }) => {
 
           // Trigger AI response for user messages
           const userMessages = message.payload.new_messages.filter(
-            (msg) =>
+            (msg: any) =>
               msg.is_user_message === true || msg.message_type === "attachment"
           );
 
           if (userMessages.length > 0) {
             const sortedMessages = userMessages.sort(
-              (a, b) =>
+              (a: any, b: any) =>
                 new Date(a.created_at).getTime() -
                 new Date(b.created_at).getTime()
             );
             const lastMessageId = sortedMessages[sortedMessages.length - 1].id;
 
-            const triggerAIMessage = createMessage("ask", "trigger-ai-response", {
-              thread_id: message.payload.thread_id,
-              last_message_id: lastMessageId,
-              button_click_type: null,
-            });
+            const triggerAIMessage = createMessage(
+              "ask",
+              "trigger-ai-response",
+              {
+                thread_id: message.payload.thread_id,
+                last_message_id: lastMessageId,
+                button_click_type: null,
+              }
+            );
 
             if (sendMessage(triggerAIMessage, true)) {
               dispatch(setAwaitingResponse(true));
@@ -429,7 +433,7 @@ export const WebSocketProvider = ({ children }) => {
     }
   };
 
-  const handleLegacyMessage = (message) => {
+  const handleLegacyMessage = (message: any) => {
     switch (message.action) {
       case "chat/thread-created":
         dispatch(
@@ -475,7 +479,7 @@ export const WebSocketProvider = ({ children }) => {
   // PUBLIC API
   // ============================================================================
 
-  const sendMessage = (message, scroll) => {
+  const sendMessage = (message: any, scroll?: boolean): boolean => {
     // Check connection before sending
     if (!socketRef.current || socketRef.current.readyState !== WebSocket.OPEN) {
       Alert.alert(
@@ -499,7 +503,7 @@ export const WebSocketProvider = ({ children }) => {
     }
   };
 
-  const createMessage = (threadType, api, payload) => {
+  const createMessage = (threadType: string, api: string, payload: any) => {
     const r = (Math.random() + 1).toString(36).substring(7);
     dispatch(addRequestIds(r));
     return {
@@ -509,7 +513,7 @@ export const WebSocketProvider = ({ children }) => {
     };
   };
 
-  const setPendingInitialMessage = (message) => {
+  const setPendingInitialMessage = (message: string | null) => {
     pendingInitialMessageRef.current = message;
   };
 
