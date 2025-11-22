@@ -1,4 +1,4 @@
-import { setShowContactHelp } from "@/app/store/homeSlice";
+import { setShowContactHelp } from "@/store/homeSlice";
 import React from "react";
 import {
   Linking,

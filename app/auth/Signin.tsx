@@ -1,4 +1,5 @@
 import CustomSafeAreaView from "@/app/components/CustomSafeAreaView";
+import { signInUser } from "@/store/authSlice";
 import { useSignIn } from "@clerk/clerk-expo";
 import { useRouter } from "expo-router";
 import React from "react";
@@ -15,7 +16,6 @@ import {
   View,
 } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
-import { signInUser } from "../../store/authSlice";
 
 export default function Signin() {
   const { signIn, setActive, isLoaded } = useSignIn();
@@ -32,7 +32,7 @@ export default function Signin() {
       signInUser({ signIn, setActive, emailAddress, password })
     );
     if (result.meta?.requestStatus === "fulfilled") {
-      router.replace("/screens/home/Home");
+      router.replace("/home/Home");
     } else if (result.meta?.requestStatus === "rejected") {
       Alert.alert("Error", result.payload || "Failed to sign in");
     }
@@ -136,10 +136,8 @@ export default function Signin() {
 
               {/* Footer - sign up link */}
               <View style={styles.footer}>
-                <Text style={styles.footerText}>Don’t have an account?</Text>
-                <TouchableOpacity
-                  onPress={() => router.push("/screens/auth/Signup")}
-                >
+                <Text style={styles.footerText}>Don't have an account?</Text>
+                <TouchableOpacity onPress={() => router.push("/auth/Signup")}>
                   <Text style={styles.footerLink}> Sign up</Text>
                 </TouchableOpacity>
               </View>

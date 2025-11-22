@@ -13,23 +13,8 @@ import CustomSafeAreaView from "@/app/components/CustomSafeAreaView";
 import { history } from "@/app/data";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
-import Topnav from "../navs/Topnav";
-const formatDateTime = (value: any) => {
-  const d = new Date(value);
-
-  const date = d.toLocaleDateString(undefined, {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  });
-
-  const time = d.toLocaleTimeString(undefined, {
-    hour: "numeric",
-    minute: "2-digit",
-  });
-
-  return `on ${date} at ${time}`;
-};
+import Topnav from "../components/navs/Topnav";
+import { formatDateTime } from "../helpers";
 
 const ChatHistory = () => {
   const [query, setQuery] = useState("");
@@ -61,7 +46,6 @@ const ChatHistory = () => {
             item.title.toLowerCase().includes(q)
           );
         }
-
         // ensure newest first
         data = [...data].sort(
           (a: any, b: any) =>
@@ -83,7 +67,7 @@ const ChatHistory = () => {
       <TouchableOpacity
         style={styles.row}
         activeOpacity={0.7}
-        // onPress={() => router.push(`/chat/${item.id}`)}
+        onPress={() => router.push(`/chat/${item.id}` as any)}
       >
         <View style={styles.rowMain}>
           <View style={{ flexDirection: "row", alignItems: "center" }}>

@@ -1,4 +1,4 @@
-import { setShowContactHelp, setShowSidenav } from "@/app/store/homeSlice";
+import { setShowContactHelp, setShowSidenav } from "@/store/homeSlice";
 import { navigate } from "expo-router/build/global-state/routing";
 import React, { useEffect, useState } from "react";
 import {
@@ -54,15 +54,11 @@ export default function SideNav() {
     switch (type) {
       case "ask_inhouse_ai": {
         setShowTaskMenu(false);
-        navigate("/screens/home/Home");
+        navigate("/home/Home");
         break;
       }
       case "chat-history": {
-        navigate("/screens/history/ChatHistory");
-        break;
-      }
-      case "chat-page": {
-        navigate("/screens/chat/ChatPage");
+        navigate("/history/ChatHistory");
         break;
       }
       case "contact_help": {
@@ -137,7 +133,7 @@ export default function SideNav() {
                 onPress={() => {
                   setShowTaskMenu(false);
                   // TODO: navigate to draft screen
-                  // navigate("/screens/documents/DraftDocument");
+                  // navigate("/documents/DraftDocument");
                 }}
               >
                 {/* Document icon */}
@@ -166,15 +162,6 @@ export default function SideNav() {
               {/* History icon */}
               <MaterialIcons name="history" size={20} style={styles.menuIcon} />
               <Text style={styles.menuText}>Chat History</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={styles.menuItem}
-              onPress={() => handleClick("chat-page")}
-            >
-              {/* History icon */}
-              <MaterialIcons name="history" size={20} style={styles.menuIcon} />
-              <Text style={styles.menuText}>Chat Page</Text>
             </TouchableOpacity>
           </View>
         </View>

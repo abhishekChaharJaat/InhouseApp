@@ -13,7 +13,7 @@ import {
   View,
 } from "react-native";
 
-export const SignOutButton = () => {
+export const UserProfile = () => {
   const { signOut } = useClerk();
   const { user } = useUser();
   const router = useRouter();

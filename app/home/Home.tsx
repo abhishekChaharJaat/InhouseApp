@@ -1,3 +1,4 @@
+import ChatBox from "@/app/chat/ChatBox";
 import CustomSafeAreaView from "@/app/components/CustomSafeAreaView";
 import { useUser } from "@clerk/clerk-expo";
 import { useRouter } from "expo-router";
@@ -9,8 +10,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import ChatBox from "../chat/ChatBox";
-import Topnav from "../navs/Topnav";
+import Topnav from "../components/navs/Topnav";
 
 function Home() {
   const router = useRouter();

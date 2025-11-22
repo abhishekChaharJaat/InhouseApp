@@ -1,6 +1,6 @@
 import CustomSafeAreaView from "@/app/components/CustomSafeAreaView";
 import { token } from "@/app/data";
-import { fetchThreadMessages } from "@/app/store/messageSlice";
+import { fetchThreadMessages } from "@/store/messageSlice";
 import React, { useEffect, useRef } from "react";
 import {
   ActivityIndicator,
@@ -14,16 +14,15 @@ import {
   View,
 } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
-import ChatBox from "../chat/ChatBox";
-import Topnav from "../navs/Topnav";
+import ChatBox from "./ChatBox";
+import Topnav from "../components/navs/Topnav";
 import RenderMessages from "./RenderMessages";
-function ChatPage() {
+function ChatPage({ threadId }: any) {
   const threadData = useSelector((state: any) => state.message.threadData);
   const loadingMessages = useSelector(
     (state: any) => state.message.loadingMessages
   );
   const dispatch = useDispatch();
-  const threadId = "bead369a-683e-4875-b152-97975a84423a";
 
   const flatListRef = useRef<FlatList<any>>(null);
 
