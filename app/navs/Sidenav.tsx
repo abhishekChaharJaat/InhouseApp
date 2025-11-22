@@ -11,10 +11,8 @@ import {
   View,
 } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
-
 // 👇 proper icons
-import { PLANS } from "@/app/constants";
-import { showSinglePlanModal } from "@/app/helpers";
+import { handleLegalReviewButtonClicked } from "@/app/helpers";
 import {
   Ionicons,
   MaterialCommunityIcons,
@@ -30,7 +28,9 @@ export default function SideNav() {
 
   const dispatch = useDispatch();
   const showSidenav = useSelector((state: any) => state.home.showSidenav);
-
+  const userMetadata = useSelector(
+    (state: any) => state.onboarding.userMetadata
+  );
   useEffect(() => {
     Animated.timing(animation, {
       toValue: showSidenav ? 1 : 0,
@@ -67,8 +67,17 @@ export default function SideNav() {
         dispatch(setShowContactHelp(true));
         break;
       }
+      // {"eligible_offers": {"ai_document": null, "lawyer_consultation": "default", "lawyer_finalization": null}
       case "contact_lawyer": {
-        showSinglePlanModal(true, dispatch, PLANS.LAWYER_FINALLIZATION, "");
+        const btn = {
+          text: "Contact Lawyer",
+          eligible_offers: {
+            ai_document: null,
+            lawyer_consultation: "default",
+            lawyer_finalization: null,
+          },
+        };
+        handleLegalReviewButtonClicked(btn, dispatch, userMetadata, null);
         break;
       }
     }

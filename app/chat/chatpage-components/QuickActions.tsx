@@ -1,12 +1,17 @@
 // components/QuickActions.tsx
+import { handleLegalReviewButtonClicked } from "@/app/helpers";
 import { Ionicons } from "@expo/vector-icons";
 import React from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 
-const QuickActions = ({ message, onPressButton }: any) => {
+const QuickActions = ({ message }: any) => {
+  const dispatch = useDispatch();
   const buttons = message?.payload?.buttons || [];
   const threadData = useSelector((state: any) => state.message.threadData);
+  const userMetadata = useSelector(
+    (state: any) => state.onboarding.userMetadata
+  );
   const messages = threadData?.messages;
   // If no messages, don't render anything
   if (!messages || messages.length === 0) return null;
@@ -16,6 +21,19 @@ const QuickActions = ({ message, onPressButton }: any) => {
   if (!isLastMessageQuick) return null;
   if (!buttons || buttons.length === 0) return null;
 
+  const handleBtnClick = (button: any) => {
+    switch (button.type) {
+      case "legal_review_request": {
+        handleLegalReviewButtonClicked(
+          button,
+          dispatch,
+          userMetadata,
+          threadData?.id
+        );
+        break;
+      }
+    }
+  };
   return (
     <View style={styles.wrapper}>
       <View style={styles.quickActionsContainer}>
@@ -34,7 +52,7 @@ const QuickActions = ({ message, onPressButton }: any) => {
                 isLegalReview && styles.quickActionPillPrimary,
               ]}
               activeOpacity={0.7}
-              onPress={() => onPressButton?.(button)}
+              onPress={() => handleBtnClick(button)}
             >
               <View style={styles.quickActionContent}>
                 {isLegalReview && (

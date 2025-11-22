@@ -8,3 +8,9 @@ export const PLANS = {
   LAWYER_FINALLIZATION: "subscriber_enterprise", // Inhouse counsel,
   COURT_DOCUMENT: "Court-Document-USD-Daily", // 99$ plan : document only
 };
+
+export const DRAWER = {
+  FREE: "free",
+  CONSULTATION: "consultation",
+  FINALIZATION: "finalization",
+};

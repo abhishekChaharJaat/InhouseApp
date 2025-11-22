@@ -22,7 +22,7 @@ export default function SinglePlanModal() {
   );
 
   const handleClose = () => {
-    showSinglePlanModal(false, dispatch, null, null);
+    showSinglePlanModal(false, dispatch, null);
   };
 
   return (

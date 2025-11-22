@@ -6,8 +6,9 @@ import { AppState } from "react-native";
 import { Provider, useDispatch } from "react-redux";
 import { AppDispatch, store } from "../store";
 import { getUserMetadata } from "../store/onboardingSlice";
-import ContactHelp from "./modals/ContactHelp";
 import { token } from "./data";
+import ContactHelp from "./modals/ContactHelp";
+import Referraldrawer from "./modals/request-review";
 import SinglePlanModal from "./modals/signle-plan-modal";
 import SideNav from "./navs/Sidenav";
 import { WebSocketProvider } from "./providers/WebSocketProvider";
@@ -47,6 +48,7 @@ function AppContent() {
 
   return (
     <WebSocketProvider>
+      <Referraldrawer />
       <ContactHelp />
       <SideNav />
       <SinglePlanModal />

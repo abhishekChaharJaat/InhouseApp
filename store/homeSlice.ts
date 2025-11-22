@@ -8,6 +8,12 @@ const initialState = {
     planType: "",
     threadId: null,
   },
+  referralDrawerDetails: {
+    show: false,
+    threadId: null,
+    drawerType: "",
+    btnText: "",
+  },
 };
 
 const homeSlice = createSlice({
@@ -23,9 +29,16 @@ const homeSlice = createSlice({
     setShowSinglePlanModal: (state, action) => {
       state.singlePlanModal = action.payload;
     },
+    setReferralDrawerDetails: (state, action) => {
+      state.referralDrawerDetails = action.payload;
+    },
   },
 });
 
-export const { setShowSidenav, setShowContactHelp, setShowSinglePlanModal } =
-  homeSlice.actions;
+export const {
+  setShowSidenav,
+  setShowContactHelp,
+  setShowSinglePlanModal,
+  setReferralDrawerDetails,
+} = homeSlice.actions;
 export default homeSlice.reducer;
