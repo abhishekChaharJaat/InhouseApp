@@ -7,6 +7,7 @@ import {
   setAwaitingResponse,
   setChatInputMessage,
 } from "@/store/messageSlice";
+import { navigate } from "expo-router/build/global-state/routing";
 import React, { useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator,
@@ -57,6 +58,12 @@ function ChatPage({ threadId }: any) {
   useEffect(() => {
     (dispatch as any)(fetchThreadMessages({ threadId, token }));
   }, []);
+
+  useEffect(() => {
+    if (!threadData?.id) {
+      navigate("/home/Home");
+    }
+  }, [threadData?.id]);
 
   // Animate typing indicator dots
   useEffect(() => {
@@ -148,7 +155,7 @@ function ChatPage({ threadId }: any) {
 
   return (
     <CustomSafeAreaView>
-      <Topnav page="chat" title={threadData?.title} />
+      <Topnav page="chat" title={threadData?.title} threadId={threadId} />
 
       <KeyboardAvoidingView
         style={{ flex: 1 }}

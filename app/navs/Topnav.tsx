@@ -4,9 +4,10 @@ import React from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { useDispatch } from "react-redux";
 import { setShowSidenav } from "../../store/homeSlice";
+import RenameShareDelete from "../components/RenameShareDelete";
 import { UserProfile } from "./UserProfile";
 
-export default function Topnav({ page, title }: any) {
+export default function Topnav({ page, title, threadId }: any) {
   const router = useRouter();
   const dispatch = useDispatch();
 
@@ -25,6 +26,17 @@ export default function Topnav({ page, title }: any) {
         </Text>
       ) : (
         ""
+      )}
+
+      {/* 3-dot menu for chat page */}
+      {page === "chat" && (
+        <View style={styles.menuWrapper}>
+          <RenameShareDelete
+            threadId={threadId}
+            iconSize={24}
+            iconColor="#333"
+          />
+        </View>
       )}
 
       {/* Logout Dropdown Button */}
@@ -64,5 +76,8 @@ const styles = StyleSheet.create({
     flex: 1, // ← gives it space
     marginHorizontal: 10,
     textAlign: "left", // ← left align always
+  },
+  menuWrapper: {
+    marginRight: 8,
   },
 });

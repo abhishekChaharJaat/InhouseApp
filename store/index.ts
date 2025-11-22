@@ -3,6 +3,7 @@ import homeReducer from "./homeSlice";
 import authReducer from "./authSlice";
 import messageReducer from "./messageSlice";
 import onboardingReducer from "./onboardingSlice";
+import threadReducer from "./threadSlice";
 
 export const store = configureStore({
   reducer: {
@@ -10,6 +11,7 @@ export const store = configureStore({
     auth: authReducer,
     message: messageReducer,
     onboarding: onboardingReducer,
+    thread: threadReducer,
   },
 });
 

@@ -1,6 +1,7 @@
 // ChatHistory.js
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
+  ActivityIndicator,
   SectionList,
   StyleSheet,
   Text,
@@ -10,14 +11,27 @@ import {
 } from "react-native";
 // If you don't use Expo, change/remove this and the <Ionicons> below
 import CustomSafeAreaView from "@/app/components/CustomSafeAreaView";
-import { history } from "@/app/data";
+import RenameShareDelete from "@/app/components/RenameShareDelete";
+import { token } from "@/app/data";
+import { getAllThreads } from "@/store/threadSlice";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
+import { useDispatch, useSelector } from "react-redux";
 import { formatDateTime } from "../helpers";
 import Topnav from "../navs/Topnav";
 
 const ChatHistory = () => {
   const [query, setQuery] = useState("");
+  const dispatch = useDispatch();
+  const { threads, loadingThreads, threadsError } = useSelector(
+    (state: any) => state.thread
+  );
+
+  useEffect(() => {
+    if (token) {
+      dispatch(getAllThreads({ token }) as any);
+    }
+  }, [dispatch]);
 
   const sections = useMemo(() => {
     const labelMap = {
@@ -38,7 +52,7 @@ const ChatHistory = () => {
 
     return bucketsOrder
       .map((key) => {
-        let data = (history as any)?.[key] ?? [];
+        let data = (threads as any)?.[key] ?? [];
 
         if (query.trim()) {
           const q = query.toLowerCase();
@@ -55,7 +69,7 @@ const ChatHistory = () => {
         return { title: (labelMap as any)[key], data };
       })
       .filter((section) => section.data.length > 0);
-  }, [history, query]);
+  }, [threads, query]);
 
   const renderItem = ({ item }: any) => {
     const router = useRouter();
@@ -64,36 +78,75 @@ const ChatHistory = () => {
     const showDoc = !item.is_shared && !!item.google_doc_id;
 
     return (
-      <TouchableOpacity
-        style={styles.row}
-        activeOpacity={0.7}
-        onPress={() => router.push(`/chat/${item.id}` as any)}
-      >
-        <View style={styles.rowMain}>
-          <View style={{ flexDirection: "row", alignItems: "center" }}>
-            <Text style={styles.title}>{item.title}</Text>
+      <View style={styles.row}>
+        <TouchableOpacity
+          style={styles.rowContent}
+          activeOpacity={0.7}
+          onPress={() => router.push(`/chat/${item.id}` as any)}
+        >
+          <View style={styles.rowMain}>
+            <View style={{ flexDirection: "row", alignItems: "center" }}>
+              <Text style={styles.title}>{item.title}</Text>
 
-            {(showBriefcase || showDoc) && (
-              <View style={styles.iconWrapper}>
-                {showBriefcase && (
-                  <Ionicons name="briefcase-outline" size={14} />
-                )}
-                {showDoc && !showBriefcase && (
-                  <Ionicons name="document-text-outline" size={14} />
-                )}
-              </View>
-            )}
+              {(showBriefcase || showDoc) && (
+                <View style={styles.iconWrapper}>
+                  {showBriefcase && (
+                    <Ionicons name="briefcase-outline" size={14} />
+                  )}
+                  {showDoc && !showBriefcase && (
+                    <Ionicons name="document-text-outline" size={14} />
+                  )}
+                </View>
+              )}
+            </View>
+
+            <Text style={styles.subtitle}>{description}</Text>
           </View>
+        </TouchableOpacity>
 
-          <Text style={styles.subtitle}>{description}</Text>
+        <View style={styles.menuContainer}>
+          <RenameShareDelete
+            threadId={item.id}
+            iconSize={20}
+            iconColor="#666"
+          />
         </View>
-      </TouchableOpacity>
+      </View>
     );
   };
 
   const renderSectionHeader = ({ section }: any) => (
     <Text style={styles.sectionHeader}>{section.title}</Text>
   );
+
+  if (loadingThreads) {
+    return (
+      <CustomSafeAreaView>
+        <Topnav page="home" />
+        <View style={[styles.container, styles.centerContent]}>
+          <ActivityIndicator size="large" color="#000" />
+          <Text style={styles.loadingText}>Loading your conversations...</Text>
+        </View>
+      </CustomSafeAreaView>
+    );
+  }
+
+  if (threadsError) {
+    return (
+      <CustomSafeAreaView>
+        <Topnav page="home" />
+        <View style={[styles.container, styles.centerContent]}>
+          <Text style={styles.errorText}>Failed to load conversations</Text>
+          <TouchableOpacity
+            style={styles.retryButton}
+            onPress={() => dispatch(getAllThreads({ token }) as any)}
+          >
+            <Text style={styles.retryButtonText}>Retry</Text>
+          </TouchableOpacity>
+        </View>
+      </CustomSafeAreaView>
+    );
+  }
 
   return (
     <CustomSafeAreaView>
@@ -135,6 +188,32 @@ const styles = StyleSheet.create({
     paddingTop: 24,
     backgroundColor: "#ffffff",
   },
+  centerContent: {
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  loadingText: {
+    marginTop: 12,
+    fontSize: 14,
+    color: "#666",
+  },
+  errorText: {
+    fontSize: 16,
+    color: "#d32f2f",
+    marginBottom: 16,
+    textAlign: "center",
+  },
+  retryButton: {
+    backgroundColor: "#000",
+    paddingHorizontal: 24,
+    paddingVertical: 12,
+    borderRadius: 8,
+  },
+  retryButtonText: {
+    color: "#fff",
+    fontSize: 14,
+    fontWeight: "600",
+  },
   header: {
     fontSize: 20,
     fontWeight: "600",
@@ -168,6 +247,8 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   row: {
+    flexDirection: "row",
+    alignItems: "center",
     padding: 14,
     marginVertical: 4,
     borderRadius: 6,
@@ -177,12 +258,16 @@ const styles = StyleSheet.create({
     shadowRadius: 2,
     elevation: 2, // Android shadow
     borderBottomWidth: 1,
-
     borderColor: "#dbdadacc",
   },
-
+  rowContent: {
+    flex: 1,
+  },
   rowMain: {
     flexDirection: "column",
+  },
+  menuContainer: {
+    marginLeft: 8,
   },
   title: {
     fontSize: 15,

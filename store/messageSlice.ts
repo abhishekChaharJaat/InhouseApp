@@ -15,6 +15,10 @@ const initialState = {
   },
   loadingMessages: false,
   error: null as any,
+  // Documents library state
+  documents: [] as any[],
+  loadingDocuments: false,
+  documentsError: null as any,
   // WebSocket related state
   connectionStatus: "disconnected" as
     | "connected"
@@ -48,6 +52,27 @@ export const fetchThreadMessages = createAsyncThunk(
         error.response?.data?.detail ||
         error.message ||
         "Failed to fetch messages";
+      return rejectWithValue(errorMessage);
+    }
+  }
+);
+
+export const getAllGeneratedDocs = createAsyncThunk(
+  "threads/getAllGeneratedDocs",
+  async ({ token }: any, { rejectWithValue }) => {
+    try {
+      if (!token) {
+        throw new Error("Authentication token not available");
+      }
+      const url = `${BASE_ENDPOINT}/api/user/document-library`;
+      const headers = { Authorization: `Bearer ${token}` };
+      const response = await axios.get(url, { headers });
+      return response.data;
+    } catch (error: any) {
+      const errorMessage =
+        error.response?.data?.detail ||
+        error.message ||
+        "Failed to fetch documents";
       return rejectWithValue(errorMessage);
     }
   }
@@ -160,6 +185,19 @@ const messageSlice = createSlice({
         state.loadingMessages = false;
         state.error = action.payload;
         console.log("Error ", action.payload);
+      })
+      .addCase(getAllGeneratedDocs.pending, (state) => {
+        state.loadingDocuments = true;
+        state.documentsError = null;
+      })
+      .addCase(getAllGeneratedDocs.fulfilled, (state, action) => {
+        state.loadingDocuments = false;
+        state.documents = action.payload;
+      })
+      .addCase(getAllGeneratedDocs.rejected, (state, action) => {
+        state.loadingDocuments = false;
+        state.documentsError = action.payload;
+        console.log("Error fetching documents: ", action.payload);
       });
   },
 });

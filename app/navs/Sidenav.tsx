@@ -59,6 +59,10 @@ export default function SideNav() {
         navigate("/home/Home");
         break;
       }
+      case "document-library": {
+        navigate("/library/DocumentLibrary");
+        break;
+      }
       case "chat-history": {
         navigate("/history/ChatHistory");
         break;
@@ -164,7 +168,10 @@ export default function SideNav() {
 
           {/* Main menu items */}
           <View style={styles.menuSection}>
-            <TouchableOpacity style={styles.menuItem} onPress={() => {}}>
+            <TouchableOpacity
+              style={styles.menuItem}
+              onPress={() => handleClick("document-library")}
+            >
               {/* Folder icon */}
               <MaterialIcons name="folder" size={20} style={styles.menuIcon} />
               <Text style={styles.menuText}>Document Library</Text>
