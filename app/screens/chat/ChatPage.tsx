@@ -1,7 +1,10 @@
 import CustomSafeAreaView from "@/app/components/CustomSafeAreaView";
-import { useRouter } from "expo-router";
-import React from "react";
+import { token } from "@/app/data";
+import { fetchThreadMessages } from "@/app/store/messageSlice";
+import React, { useEffect, useRef } from "react";
 import {
+  ActivityIndicator,
+  FlatList,
   Keyboard,
   KeyboardAvoidingView,
   Platform,
@@ -10,35 +13,72 @@ import {
   TouchableWithoutFeedback,
   View,
 } from "react-native";
+import { useDispatch, useSelector } from "react-redux";
 import ChatBox from "../chat/ChatBox";
 import Topnav from "../navs/Topnav";
-
+import RenderMessages from "./RenderMessages";
 function ChatPage() {
-  const router = useRouter();
+  const threadData = useSelector((state: any) => state.message.threadData);
+  const loadingMessages = useSelector(
+    (state: any) => state.message.loadingMessages
+  );
+  const dispatch = useDispatch();
+  const threadId = "bead369a-683e-4875-b152-97975a84423a";
+
+  const flatListRef = useRef<FlatList<any>>(null);
+
+  useEffect(() => {
+    (dispatch as any)(fetchThreadMessages({ threadId, token }));
+  }, []);
+
+  const messages = threadData?.messages ?? [];
 
   return (
     <CustomSafeAreaView>
-      <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
-        <KeyboardAvoidingView
-          style={{ flex: 1 }}
-          behavior={Platform.OS === "ios" ? "padding" : "padding"}
-          keyboardVerticalOffset={Platform.OS === "ios" ? 50 : 0}
-        >
-          <Topnav page="chat" />
+      <Topnav page="chat" title={threadData?.title} />
 
-          <View style={styles.container}>
-            <Text style={styles.title}>ChatPage</Text>
-
-            {/* Messages area */}
-            <View style={styles.messagesContainer}>
-              {/* FlatList / ScrollView of messages here */}
+      <KeyboardAvoidingView
+        style={{ flex: 1 }}
+        behavior={Platform.OS === "ios" ? "padding" : "padding"}
+        keyboardVerticalOffset={Platform.OS === "ios" ? 50 : 0}
+      >
+        <View style={styles.container}>
+          {/* Messages list - scrollable */}
+          {loadingMessages ? (
+            <View style={styles.loaderContainer}>
+              <ActivityIndicator size="large" color="#3F65A9" />
+              <Text style={styles.loadingText}>Loading Messages...</Text>
             </View>
+          ) : (
+            <FlatList
+              ref={flatListRef}
+              data={messages}
+              keyExtractor={(item) => item.id}
+              renderItem={({ item }) => (
+                <RenderMessages message={item} threadId={threadId} />
+              )}
+              style={{ flex: 1 }}
+              contentContainerStyle={{ paddingVertical: 10 }}
+              showsVerticalScrollIndicator={false}
+              keyboardShouldPersistTaps="handled"
+              // Auto-scroll to bottom when content changes
+              onContentSizeChange={() =>
+                flatListRef.current?.scrollToEnd({ animated: true })
+              }
+              onLayout={() =>
+                flatListRef.current?.scrollToEnd({ animated: false })
+              }
+            />
+          )}
 
-            {/* Input at bottom */}
-            <ChatBox />
-          </View>
-        </KeyboardAvoidingView>
-      </TouchableWithoutFeedback>
+          {/* Input at bottom - tap here to dismiss keyboard */}
+          <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+            <View>
+              <ChatBox />
+            </View>
+          </TouchableWithoutFeedback>
+        </View>
+      </KeyboardAvoidingView>
     </CustomSafeAreaView>
   );
 }
@@ -50,12 +90,16 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 10,
   },
-  title: {
-    fontSize: 28,
-    fontWeight: "bold",
-    marginBottom: 20,
-  },
-  messagesContainer: {
+  loaderContainer: {
     flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    gap: 12,
+  },
+  loadingText: {
+    fontSize: 16,
+    color: "#3F65A9",
+    fontWeight: "500",
+    marginTop: 12,
   },
 });

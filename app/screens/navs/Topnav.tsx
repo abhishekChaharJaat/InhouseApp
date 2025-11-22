@@ -6,7 +6,7 @@ import { useDispatch } from "react-redux";
 import { setShowSidenav } from "../../store/homeSlice";
 import { SignOutButton } from "../auth/UserProfile";
 
-export default function Topnav({ page }: any) {
+export default function Topnav({ page, title }: any) {
   const router = useRouter();
   const dispatch = useDispatch();
 
@@ -21,7 +21,7 @@ export default function Topnav({ page }: any) {
         <Text style={styles.homeTitle}>Inhouse</Text>
       ) : page === "chat" ? (
         <Text style={styles.chatTitle} numberOfLines={1} ellipsizeMode="tail">
-          Draft MSA
+          {title}
         </Text>
       ) : (
         ""

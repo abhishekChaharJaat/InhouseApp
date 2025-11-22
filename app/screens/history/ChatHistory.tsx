@@ -12,6 +12,7 @@ import {
 import CustomSafeAreaView from "@/app/components/CustomSafeAreaView";
 import { history } from "@/app/data";
 import { Ionicons } from "@expo/vector-icons";
+import { useRouter } from "expo-router";
 import Topnav from "../navs/Topnav";
 const formatDateTime = (value: any) => {
   const d = new Date(value);
@@ -73,12 +74,17 @@ const ChatHistory = () => {
   }, [history, query]);
 
   const renderItem = ({ item }: any) => {
+    const router = useRouter();
     const description = formatDateTime(item.created_at);
     const showBriefcase = item.is_shared;
     const showDoc = !item.is_shared && !!item.google_doc_id;
 
     return (
-      <TouchableOpacity style={styles.row} activeOpacity={0.7}>
+      <TouchableOpacity
+        style={styles.row}
+        activeOpacity={0.7}
+        // onPress={() => router.push(`/chat/${item.id}`)}
+      >
         <View style={styles.rowMain}>
           <View style={{ flexDirection: "row", alignItems: "center" }}>
             <Text style={styles.title}>{item.title}</Text>
@@ -129,6 +135,7 @@ const ChatHistory = () => {
           renderSectionHeader={renderSectionHeader}
           contentContainerStyle={styles.listContent}
           stickySectionHeadersEnabled={false}
+          showsVerticalScrollIndicator={false} // 👈 hides scrollbar
         />
       </View>
     </CustomSafeAreaView>
@@ -179,13 +186,15 @@ const styles = StyleSheet.create({
   row: {
     padding: 14,
     marginVertical: 4,
-    borderRadius: 10,
-    backgroundColor: "#f3f3f3ff",
+    borderRadius: 6,
     shadowColor: "#000",
     shadowOpacity: 0.05,
     shadowOffset: { width: 0, height: 1 },
     shadowRadius: 2,
     elevation: 2, // Android shadow
+    borderBottomWidth: 1,
+
+    borderColor: "#dbdadacc",
   },
 
   rowMain: {
