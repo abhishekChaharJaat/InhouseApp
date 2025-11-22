@@ -1,14 +1,23 @@
-// RenderMessages.js
-import React from "react";
+import React, { useState } from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import Markdown from "react-native-markdown-display";
-import UnlockedDocument from "./UnlockedDocument";
+import AttachmentsCard from "./components/AttachmentsCard";
+import QuickActions from "./components/QuickActions";
+import UnlockedDocument from "./components/UnlockedDocument";
 
 export default function RenderMessages({ message, threadId }: any) {
+  const [expanded, setExpanded] = useState(false);
+
   const messageText =
     message?.payload?.text || message?.payload?.message_text || "";
   const messageType = message?.message_type;
   const isUser = message?.is_user_message;
+
+  const shouldTruncate = messageType === "chat" && messageText.length > 700;
+  const displayedText =
+    shouldTruncate && !expanded
+      ? messageText.slice(0, 700) + "..."
+      : messageText;
 
   // ----- CHAT MESSAGES -----
   if (messageType === "chat") {
@@ -25,7 +34,15 @@ export default function RenderMessages({ message, threadId }: any) {
             isUser ? styles.userBubble : styles.aiBubble,
           ]}
         >
-          <Markdown style={markdownStyles}>{messageText}</Markdown>
+          <Markdown style={markdownStyles}>{displayedText}</Markdown>
+
+          {shouldTruncate && (
+            <TouchableOpacity onPress={() => setExpanded(!expanded)}>
+              <Text style={styles.seeMoreText}>
+                {expanded ? "See less" : "See more"}
+              </Text>
+            </TouchableOpacity>
+          )}
         </View>
       </View>
     );
@@ -65,33 +82,20 @@ export default function RenderMessages({ message, threadId }: any) {
 
   // ----- ATTACHMENTS -----
   if (messageType === "attachment") {
-    return <Text>Attachments</Text>;
+    const payload = message?.payload || {};
+    return <AttachmentsCard payload={payload} />;
   }
 
-  // ----- QUICK ACTION BUTTONS (PILL SHAPE LIKE SCREENSHOT) -----
+  // ----- QUICK ACTION BUTTONS -----
   if (
     messageType === "quick_actions" ||
     messageType === "quick_action_button_messages"
   ) {
-    const buttons = message?.payload?.buttons || [];
+    return <QuickActions message={message} />;
+  }
 
-    if (buttons.length > 0) {
-      return (
-        <View style={styles.wrapper}>
-          <View style={styles.quickActionsContainer}>
-            {buttons.map((button: any, index: number) => (
-              <TouchableOpacity
-                key={index}
-                style={styles.quickActionPill}
-                activeOpacity={0.7}
-              >
-                <Text style={styles.quickActionText}>{button?.text}</Text>
-              </TouchableOpacity>
-            ))}
-          </View>
-        </View>
-      );
-    }
+  if (messageType === "update_loading_message") {
+    return <></>;
   }
 
   // -----  OTHER -----
@@ -120,6 +124,7 @@ const styles = StyleSheet.create({
     padding: 12,
     borderRadius: 12,
     maxWidth: "90%",
+    minWidth: "60%",
   },
   userBubble: {
     backgroundColor: "#FFFFFF",
@@ -156,39 +161,97 @@ const styles = StyleSheet.create({
   },
   legalText: { fontSize: 13, color: "#000" },
 
-  // QUICK ACTION BUTTONS
-  quickActionsContainer: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-  },
-
-  quickActionPill: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingVertical: 18,
-    paddingHorizontal: 20,
-    borderRadius: 999,
-    backgroundColor: "#FFFFFF",
-    borderWidth: 1,
-    borderColor: "#E2E8F0",
-    shadowColor: "#000",
-    shadowOpacity: 0.06,
-    shadowOffset: { width: 0, height: 1 },
-    shadowRadius: 2,
-    elevation: 1,
-    marginRight: 10,
-    marginBottom: 10,
-  },
-
-  quickActionText: {
-    fontSize: 15,
-    color: "#1F2933",
-    fontWeight: "500",
-  },
-
   jsonDump: { fontSize: 10, color: "#444" },
+
+  seeMoreText: {
+    marginTop: 4,
+    fontSize: 13,
+    fontWeight: "500",
+    color: "#3F65A9",
+  },
 });
 
 const markdownStyles = {
-  body: { color: "#000", fontSize: 16, lineHeight: 20 },
+  body: {
+    color: "#000",
+    fontSize: 16,
+    lineHeight: 24,
+  },
+  paragraph: {
+    marginTop: 0,
+    marginBottom: 8,
+    lineHeight: 24,
+  },
+  heading1: {
+    fontSize: 24,
+    lineHeight: 32,
+    fontWeight: "700",
+    marginTop: 8,
+    marginBottom: 8,
+    color: "#000",
+  },
+  heading2: {
+    fontSize: 20,
+    lineHeight: 28,
+    fontWeight: "600",
+    marginTop: 8,
+    marginBottom: 6,
+    color: "#000",
+  },
+  heading3: {
+    fontSize: 18,
+    lineHeight: 26,
+    fontWeight: "600",
+    marginTop: 6,
+    marginBottom: 4,
+    color: "#000",
+  },
+  heading4: {
+    fontSize: 16,
+    lineHeight: 24,
+    fontWeight: "600",
+    marginTop: 4,
+    marginBottom: 4,
+    color: "#000",
+  },
+  heading5: {
+    fontSize: 15,
+    lineHeight: 22,
+    fontWeight: "600",
+    marginTop: 4,
+    marginBottom: 4,
+    color: "#000",
+  },
+  heading6: {
+    fontSize: 14,
+    lineHeight: 20,
+    fontWeight: "600",
+    marginTop: 4,
+    marginBottom: 4,
+    color: "#000",
+  },
+  code_inline: {
+    backgroundColor: "#f0f0f0",
+    paddingHorizontal: 4,
+    paddingVertical: 2,
+    borderRadius: 4,
+    fontFamily: "monospace",
+    fontSize: 14,
+  },
+  code_block: {
+    backgroundColor: "#f0f0f0",
+    padding: 8,
+    borderRadius: 6,
+    fontFamily: "monospace",
+    fontSize: 14,
+    lineHeight: 20,
+  },
+  fence: {
+    backgroundColor: "#f0f0f0",
+    padding: 8,
+    borderRadius: 6,
+    fontFamily: "monospace",
+    fontSize: 14,
+    lineHeight: 20,
+  },
 };

@@ -1,8 +1,7 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import axios from "axios";
 
-const BASE_ENDPOINT =
-  process.env.BACKEND_BASE_ENDPOINT || "https://api.example.com";
+const BASE_ENDPOINT = "https://api-dev.inhouse.app";
 
 const initialState = {
   threadData: {
@@ -25,7 +24,7 @@ export const fetchThreadMessages = createAsyncThunk(
       if (!token) {
         throw new Error("Authentication token not available");
       }
-      const url = `https://api-dev.inhouse.app/api/thread/${threadId}/list-messages`;
+      const url = `${BASE_ENDPOINT}/api/thread/${threadId}/list-messages`;
       const headers = { Authorization: `Bearer ${token}` };
       const response = await axios.get(url, { headers });
       return response.data;

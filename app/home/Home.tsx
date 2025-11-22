@@ -1,4 +1,4 @@
-import ChatBox from "@/app/chat/ChatBox";
+import ChatBox from "@/app/chat/components/ChatBox";
 import CustomSafeAreaView from "@/app/components/CustomSafeAreaView";
 import { useUser } from "@clerk/clerk-expo";
 import { useRouter } from "expo-router";

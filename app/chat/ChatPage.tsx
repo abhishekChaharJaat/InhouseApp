@@ -14,8 +14,8 @@ import {
   View,
 } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
-import ChatBox from "./ChatBox";
 import Topnav from "../components/navs/Topnav";
+import ChatBox from "./components/ChatBox";
 import RenderMessages from "./RenderMessages";
 function ChatPage({ threadId }: any) {
   const threadData = useSelector((state: any) => state.message.threadData);
