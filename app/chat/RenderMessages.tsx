@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import Markdown from "react-native-markdown-display";
 import AttachmentsCard from "./components/AttachmentsCard";
+import DeprecatedThreadBanner from "./components/DeprecatedThread";
 import LockedDocument from "./components/LockedDocument";
 import QuickActions from "./components/QuickActions";
 import UnlockedDocument from "./components/UnlockedDocument";
@@ -101,6 +102,13 @@ export default function RenderMessages({ message, threadId }: any) {
     return <></>;
   }
 
+  if (messageType === "deprecated_thread_message") {
+    return (
+      <>
+        <DeprecatedThreadBanner />
+      </>
+    );
+  }
   // -----  OTHER -----
   return (
     <View style={styles.wrapper}>
@@ -185,7 +193,7 @@ const markdownStyles = {
     lineHeight: 24,
   },
   heading1: {
-    fontSize: 24,
+    fontSize: 20,
     lineHeight: 32,
     fontWeight: "700",
     marginTop: 8,
@@ -193,7 +201,7 @@ const markdownStyles = {
     color: "#000",
   },
   heading2: {
-    fontSize: 20,
+    fontSize: 18,
     lineHeight: 28,
     fontWeight: "600",
     marginTop: 8,

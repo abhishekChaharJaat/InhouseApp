@@ -13,6 +13,8 @@ import {
 import { useDispatch, useSelector } from "react-redux";
 
 // 👇 proper icons
+import { PLANS } from "@/app/constants";
+import { showSinglePlanModal } from "@/app/helpers";
 import {
   Ionicons,
   MaterialCommunityIcons,
@@ -63,6 +65,10 @@ export default function SideNav() {
       }
       case "contact_help": {
         dispatch(setShowContactHelp(true));
+        break;
+      }
+      case "contact_lawyer": {
+        showSinglePlanModal(true, dispatch, PLANS.LAWYER_FINALLIZATION, "");
         break;
       }
     }
@@ -168,7 +174,10 @@ export default function SideNav() {
 
         {/* Bottom actions */}
         <View style={styles.bottomSection}>
-          <TouchableOpacity style={styles.menuItem} onPress={() => {}}>
+          <TouchableOpacity
+            style={styles.menuItem}
+            onPress={() => handleClick("contact_lawyer")}
+          >
             {/* Briefcase icon */}
             <MaterialCommunityIcons
               name="briefcase-outline"
