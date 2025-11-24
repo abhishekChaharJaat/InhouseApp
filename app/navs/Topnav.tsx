@@ -58,12 +58,13 @@ const styles = StyleSheet.create({
     borderBottomColor: "#e5e5e5",
     zIndex: 100,
 
-    // Shadow for both iOS + Android
+    // Shadow only at bottom for iOS
     shadowColor: "#000",
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.15,
-    shadowRadius: 1,
-    elevation: 3,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+    // No elevation for Android - using border only
+    elevation: 0,
   },
   homeTitle: {
     fontSize: 22,

@@ -85,7 +85,6 @@ function AppContent() {
         console.log("WebSocket connected");
         dispatch(setWSConnected(true));
         setWebSocketInstance(ws); // Store again on open
-        Alert.alert("WebSocket", "Connection successful!");
       };
 
       ws.onmessage = (event: any) => {
@@ -98,7 +97,6 @@ function AppContent() {
 
       ws.onerror = (error: any) => {
         console.error("WebSocket error:", error);
-        Alert.alert("WebSocket Error", "Connection failed.");
         dispatch(setWSConnected(false));
       };
 
@@ -110,8 +108,23 @@ function AppContent() {
     };
     initWS();
 
+    // Handle app state changes for WebSocket reconnection
+    const appStateSubscription = AppState.addEventListener(
+      "change",
+      (nextAppState) => {
+        if (nextAppState === "active") {
+          // Check if WebSocket is disconnected when app comes to foreground
+          if (!ws || ws.readyState !== WebSocket.OPEN) {
+            console.log("App foregrounded - reconnecting WebSocket");
+            initWS();
+          }
+        }
+      }
+    );
+
     // Cleanup
     return () => {
+      appStateSubscription.remove();
       dispatch(setWSConnected(false));
       setWebSocketInstance(null);
       if (ws && ws.readyState === WebSocket.OPEN) {

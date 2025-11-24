@@ -1,6 +1,6 @@
 import CustomSafeAreaView from "@/app/components/CustomSafeAreaView";
-import { getAllGeneratedDocs } from "@/store/messageSlice";
 import { setToken } from "@/store/authSlice";
+import { getAllGeneratedDocs } from "@/store/messageSlice";
 import { useAuth } from "@clerk/clerk-expo";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
@@ -131,10 +131,7 @@ const DocumentLibrary = () => {
         <Topnav page="home" />
         <View style={[styles.container, styles.centerContent]}>
           <Text style={styles.errorText}>Failed to load documents</Text>
-          <TouchableOpacity
-            style={styles.retryButton}
-            onPress={handleRetry}
-          >
+          <TouchableOpacity style={styles.retryButton} onPress={handleRetry}>
             <Text style={styles.retryButtonText}>Retry</Text>
           </TouchableOpacity>
         </View>
@@ -160,7 +157,9 @@ const DocumentLibrary = () => {
           <FlatList
             data={documents}
             renderItem={renderDocument}
-            keyExtractor={(item) => item.document_id}
+            keyExtractor={(item, index) =>
+              item.document_id ? `${item.document_id}-${index}` : `doc-${index}`
+            }
             contentContainerStyle={styles.listContent}
             showsVerticalScrollIndicator={false}
           />
@@ -281,8 +280,7 @@ const styles = StyleSheet.create({
     shadowColor: "#000",
     shadowOpacity: 0.05,
     shadowOffset: { width: 0, height: 2 },
-    shadowRadius: 4,
-    elevation: 2,
+    shadowRadius: 2,
   },
   documentInfo: {
     flex: 1,

@@ -75,7 +75,7 @@ export const handleLegalReviewButtonClicked = (
   }
   // Free case
   if (btn?.eligible_offers?.lawyer_consultation === "personal_injury") {
-    showReferralDrawer(true, dispatch, DRAWER.CONSULTATION, chatId, btn?.text);
+    showReferralDrawer(true, dispatch, DRAWER.FREE, chatId, btn?.text);
     return;
   }
   // not authenticated and not free

@@ -74,7 +74,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.08,
     shadowOffset: { width: 0, height: 1 },
     shadowRadius: 2,
-    elevation: 2,
+    elevation: 0.5,
   },
 
   aiBubble: {

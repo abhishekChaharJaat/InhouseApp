@@ -326,7 +326,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.08,
     shadowRadius: 12,
     shadowOffset: { width: 0, height: 4 },
-    elevation: 4,
+    elevation: 1,
     alignSelf: "flex-start",
     minWidth: 200,
     zIndex: 3,

@@ -263,13 +263,16 @@ const styles = StyleSheet.create({
     padding: 14,
     marginVertical: 4,
     borderRadius: 6,
-    shadowColor: "#000",
-    shadowOpacity: 0.05,
-    shadowOffset: { width: 0, height: 1 },
-    shadowRadius: 2,
-    elevation: 2, // Android shadow
     borderBottomWidth: 1,
     borderColor: "#dbdadacc",
+    backgroundColor: "#fff",
+    // No shadow on Android
+    elevation: 0,
+    // iOS shadow (optional - remove if you don't want shadow on iOS either)
+    shadowColor: "#000",
+    shadowOpacity: 0.03,
+    shadowOffset: { width: 0, height: 1 },
+    shadowRadius: 1,
   },
   rowContent: {
     flex: 1,

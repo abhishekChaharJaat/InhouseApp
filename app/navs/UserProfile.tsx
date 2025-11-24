@@ -141,7 +141,7 @@ const styles = StyleSheet.create({
   },
 
   dropdown: {
-    marginTop: 115,
+    marginTop: 60,
     marginRight: 16,
     width: 260,
     backgroundColor: "#fff",
@@ -152,7 +152,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.18,
     shadowRadius: 8,
     shadowOffset: { width: 0, height: 4 },
-    elevation: 6,
+    elevation: 2,
     borderWidth: 1,
     borderColor: "#e0e0e0",
   },

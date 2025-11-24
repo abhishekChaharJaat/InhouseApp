@@ -124,6 +124,13 @@ function ChatPage({ threadId }: any) {
               renderItem={({ item }) => (
                 <RenderMessages message={item} threadId={threadId} />
               )}
+              ListFooterComponent={
+                awaitingResponse ? (
+                  <View style={styles.shimmerBox}>
+                    <Shimmer />
+                  </View>
+                ) : null
+              }
               style={{ flex: 1 }}
               contentContainerStyle={{ paddingVertical: 10 }}
               showsVerticalScrollIndicator={false}
@@ -135,11 +142,6 @@ function ChatPage({ threadId }: any) {
                 flatListRef.current?.scrollToEnd({ animated: false })
               }
             />
-          )}
-          {awaitingResponse && (
-            <View style={styles.shimmerBox}>
-              <Shimmer />
-            </View>
           )}
           {/* Input at bottom */}
           <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
