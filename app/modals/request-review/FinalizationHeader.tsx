@@ -57,7 +57,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 22,
-    paddingRight: 40,
+    fontStyle: "italic",
     fontWeight: "700",
     color: "#1b2b48",
     marginBottom: 8,

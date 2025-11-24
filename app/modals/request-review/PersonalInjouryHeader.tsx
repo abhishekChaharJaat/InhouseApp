@@ -44,7 +44,6 @@ const styles = StyleSheet.create({
     fontWeight: "700",
     fontStyle: "italic",
     color: "#1b2b48",
-    paddingRight: 40,
     marginBottom: 8,
   },
   row: {

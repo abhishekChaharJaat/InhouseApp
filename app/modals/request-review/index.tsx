@@ -55,9 +55,9 @@ function Referraldrawer() {
         {/* bottom sheet */}
         <View style={styles.bottomContainer}>
           <View style={styles.drawer}>
-            {/* Close icon in top-right */}
-            <TouchableOpacity onPress={onClose} style={styles.closeButton}>
-              <Ionicons name="close" size={24} color="#4A5568" />
+            {/* Top strip/handle to close */}
+            <TouchableOpacity onPress={onClose} style={styles.handleContainer}>
+              <View style={styles.handle} />
             </TouchableOpacity>
 
             <ScrollView
@@ -158,17 +158,21 @@ const styles = StyleSheet.create({
     backgroundColor: "#FFFFFF",
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
-    paddingTop: 16,
+    paddingTop: 8,
     paddingHorizontal: 20,
     paddingBottom: 24,
     maxHeight: "90%",
   },
-  closeButton: {
-    position: "absolute",
-    top: 10,
-    right: 10,
-    padding: 6,
-    zIndex: 10,
+  handleContainer: {
+    alignItems: "center",
+    paddingVertical: 8,
+    marginBottom: 8,
+  },
+  handle: {
+    width: 40,
+    height: 4,
+    borderRadius: 2,
+    backgroundColor: "#D1D5DB",
   },
   contentContainer: {
     paddingBottom: 24,
