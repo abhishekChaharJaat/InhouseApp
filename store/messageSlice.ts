@@ -97,6 +97,7 @@ const messageSlice = createSlice({
         reference_thread_id: null,
         document_rating: {},
       };
+      state.awaitingResponse = false;
     },
     // WebSocket actions
     addRequestIds: (state, action) => {

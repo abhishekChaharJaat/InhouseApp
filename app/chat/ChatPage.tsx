@@ -49,7 +49,7 @@ function ChatPage({ threadId }: any) {
 
   useEffect(() => {
     (dispatch as any)(fetchThreadMessages({ threadId }));
-  }, []);
+  }, [threadId, dispatch]);
 
   const messages = threadData?.messages ?? [];
 
@@ -57,12 +57,6 @@ function ChatPage({ threadId }: any) {
     setInputMessage(text);
     dispatch(setChatInputMessage(text));
   };
-
-  useEffect(() => {
-    if (!threadData?.id) {
-      navigate("/home/Home");
-    }
-  }, [threadData?.id]);
 
   const handleSend = () => {
     const trimmedMessage = inputMessage.trim();

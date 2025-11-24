@@ -1,4 +1,8 @@
+import { resetThreadData } from "@/store/messageSlice";
+import { deleteThread } from "@/store/threadSlice";
 import { Ionicons } from "@expo/vector-icons";
+import { router, usePathname } from "expo-router";
+
 import React, { useState } from "react";
 import {
   ActivityIndicator,
@@ -10,8 +14,6 @@ import {
   View,
 } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
-import { resetThreadData } from "@/store/messageSlice";
-import { deleteThread } from "@/store/threadSlice";
 
 interface RenameShareDeleteProps {
   threadId?: string;
@@ -30,6 +32,8 @@ const RenameShareDelete: React.FC<RenameShareDeleteProps> = ({
 }) => {
   const [menuVisible, setMenuVisible] = useState(false);
   const dispatch = useDispatch();
+  const pathname = usePathname();
+
   const { deletingThread } = useSelector((state: any) => state.thread);
 
   const handleShare = () => {
@@ -77,6 +81,9 @@ const RenameShareDelete: React.FC<RenameShareDeleteProps> = ({
                 if (!result.error) {
                   // Reset thread data after successful deletion
                   dispatch(resetThreadData());
+                  if (pathname !== "/history/ChatHistory") {
+                    router.replace("/home/Home");
+                  }
                 }
               }
             );
