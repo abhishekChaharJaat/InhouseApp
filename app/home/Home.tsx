@@ -1,11 +1,8 @@
 // @ts-nocheck
 import ChatBox from "@/app/chat/chatpage-components/ChatBox";
 import CustomSafeAreaView from "@/app/components/CustomSafeAreaView";
-import {
-  clearRedirectFlag,
-  setAwaitingResponse,
-  setChatInputMessage,
-} from "@/store/messageSlice";
+import { RootState } from "@/store";
+import { setChatInputMessage, clearRedirectFlag } from "@/store/messageSlice";
 import { useUser } from "@clerk/clerk-expo";
 import { useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
@@ -18,34 +15,26 @@ import {
   View,
 } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
+import {
+  createThreadMessage,
+  sendWebSocketMessage,
+  setPendingInitialMessage,
+} from "../providers/wsClient";
 import Topnav from "../navs/Topnav";
-import { useWebSocket } from "../providers/WebSocketProvider";
 
 function Home() {
-  const router = useRouter();
   const { user } = useUser();
   const dispatch = useDispatch();
-  const { sendMessage, createMessage, isConnected, setPendingInitialMessage } =
-    useWebSocket();
-
+  const router = useRouter();
   const [inputMessage, setInputMessage] = useState("");
 
-  // Get state from Redux
-  const threadData = useSelector((state: any) => state.message.threadData);
-  const awaitingResponse = useSelector(
-    (state: any) => state.message.awaitingResponse
+  // Get threadData and redirect flag from Redux
+  const threadData = useSelector(
+    (state: RootState) => state.message.threadData
   );
   const shouldRedirectToChat = useSelector(
-    (state: any) => state.message.shouldRedirectToChat
+    (state: RootState) => state.message.shouldRedirectToChat
   );
-
-  // Redirect to chat ONLY when a new thread is created (not when navigating from existing chat)
-  useEffect(() => {
-    if (shouldRedirectToChat && threadData?.id) {
-      router.push(`/chat/${threadData.id}`);
-      dispatch(clearRedirectFlag()); // Clear flag after redirect
-    }
-  }, [shouldRedirectToChat, threadData?.id]);
 
   const handleInputChange = (text: string) => {
     setInputMessage(text);
@@ -60,23 +49,31 @@ function Home() {
       return;
     }
 
-    // Store the message to be sent after thread creation
+    // Store the pending message
     setPendingInitialMessage(trimmedMessage);
-    // Create a new thread
-    const message = createMessage("chat", "create-thread", {});
-    const success = sendMessage(message);
+
+    // Create thread via WebSocket
+    const message = createThreadMessage();
+    const success = sendWebSocketMessage(null, message);
 
     if (success) {
-      dispatch(setAwaitingResponse(true));
-      // The actual message will be sent after thread is created
-    } else {
-      setPendingInitialMessage(null); // Clear pending message on failure
+      console.log("Thread creation request sent");
     }
   };
 
   const handleAttach = () => {
-    Alert.alert("File attachment feature");
+    Alert.alert("Feature Unavailable", "File attachment coming soon.");
   };
+
+  // Redirect to chat page when thread is created
+  useEffect(() => {
+    if (shouldRedirectToChat && threadData?.id) {
+      console.log("Redirecting to thread:", threadData.id);
+      router.push(`/chat/${threadData.id}`);
+      // Clear the redirect flag to prevent infinite loop
+      dispatch(clearRedirectFlag());
+    }
+  }, [shouldRedirectToChat, threadData?.id]);
 
   return (
     <CustomSafeAreaView>
@@ -99,15 +96,17 @@ function Home() {
             onChangeText={handleInputChange}
             onSend={handleSend}
             onAttach={handleAttach}
-            placeholder="Ask me anything..."
-            disabled={awaitingResponse}
+            placeholder="Ask me legal question..."
+            disabled={false}
           />
 
           <View style={styles.pillBox}>
             <TouchableOpacity
               style={styles.pill}
               onPress={() => {
-                setInputMessage("Draft customer contract");
+                const msg = "Draft customer contract";
+                setInputMessage(msg);
+                dispatch(setChatInputMessage(msg));
               }}
             >
               <Text style={styles.text}>Draft customer contract</Text>
@@ -116,7 +115,9 @@ function Home() {
             <TouchableOpacity
               style={styles.pill}
               onPress={() => {
-                setInputMessage("Start a company");
+                const msg = "Start a company";
+                setInputMessage(msg);
+                dispatch(setChatInputMessage(msg));
               }}
             >
               <Text style={styles.text}>Start a company</Text>
@@ -125,7 +126,9 @@ function Home() {
             <TouchableOpacity
               style={styles.pill}
               onPress={() => {
-                setInputMessage("Review redlines");
+                const msg = "Review redlines";
+                setInputMessage(msg);
+                dispatch(setChatInputMessage(msg));
               }}
             >
               <Text style={styles.text}>Review redlines</Text>
@@ -134,7 +137,9 @@ function Home() {
             <TouchableOpacity
               style={styles.pill}
               onPress={() => {
-                setInputMessage("Protect my ip");
+                const msg = "Protect my ip";
+                setInputMessage(msg);
+                dispatch(setChatInputMessage(msg));
               }}
             >
               <Text style={styles.text}>Protect my ip</Text>

@@ -12,7 +12,6 @@ import {
 import { useDispatch, useSelector } from "react-redux";
 import { resetThreadData } from "@/store/messageSlice";
 import { deleteThread } from "@/store/threadSlice";
-import { token } from "@/app/data";
 
 interface RenameShareDeleteProps {
   threadId?: string;
@@ -56,7 +55,7 @@ const RenameShareDelete: React.FC<RenameShareDeleteProps> = ({
   const handleDelete = () => {
     setMenuVisible(false);
 
-    if (!threadId || !token) {
+    if (!threadId) {
       Alert.alert("Error", "Unable to delete thread. Please try again.");
       return;
     }
@@ -73,7 +72,7 @@ const RenameShareDelete: React.FC<RenameShareDeleteProps> = ({
           text: "Delete",
           style: "destructive",
           onPress: () => {
-            dispatch(deleteThread({ id: threadId, token }) as any).then(
+            dispatch(deleteThread({ id: threadId }) as any).then(
               (result: any) => {
                 if (!result.error) {
                   // Reset thread data after successful deletion
@@ -97,7 +96,11 @@ const RenameShareDelete: React.FC<RenameShareDeleteProps> = ({
         {deletingThread ? (
           <ActivityIndicator size="small" color={iconColor} />
         ) : (
-          <Ionicons name="ellipsis-vertical" size={iconSize} color={iconColor} />
+          <Ionicons
+            name="ellipsis-vertical"
+            size={iconSize}
+            color={iconColor}
+          />
         )}
       </TouchableOpacity>
 

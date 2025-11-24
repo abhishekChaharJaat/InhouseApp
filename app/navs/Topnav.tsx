@@ -2,7 +2,7 @@ import { MaterialIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import React from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { setShowSidenav } from "../../store/homeSlice";
 import RenameShareDelete from "../components/RenameShareDelete";
 import { UserProfile } from "./UserProfile";
@@ -10,7 +10,7 @@ import { UserProfile } from "./UserProfile";
 export default function Topnav({ page, title, threadId }: any) {
   const router = useRouter();
   const dispatch = useDispatch();
-
+  const isWSConnected = useSelector((state: any) => state.home.isWSConnected);
   return (
     <View style={styles.container}>
       {/* Menu Icon */}
@@ -41,6 +41,7 @@ export default function Topnav({ page, title, threadId }: any) {
 
       {/* Logout Dropdown Button */}
       <UserProfile />
+      {isWSConnected && <View style={styles.dot}></View>}
     </View>
   );
 }
@@ -79,5 +80,14 @@ const styles = StyleSheet.create({
   },
   menuWrapper: {
     marginRight: 8,
+  },
+  dot: {
+    position: "absolute",
+    top: 10,
+    right: 40,
+    width: 14,
+    height: 14,
+    borderRadius: 50,
+    backgroundColor: "#8cf148ff",
   },
 });

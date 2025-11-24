@@ -56,10 +56,10 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   title: {
-    fontSize: 20,
+    fontSize: 22,
+    paddingRight: 40,
     fontWeight: "700",
-    fontStyle: "italic",
-    color: "#14274E",
+    color: "#1b2b48",
     marginBottom: 8,
   },
   row: {

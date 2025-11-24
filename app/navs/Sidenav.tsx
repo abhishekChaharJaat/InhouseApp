@@ -13,6 +13,7 @@ import {
 import { useDispatch, useSelector } from "react-redux";
 // 👇 proper icons
 import { handleLegalReviewButtonClicked } from "@/app/helpers";
+import { resetThreadData } from "@/store/messageSlice";
 import {
   Ionicons,
   MaterialCommunityIcons,
@@ -56,6 +57,7 @@ export default function SideNav() {
     switch (type) {
       case "ask_inhouse_ai": {
         setShowTaskMenu(false);
+        dispatch(resetThreadData());
         navigate("/home/Home");
         break;
       }

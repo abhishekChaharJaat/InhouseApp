@@ -59,10 +59,11 @@ const styles = StyleSheet.create({
   aiContainer: { justifyContent: "flex-start" },
 
   chatBubble: {
-    padding: 12,
+    padding: 14,
+    paddingBottom: 8,
     borderRadius: 12,
     maxWidth: "90%",
-    minWidth: "20%",
+    minWidth: "10%",
   },
   userBubble: {
     backgroundColor: "#FFFFFF",
@@ -77,10 +78,9 @@ const styles = StyleSheet.create({
   },
 
   aiBubble: {
-    backgroundColor: "#f8f9fbff",
+    // backgroundColor: "#f8f9fbff",
     alignSelf: "flex-start",
-    width: "90%", // 👈 forces 90% width
-    // or flexBasis: "90%" if you prefer flex-based layout
+    width: "90%",
   },
 
   seeMoreText: {

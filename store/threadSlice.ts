@@ -20,7 +20,9 @@ const initialState = {
 
 export const getAllThreads = createAsyncThunk(
   "threads/getAllThreads",
-  async ({ token }: any, { rejectWithValue }) => {
+  async (_, { rejectWithValue, getState }) => {
+    const state = getState() as any;
+    const token = state.auth.token;
     try {
       if (!token) {
         throw new Error("Authentication token not available");
@@ -41,7 +43,9 @@ export const getAllThreads = createAsyncThunk(
 
 export const deleteThread = createAsyncThunk(
   "threads/deleteThread",
-  async ({ id, token }: any, { rejectWithValue }) => {
+  async ({ id }: any, { rejectWithValue, getState }) => {
+    const state = getState() as any;
+    const token = state.auth.token;
     try {
       if (!token) {
         throw new Error("Authentication token not available");
@@ -91,7 +95,9 @@ const threadSlice = createSlice({
         state.deletingThread = false;
         // Remove the deleted thread from all buckets
         const threadId = action.payload.threadId;
-        (Object.keys(state.threads) as Array<keyof typeof state.threads>).forEach((bucket) => {
+        (
+          Object.keys(state.threads) as Array<keyof typeof state.threads>
+        ).forEach((bucket) => {
           state.threads[bucket] = state.threads[bucket].filter(
             (thread: any) => thread.id !== threadId
           );

@@ -61,11 +61,14 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   title: {
-    fontSize: 20,
+    fontSize: 22,
+    paddingRight: 40,
+    fontFamily: "lora",
     fontWeight: "700",
-    color: "#14274E",
+    color: "#1b2b48",
     marginBottom: 8,
   },
+
   row: {
     flexDirection: "row",
     alignItems: "center",

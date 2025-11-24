@@ -1,6 +1,7 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 
 const initialState = {
+  token: null,
   isSigningIn: false,
   isSigningUp: false,
   signInError: null as any,
@@ -21,10 +22,14 @@ export const signInUser = createAsyncThunk(
         await setActive({ session: signInAttempt.createdSessionId });
         return { success: true };
       } else {
-        return rejectWithValue("Sign-in incomplete. Please check your credentials.");
+        return rejectWithValue(
+          "Sign-in incomplete. Please check your credentials."
+        );
       }
     } catch (err: any) {
-      return rejectWithValue(err?.errors?.[0]?.message || "Failed to sign in. Please try again.");
+      return rejectWithValue(
+        err?.errors?.[0]?.message || "Failed to sign in. Please try again."
+      );
     }
   }
 );
@@ -32,7 +37,8 @@ export const signInUser = createAsyncThunk(
 export const signUpUser = createAsyncThunk(
   "auth/signUp",
   async (params: any, { rejectWithValue }) => {
-    const { signUp, setActive, firstName, lastName, emailAddress, password } = params;
+    const { signUp, setActive, firstName, lastName, emailAddress, password } =
+      params;
     try {
       const signUpAttempt = await signUp.create({
         firstName,
@@ -48,7 +54,9 @@ export const signUpUser = createAsyncThunk(
         return rejectWithValue("Signup incomplete. Please check your details.");
       }
     } catch (err: any) {
-      return rejectWithValue(err?.errors?.[0]?.message || "Failed to sign up. Please try again.");
+      return rejectWithValue(
+        err?.errors?.[0]?.message || "Failed to sign up. Please try again."
+      );
     }
   }
 );
@@ -62,6 +70,9 @@ const authSlice = createSlice({
     },
     clearSignUpError: (state) => {
       state.signUpError = null;
+    },
+    setToken: (state, action) => {
+      state.token = action.payload;
     },
   },
   extraReducers: (builder) => {
@@ -91,5 +102,6 @@ const authSlice = createSlice({
   },
 });
 
-export const { clearSignInError, clearSignUpError } = authSlice.actions;
+export const { clearSignInError, clearSignUpError, setToken } =
+  authSlice.actions;
 export default authSlice.reducer;

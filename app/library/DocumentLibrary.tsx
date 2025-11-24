@@ -1,6 +1,7 @@
 import CustomSafeAreaView from "@/app/components/CustomSafeAreaView";
-import { token } from "@/app/data";
 import { getAllGeneratedDocs } from "@/store/messageSlice";
+import { setToken } from "@/store/authSlice";
+import { useAuth } from "@clerk/clerk-expo";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
@@ -20,6 +21,7 @@ import Topnav from "../navs/Topnav";
 const DocumentLibrary = () => {
   const dispatch = useDispatch();
   const router = useRouter();
+  const { getToken } = useAuth();
   const { documents, loadingDocuments, documentsError } = useSelector(
     (state: any) => state.message
   );
@@ -27,9 +29,17 @@ const DocumentLibrary = () => {
   const [menuVisible, setMenuVisible] = useState(false);
 
   useEffect(() => {
-    if (token) {
-      dispatch(getAllGeneratedDocs({ token }) as any);
-    }
+    const fetchDocuments = async () => {
+      // Get fresh token from Clerk
+      const freshToken = await getToken();
+      if (freshToken) {
+        // Update token in Redux
+        dispatch(setToken(freshToken));
+        // Fetch documents
+        dispatch(getAllGeneratedDocs() as any);
+      }
+    };
+    fetchDocuments();
   }, [dispatch]);
 
   const handleMenuOpen = (doc: any) => {
@@ -106,6 +116,15 @@ const DocumentLibrary = () => {
     );
   }
 
+  const handleRetry = async () => {
+    // Get fresh token before retrying
+    const freshToken = await getToken();
+    if (freshToken) {
+      dispatch(setToken(freshToken));
+      dispatch(getAllGeneratedDocs() as any);
+    }
+  };
+
   if (documentsError) {
     return (
       <CustomSafeAreaView>
@@ -114,7 +133,7 @@ const DocumentLibrary = () => {
           <Text style={styles.errorText}>Failed to load documents</Text>
           <TouchableOpacity
             style={styles.retryButton}
-            onPress={() => dispatch(getAllGeneratedDocs({ token }) as any)}
+            onPress={handleRetry}
           >
             <Text style={styles.retryButtonText}>Retry</Text>
           </TouchableOpacity>

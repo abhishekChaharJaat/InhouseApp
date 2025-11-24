@@ -1,8 +1,10 @@
+// store/homeSlice.js (or where your slice is)
 import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
   showSidenav: false,
   showContactHelp: false,
+  isWSConnected: false, // <-- NEW
   singlePlanModal: {
     show: false,
     planType: "",
@@ -26,6 +28,11 @@ const homeSlice = createSlice({
     setShowContactHelp: (state, action) => {
       state.showContactHelp = action.payload;
     },
+
+    // NEW REDUCER
+    setWSConnected: (state, action) => {
+      state.isWSConnected = action.payload;
+    },
     setShowSinglePlanModal: (state, action) => {
       state.singlePlanModal = action.payload;
     },
@@ -40,5 +47,7 @@ export const {
   setShowContactHelp,
   setShowSinglePlanModal,
   setReferralDrawerDetails,
+  setWSConnected, // <-- EXPORT NEW ACTION
 } = homeSlice.actions;
+
 export default homeSlice.reducer;

@@ -19,26 +19,20 @@ const initialState = {
   documents: [] as any[],
   loadingDocuments: false,
   documentsError: null as any,
-  // WebSocket related state
-  connectionStatus: "disconnected" as
-    | "connected"
-    | "connecting"
-    | "disconnected"
-    | "error",
-  awaitingResponse: false,
-  requestIds: [] as string[],
+  // Chat input state
   chatInputMessage: "",
-  isWsReconnected: false,
-  showConnectionErrorModal: false,
-  retryWS: false,
-  retryWSState: "idle" as "idle" | "retrying",
-  threadLastMsgType: "",
   shouldRedirectToChat: false,
+  // WebSocket state
+  requestIds: [] as string[],
+  awaitingResponse: false,
+  threadLastMsgType: null as any,
 };
 
 export const fetchThreadMessages = createAsyncThunk(
   "chat/fetchThreadMessages",
-  async ({ threadId, token }: any, { rejectWithValue }) => {
+  async ({ threadId }: any, { rejectWithValue, getState }) => {
+    const state = getState() as any;
+    const token = state.auth.token;
     try {
       if (!token) {
         throw new Error("Authentication token not available");
@@ -59,7 +53,9 @@ export const fetchThreadMessages = createAsyncThunk(
 
 export const getAllGeneratedDocs = createAsyncThunk(
   "threads/getAllGeneratedDocs",
-  async ({ token }: any, { rejectWithValue }) => {
+  async (_, { rejectWithValue, getState }) => {
+    const state = getState() as any;
+    const token = state.auth.token;
     try {
       if (!token) {
         throw new Error("Authentication token not available");
@@ -85,61 +81,11 @@ const messageSlice = createSlice({
     clearError: (state) => {
       state.error = null;
     },
-    // WebSocket connection management
-    setConnectionStatus: (state, action) => {
-      state.connectionStatus = action.payload;
-    },
-    setAwaitingResponse: (state, action) => {
-      state.awaitingResponse = action.payload;
-    },
-    setMessagingDisabled: (state, action) => {
-      state.threadData.messaging_disabled = action.payload;
-    },
-    // Message management
-    addMessage: (state, action) => {
-      const newMessages = action.payload.new_messages || [];
-      state.threadData.messages = [
-        ...state.threadData.messages,
-        ...newMessages,
-      ];
-    },
     setChatInputMessage: (state, action) => {
       state.chatInputMessage = action.payload;
     },
-    // Thread management
-    setupNewThread: (state, action) => {
-      const { threadId, new_messages = [] } = action.payload;
-      state.threadData.id = threadId;
-      state.threadData.messages = new_messages;
-      state.shouldRedirectToChat = true; // Set flag to redirect
-    },
     clearRedirectFlag: (state) => {
       state.shouldRedirectToChat = false;
-    },
-    updateThreadDataTitle: (state, action) => {
-      if (action.payload.thread_id === state.threadData.id) {
-        state.threadData.title = action.payload.title;
-      }
-    },
-    // Request tracking
-    addRequestIds: (state, action) => {
-      state.requestIds.push(action.payload);
-    },
-    // Connection error handling
-    setShowConnectionErrorModal: (state, action) => {
-      state.showConnectionErrorModal = action.payload;
-    },
-    setRetryWS: (state, action) => {
-      state.retryWS = action.payload;
-    },
-    setRetryWSState: (state, action) => {
-      state.retryWSState = action.payload;
-    },
-    setIsWsReconnected: (state, action) => {
-      state.isWsReconnected = action.payload;
-    },
-    setThreadLastMsgType: (state, action) => {
-      state.threadLastMsgType = action.payload;
     },
     resetThreadData: (state) => {
       state.threadData = {
@@ -151,7 +97,45 @@ const messageSlice = createSlice({
         reference_thread_id: null,
         document_rating: {},
       };
-      state.threadLastMsgType = "";
+    },
+    // WebSocket actions
+    addRequestIds: (state, action) => {
+      state.requestIds.push(action.payload);
+    },
+    setAwaitingResponse: (state, action) => {
+      state.awaitingResponse = action.payload;
+    },
+    setMessagingDisabled: (state, action) => {
+      state.threadData.messaging_disabled = action.payload;
+    },
+    setupNewThread: (state, action) => {
+      const { threadId, new_messages } = action.payload;
+      state.threadData = {
+        id: threadId,
+        title: "",
+        messages: new_messages || [],
+        message_feedback: {},
+        messaging_disabled: false,
+        reference_thread_id: null,
+        document_rating: {},
+      };
+      state.shouldRedirectToChat = true;
+    },
+    addMessage: (state, action) => {
+      const { new_messages } = action.payload;
+      if (new_messages && Array.isArray(new_messages)) {
+        state.threadData.messages = [
+          ...state.threadData.messages,
+          ...new_messages,
+        ];
+      }
+    },
+    updateThreadDataTitle: (state, action) => {
+      const { title } = action.payload;
+      state.threadData.title = title;
+    },
+    setThreadLastMsgType: (state, action) => {
+      state.threadLastMsgType = action.payload;
     },
   },
   extraReducers: (builder) => {
@@ -204,20 +188,15 @@ const messageSlice = createSlice({
 
 export const {
   clearError,
-  setConnectionStatus,
+  setChatInputMessage,
+  clearRedirectFlag,
+  resetThreadData,
+  addRequestIds,
   setAwaitingResponse,
   setMessagingDisabled,
-  addMessage,
-  setChatInputMessage,
   setupNewThread,
-  clearRedirectFlag,
+  addMessage,
   updateThreadDataTitle,
-  addRequestIds,
-  setShowConnectionErrorModal,
-  setRetryWS,
-  setRetryWSState,
-  setIsWsReconnected,
   setThreadLastMsgType,
-  resetThreadData,
 } = messageSlice.actions;
 export default messageSlice.reducer;

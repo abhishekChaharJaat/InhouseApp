@@ -1,5 +1,7 @@
 import { DRAWER } from "@/app/constants";
 import { closeReferralDrawer } from "@/app/helpers";
+import { useAuth } from "@clerk/clerk-expo";
+import { Ionicons } from "@expo/vector-icons";
 import React, { useState } from "react";
 import {
   Modal,
@@ -16,16 +18,19 @@ import FinalizationHeader from "./FinalizationHeader";
 import PersonalInjuryHeader from "./PersonalInjouryHeader";
 
 function Referraldrawer() {
+  const { isSignedIn } = useAuth();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [details, setDetails] = useState("");
+
   const { show, drawerType, threadId } = useSelector(
     (state: any) => state.home.referralDrawerDetails
   );
   const dispatch = useDispatch();
 
   const handleSubmit = () => {
-    console.log(name);
+    console.log(name, email, details, threadId);
+    // Add your submit logic here
   };
 
   const onClose = () => {
@@ -50,7 +55,10 @@ function Referraldrawer() {
         {/* bottom sheet */}
         <View style={styles.bottomContainer}>
           <View style={styles.drawer}>
-            <View style={styles.handle} />
+            {/* Close icon in top-right */}
+            <TouchableOpacity onPress={onClose} style={styles.closeButton}>
+              <Ionicons name="close" size={24} color="#4A5568" />
+            </TouchableOpacity>
 
             <ScrollView
               contentContainerStyle={styles.contentContainer}
@@ -61,27 +69,30 @@ function Referraldrawer() {
               {drawerType === DRAWER.CONSULTATION && <ConsultationHeader />}
               {drawerType === DRAWER.FINALIZATION && <FinalizationHeader />}
 
-              {/* Name */}
-              <Text style={styles.label}>Your name</Text>
-              <TextInput
-                style={styles.input}
-                placeholder="Enter your full name"
-                value={name}
-                onChangeText={setName}
-                placeholderTextColor="#A0AEC0"
-              />
+              {/* Name / Email when not signed in */}
+              {!isSignedIn && (
+                <>
+                  <Text style={styles.label}>Your name</Text>
+                  <TextInput
+                    style={styles.input}
+                    placeholder="Enter your full name"
+                    value={name}
+                    onChangeText={setName}
+                    placeholderTextColor="#A0AEC0"
+                  />
 
-              {/* Email */}
-              <Text style={styles.label}>Email address</Text>
-              <TextInput
-                style={styles.input}
-                placeholder="Enter your email"
-                keyboardType="email-address"
-                autoCapitalize="none"
-                value={email}
-                onChangeText={setEmail}
-                placeholderTextColor="#A0AEC0"
-              />
+                  <Text style={styles.label}>Email address</Text>
+                  <TextInput
+                    style={styles.input}
+                    placeholder="Enter your email"
+                    keyboardType="email-address"
+                    autoCapitalize="none"
+                    value={email}
+                    onChangeText={setEmail}
+                    placeholderTextColor="#A0AEC0"
+                  />
+                </>
+              )}
 
               {/* Details textarea */}
               <Text style={styles.label}>
@@ -98,7 +109,7 @@ function Referraldrawer() {
                 placeholderTextColor="#A0AEC0"
               />
 
-              {/* Footer */}
+              {/* Footer CTA */}
               {drawerType === DRAWER.CONSULTATION ? (
                 <TouchableOpacity
                   style={styles.ctaButton}
@@ -147,18 +158,17 @@ const styles = StyleSheet.create({
     backgroundColor: "#FFFFFF",
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
-    paddingTop: 8,
+    paddingTop: 16,
     paddingHorizontal: 20,
     paddingBottom: 24,
     maxHeight: "90%",
   },
-  handle: {
-    alignSelf: "center",
-    width: 40,
-    height: 4,
-    borderRadius: 2,
-    backgroundColor: "#CBD5E0",
-    marginBottom: 8,
+  closeButton: {
+    position: "absolute",
+    top: 10,
+    right: 10,
+    padding: 6,
+    zIndex: 10,
   },
   contentContainer: {
     paddingBottom: 24,
@@ -203,7 +213,6 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: "#4A5568",
   },
-
   label: {
     fontSize: 14,
     fontWeight: "500",
@@ -230,7 +239,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   ctaButton: {
-    backgroundColor: "#14274E",
+    backgroundColor: "#1b2b48",
     borderRadius: 24,
     paddingVertical: 14,
     alignItems: "center",
@@ -244,7 +253,7 @@ const styles = StyleSheet.create({
     fontWeight: "600",
   },
   footerText: {
-    fontSize: 11,
+    fontSize: 12,
     color: "#718096",
     lineHeight: 16,
   },
