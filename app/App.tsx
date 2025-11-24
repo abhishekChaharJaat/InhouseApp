@@ -18,6 +18,7 @@ import {
 } from "./providers/wsClient";
 import NotSupportedModal from "./modals/NotSupportedModal";
 import { getAllThreads } from "@/store/threadSlice";
+import MultiPlanModal from "./modals/multi-plan-modal";
 
 // -------------------------------------------------------
 // AppContent – runs inside Clerk + Redux providers
@@ -120,6 +121,7 @@ export function AppContent() {
       <ContactHelp />
       <SideNav />
       <SinglePlanModal />
+      <MultiPlanModal />
       <Stack
         screenOptions={{
           headerShown: false,

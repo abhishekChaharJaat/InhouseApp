@@ -137,6 +137,7 @@ function ChatPage({ threadId }: any) {
               }
             />
           )}
+
           {/* Input at bottom */}
           <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
             <View>

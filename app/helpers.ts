@@ -1,6 +1,7 @@
 import { AppDispatch } from "@/store";
 import {
   setReferralDrawerDetails,
+  setShowMultiPlanModal,
   setShowNotSupportedModal,
   setShowSinglePlanModal,
 } from "@/store/homeSlice";
@@ -127,8 +128,7 @@ export const handleLegalReviewButtonClicked = (
     btn?.eligible_offers?.lawyer_finalization === "default" &&
     btn.text === "Access Document"
   ) {
-    showSinglePlanModal(true, dispatch, PLANS.LAWYER_FINALLIZATION);
-    // showMultiModal(true, dispatch, ["ai_doc", "lawyer_finalization"]);
+    dispatch(setShowMultiPlanModal(true));
     return;
   }
 

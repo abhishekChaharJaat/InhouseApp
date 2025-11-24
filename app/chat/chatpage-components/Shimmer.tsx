@@ -29,7 +29,7 @@ const Shimmer = () => {
         if (prev === "...") return "";
         return prev + ".";
       });
-    }, 500);
+    }, 250);
 
     return () => clearInterval(interval);
   }, []);

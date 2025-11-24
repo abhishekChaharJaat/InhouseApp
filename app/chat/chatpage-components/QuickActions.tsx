@@ -4,6 +4,10 @@ import { Ionicons } from "@expo/vector-icons";
 import React from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
+import {
+  addMessageToThread,
+  sendWebSocketMessage,
+} from "@/app/providers/wsClient";
 
 const QuickActions = ({ message }: any) => {
   const dispatch = useDispatch();
@@ -30,6 +34,14 @@ const QuickActions = ({ message }: any) => {
           userMetadata,
           threadData?.id
         );
+        break;
+      }
+      case "draft": {
+        const msg = button.text;
+        if (msg && threadData?.id) {
+          const message = addMessageToThread(threadData.id, msg, "draft");
+          sendWebSocketMessage(null, message);
+        }
         break;
       }
     }

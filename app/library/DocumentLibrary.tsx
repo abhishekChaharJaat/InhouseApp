@@ -301,7 +301,7 @@ const styles = StyleSheet.create({
   },
   documentTitle: {
     fontSize: 14,
-    color: "#007AFF",
+    color: "#0257b1ff",
     marginBottom: 4,
     textDecorationLine: "underline",
   },
@@ -311,7 +311,19 @@ const styles = StyleSheet.create({
   },
   menuButton: {
     padding: 8,
+    borderWidth: 1,
+    borderRadius: 50,
+    borderColor: "#e7e6e6ff",
+    // iOS shadow
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.15,
+    shadowRadius: 4,
+
+    // Android shadow
+    elevation: 2,
   },
+
   modalOverlay: {
     flex: 1,
     backgroundColor: "rgba(0, 0, 0, 0.5)",

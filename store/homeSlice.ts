@@ -5,6 +5,7 @@ const initialState = {
   showSidenav: false,
   showContactHelp: false,
   showNotSupportedModal: false,
+  showMultiPlanModal: false,
   isWSConnected: false, // <-- NEW
   singlePlanModal: {
     show: false,
@@ -29,7 +30,9 @@ const homeSlice = createSlice({
     setShowContactHelp: (state, action) => {
       state.showContactHelp = action.payload;
     },
-
+    setShowMultiPlanModal: (state, action) => {
+      state.showMultiPlanModal = action.payload;
+    },
     // NEW REDUCER
     setWSConnected: (state, action) => {
       state.isWSConnected = action.payload;
@@ -53,6 +56,7 @@ export const {
   setReferralDrawerDetails,
   setWSConnected, // <-- EXPORT NEW ACTION
   setShowNotSupportedModal,
+  setShowMultiPlanModal,
 } = homeSlice.actions;
 
 export default homeSlice.reducer;

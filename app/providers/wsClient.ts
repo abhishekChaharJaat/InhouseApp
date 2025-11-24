@@ -380,11 +380,22 @@ export const createThreadMessage = () => {
 /**
  * Add a message to a thread
  */
-export const addMessageToThread = (threadId: string, messageText: string) => {
-  return createMessage("ask", "add-message", {
-    thread_id: threadId,
-    message: messageText,
-  });
+export const addMessageToThread = (
+  threadId: string,
+  messageText: string,
+  messageType?: string
+) => {
+  if (messageType && messageType === "draft") {
+    return createMessage("draft", "add-message", {
+      thread_id: threadId,
+      message: messageText,
+    });
+  } else {
+    return createMessage("ask", "add-message", {
+      thread_id: threadId,
+      message: messageText,
+    });
+  }
 };
 
 /**
