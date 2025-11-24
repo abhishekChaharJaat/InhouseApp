@@ -5,8 +5,8 @@ import {
   setShowNotSupportedModal,
   setShowSinglePlanModal,
 } from "@/store/homeSlice";
-import { DRAWER, PLANS } from "./constants";
 import { Clerk } from "@clerk/clerk-expo";
+import { DRAWER, PLANS } from "./constants";
 
 // For store token
 export const getToken = async () => {
@@ -65,8 +65,10 @@ export const handleLegalReviewButtonClicked = (
   btn: any,
   dispatch: AppDispatch,
   userMetadata: any,
-  chatId: string | null
+  chatId: string | null,
+  isDocLocked?: boolean
 ) => {
+  console.log("Plan ", userMetadata?.subscription_type);
   let isElegibleOffersNull =
     btn?.eligible_offers?.lawyer_finalization === null &&
     btn?.eligible_offers?.lawyer_consultation === null &&
@@ -75,8 +77,7 @@ export const handleLegalReviewButtonClicked = (
   if (
     btn?.eligible_offers === null ||
     isElegibleOffersNull ||
-    btn?.eligible_offers?.ai_document === "court_document"
-    // && isDocumentUnlocked(chatId))
+    (btn?.eligible_offers?.ai_document === "court_document" && isDocLocked)
   ) {
     dispatch(setShowNotSupportedModal(true));
     return;

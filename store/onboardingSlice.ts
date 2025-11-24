@@ -13,7 +13,7 @@ const initialState = {
 export const getUserMetadata = createAsyncThunk(
   "onboarding/getUserMetadata",
   async ({ threadId }: { threadId?: any }, { rejectWithValue }) => {
-    const token = getToken();
+    const token = await getToken();
     try {
       if (!token) {
         throw new Error("Authentication token not available");
@@ -21,9 +21,9 @@ export const getUserMetadata = createAsyncThunk(
 
       let url = `${BASE_ENDPOINT}/api/user/get-metadata`;
       // Add threadId as query parameter if provided
-      if (threadId && threadId !== "null") {
-        url += `?anonymous_thread_id=${threadId}`;
-      }
+      // if (threadId && threadId !== "null") {
+      //   url += `?anonymous_thread_id=${threadId}`;
+      // }
 
       const headers = { Authorization: `Bearer ${token}` };
       const response = await axios.get(url, { headers });
