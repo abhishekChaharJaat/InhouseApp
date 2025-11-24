@@ -1,9 +1,16 @@
 import { AppDispatch } from "@/store";
 import {
   setReferralDrawerDetails,
+  setShowNotSupportedModal,
   setShowSinglePlanModal,
 } from "@/store/homeSlice";
 import { DRAWER, PLANS } from "./constants";
+import { Clerk } from "@clerk/clerk-expo";
+
+// For store token
+export const getToken = async () => {
+  return await Clerk.session?.getToken();
+};
 
 export const formatDateTime = (value: any) => {
   const d = new Date(value);
@@ -70,7 +77,7 @@ export const handleLegalReviewButtonClicked = (
     btn?.eligible_offers?.ai_document === "court_document"
     // && isDocumentUnlocked(chatId))
   ) {
-    console.log("show not support modal");
+    dispatch(setShowNotSupportedModal(true));
     return;
   }
   // Free case

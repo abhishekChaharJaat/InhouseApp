@@ -28,18 +28,9 @@ const DocumentLibrary = () => {
   const [selectedDoc, setSelectedDoc] = useState<any>(null);
   const [menuVisible, setMenuVisible] = useState(false);
 
+  // fetch all docs
   useEffect(() => {
-    const fetchDocuments = async () => {
-      // Get fresh token from Clerk
-      const freshToken = await getToken();
-      if (freshToken) {
-        // Update token in Redux
-        dispatch(setToken(freshToken));
-        // Fetch documents
-        dispatch(getAllGeneratedDocs() as any);
-      }
-    };
-    fetchDocuments();
+    dispatch(getAllGeneratedDocs() as any);
   }, [dispatch]);
 
   const handleMenuOpen = (doc: any) => {
@@ -53,7 +44,6 @@ const DocumentLibrary = () => {
   };
 
   const handleDownload = () => {
-    // TODO: Implement download functionality
     console.log("Download document:", selectedDoc);
     handleMenuClose();
   };
@@ -78,18 +68,27 @@ const DocumentLibrary = () => {
       <View style={styles.documentCard}>
         <View style={styles.documentInfo}>
           <View style={styles.titleRow}>
+            <Ionicons
+              name={isLocked ? "lock-closed" : "document-text-outline"}
+              size={16}
+              color={isLocked ? "#666" : "#000"}
+              style={styles.titleIcon}
+            />
             <Text style={styles.documentName} numberOfLines={1}>
               {item.document_name || item.document_title}
             </Text>
-            {isLocked && (
-              <View style={styles.lockedBadge}>
-                <Ionicons name="lock-closed" size={12} color="#666" />
-              </View>
-            )}
           </View>
-          <Text style={styles.documentTitle} numberOfLines={1}>
-            {item.thread_title}
-          </Text>
+          <TouchableOpacity
+            onPress={() => {
+              if (item.thread_id) {
+                router.push(`/chat/${item.thread_id}` as any);
+              }
+            }}
+          >
+            <Text style={styles.documentTitle} numberOfLines={1}>
+              {item.thread_title}
+            </Text>
+          </TouchableOpacity>
           <Text style={styles.documentDate}>
             {formatDateTime(item.document_creation_time)}
           </Text>
@@ -291,22 +290,20 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginBottom: 4,
   },
+  titleIcon: {
+    marginRight: 8,
+  },
   documentName: {
     fontSize: 16,
     fontWeight: "600",
     color: "#000",
     flex: 1,
   },
-  lockedBadge: {
-    backgroundColor: "#f5f5f5",
-    borderRadius: 4,
-    padding: 4,
-    marginLeft: 8,
-  },
   documentTitle: {
     fontSize: 14,
-    color: "#666",
+    color: "#007AFF",
     marginBottom: 4,
+    textDecorationLine: "underline",
   },
   documentDate: {
     fontSize: 12,

@@ -2,7 +2,6 @@ import { resetThreadData } from "@/store/messageSlice";
 import { deleteThread } from "@/store/threadSlice";
 import { Ionicons } from "@expo/vector-icons";
 import { router, usePathname } from "expo-router";
-
 import React, { useState } from "react";
 import {
   ActivityIndicator,
@@ -24,7 +23,7 @@ interface RenameShareDeleteProps {
 }
 
 const RenameShareDelete: React.FC<RenameShareDeleteProps> = ({
-  threadId,
+  threadId = null,
   onShare,
   onRename,
   iconSize = 24,
@@ -56,6 +55,17 @@ const RenameShareDelete: React.FC<RenameShareDeleteProps> = ({
     }
   };
 
+  const deleteConfirm = () => {
+    dispatch(deleteThread(threadId) as any).then((result: any) => {
+      if (!result.error) {
+        dispatch(resetThreadData());
+        if (pathname !== "/history/ChatHistory") {
+          router.replace("/home/Home");
+        }
+      }
+    });
+  };
+
   const handleDelete = () => {
     setMenuVisible(false);
 
@@ -76,17 +86,7 @@ const RenameShareDelete: React.FC<RenameShareDeleteProps> = ({
           text: "Delete",
           style: "destructive",
           onPress: () => {
-            dispatch(deleteThread({ id: threadId }) as any).then(
-              (result: any) => {
-                if (!result.error) {
-                  // Reset thread data after successful deletion
-                  dispatch(resetThreadData());
-                  if (pathname !== "/history/ChatHistory") {
-                    router.replace("/home/Home");
-                  }
-                }
-              }
-            );
+            deleteConfirm();
           },
         },
       ]

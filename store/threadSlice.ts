@@ -1,3 +1,4 @@
+import { getToken } from "@/app/helpers";
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import axios from "axios";
 
@@ -6,11 +7,11 @@ const BASE_ENDPOINT = "https://api-dev.inhouse.app";
 const initialState = {
   // Threads list state
   threads: {
-    today: [] as any[],
-    yesterday: [] as any[],
-    previous_7_days: [] as any[],
-    previous_30_days: [] as any[],
-    older: [] as any[],
+    today: [],
+    yesterday: [],
+    previous_7_days: [],
+    previous_30_days: [],
+    older: [],
   },
   loadingThreads: false,
   threadsError: null as any,
@@ -20,9 +21,8 @@ const initialState = {
 
 export const getAllThreads = createAsyncThunk(
   "threads/getAllThreads",
-  async (_, { rejectWithValue, getState }) => {
-    const state = getState() as any;
-    const token = state.auth.token;
+  async (_, { rejectWithValue }) => {
+    const token = await getToken();
     try {
       if (!token) {
         throw new Error("Authentication token not available");
@@ -43,17 +43,16 @@ export const getAllThreads = createAsyncThunk(
 
 export const deleteThread = createAsyncThunk(
   "threads/deleteThread",
-  async ({ id }: any, { rejectWithValue, getState }) => {
-    const state = getState() as any;
-    const token = state.auth.token;
+  async (threadId: string | null, { rejectWithValue }) => {
+    const token = await getToken();
     try {
       if (!token) {
         throw new Error("Authentication token not available");
       }
-      const url = `${BASE_ENDPOINT}/api/thread/${id}/delete`;
+      const url = `${BASE_ENDPOINT}/api/thread/${threadId}/delete`;
       const headers = { Authorization: `Bearer ${token}` };
       const response = await axios.delete(url, { headers });
-      return { response: response.data, threadId: id };
+      return { response: response.data, threadId: threadId };
     } catch (error: any) {
       const errorMessage =
         error.response?.data?.detail ||

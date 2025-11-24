@@ -11,6 +11,7 @@ import {
   updateThreadDataTitle,
   setThreadLastMsgType,
 } from "@/store/messageSlice";
+import { getAllThreads } from "@/store/threadSlice";
 
 const WS_BASE_ENDPOINT =
   process.env.EXPO_PUBLIC_WS_BASE_ENDPOINT || "wss://api-dev.inhouse.app";
@@ -152,6 +153,7 @@ export const handleNewFormatMessage = (message: any) => {
           title: message.payload.title,
         })
       );
+      dispatch(getAllThreads() as any);
       console.log("Title updated:", message.payload.title);
       break;
 

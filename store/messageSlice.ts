@@ -1,7 +1,52 @@
+import { getToken } from "@/app/helpers";
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import axios from "axios";
 
 const BASE_ENDPOINT = "https://api-dev.inhouse.app";
+
+export const fetchThreadMessages = createAsyncThunk(
+  "chat/fetchThreadMessages",
+  async (threadId: any, { rejectWithValue }) => {
+    const token = await getToken();
+    try {
+      if (!token) {
+        throw new Error("Authentication token not available");
+      }
+      const url = `${BASE_ENDPOINT}/api/thread/${threadId}/list-messages`;
+      const headers = { Authorization: `Bearer ${token}` };
+      const response = await axios.get(url, { headers });
+      return response.data;
+    } catch (error: any) {
+      const errorMessage =
+        error.response?.data?.detail ||
+        error.message ||
+        "Failed to fetch messages";
+      return rejectWithValue(errorMessage);
+    }
+  }
+);
+
+export const getAllGeneratedDocs = createAsyncThunk(
+  "threads/getAllGeneratedDocs",
+  async (_, { rejectWithValue }) => {
+    const token = await getToken();
+    try {
+      if (!token) {
+        throw new Error("Authentication token not available");
+      }
+      const url = `${BASE_ENDPOINT}/api/user/document-library`;
+      const headers = { Authorization: `Bearer ${token}` };
+      const response = await axios.get(url, { headers });
+      return response.data;
+    } catch (error: any) {
+      const errorMessage =
+        error.response?.data?.detail ||
+        error.message ||
+        "Failed to fetch documents";
+      return rejectWithValue(errorMessage);
+    }
+  }
+);
 
 const initialState = {
   threadData: {
@@ -27,52 +72,6 @@ const initialState = {
   awaitingResponse: false,
   threadLastMsgType: null as any,
 };
-
-export const fetchThreadMessages = createAsyncThunk(
-  "chat/fetchThreadMessages",
-  async ({ threadId }: any, { rejectWithValue, getState }) => {
-    const state = getState() as any;
-    const token = state.auth.token;
-    try {
-      if (!token) {
-        throw new Error("Authentication token not available");
-      }
-      const url = `${BASE_ENDPOINT}/api/thread/${threadId}/list-messages`;
-      const headers = { Authorization: `Bearer ${token}` };
-      const response = await axios.get(url, { headers });
-      return response.data;
-    } catch (error: any) {
-      const errorMessage =
-        error.response?.data?.detail ||
-        error.message ||
-        "Failed to fetch messages";
-      return rejectWithValue(errorMessage);
-    }
-  }
-);
-
-export const getAllGeneratedDocs = createAsyncThunk(
-  "threads/getAllGeneratedDocs",
-  async (_, { rejectWithValue, getState }) => {
-    const state = getState() as any;
-    const token = state.auth.token;
-    try {
-      if (!token) {
-        throw new Error("Authentication token not available");
-      }
-      const url = `${BASE_ENDPOINT}/api/user/document-library`;
-      const headers = { Authorization: `Bearer ${token}` };
-      const response = await axios.get(url, { headers });
-      return response.data;
-    } catch (error: any) {
-      const errorMessage =
-        error.response?.data?.detail ||
-        error.message ||
-        "Failed to fetch documents";
-      return rejectWithValue(errorMessage);
-    }
-  }
-);
 
 const messageSlice = createSlice({
   name: "message",

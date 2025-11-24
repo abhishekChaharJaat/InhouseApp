@@ -4,6 +4,7 @@ import { createSlice } from "@reduxjs/toolkit";
 const initialState = {
   showSidenav: false,
   showContactHelp: false,
+  showNotSupportedModal: false,
   isWSConnected: false, // <-- NEW
   singlePlanModal: {
     show: false,
@@ -39,6 +40,9 @@ const homeSlice = createSlice({
     setReferralDrawerDetails: (state, action) => {
       state.referralDrawerDetails = action.payload;
     },
+    setShowNotSupportedModal: (state, action) => {
+      state.showNotSupportedModal = action.payload;
+    },
   },
 });
 
@@ -48,6 +52,7 @@ export const {
   setShowSinglePlanModal,
   setReferralDrawerDetails,
   setWSConnected, // <-- EXPORT NEW ACTION
+  setShowNotSupportedModal,
 } = homeSlice.actions;
 
 export default homeSlice.reducer;

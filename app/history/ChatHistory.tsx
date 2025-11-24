@@ -11,36 +11,20 @@ import {
 } from "react-native";
 // If you don't use Expo, change/remove this and the <Ionicons> below
 import CustomSafeAreaView from "@/app/components/CustomSafeAreaView";
-import RenameShareDelete from "@/app/components/RenameShareDelete";
+import RenameShareDelete from "@/app/modals/RenameShareDelete";
 import { getAllThreads } from "@/store/threadSlice";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { useDispatch, useSelector } from "react-redux";
 import { formatDateTime } from "../helpers";
 import Topnav from "../navs/Topnav";
-import { setToken } from "@/store/authSlice";
-import { useAuth } from "@clerk/clerk-expo";
+
 const ChatHistory = () => {
   const [query, setQuery] = useState("");
   const dispatch = useDispatch();
-  const { getToken } = useAuth();
   const { threads, loadingThreads, threadsError } = useSelector(
     (state: any) => state.thread
   );
-
-  useEffect(() => {
-    const fetchAllThreads = async () => {
-      // Get fresh token from Clerk
-      const freshToken = await getToken();
-      if (freshToken) {
-        // Update token in Redux
-        dispatch(setToken(freshToken));
-        // Fetch documents
-        dispatch(getAllThreads() as any);
-      }
-    };
-    fetchAllThreads();
-  }, [dispatch]);
 
   const sections = useMemo(() => {
     const labelMap = {

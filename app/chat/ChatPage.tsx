@@ -48,7 +48,7 @@ function ChatPage({ threadId }: any) {
   const flatListRef = useRef<FlatList<any>>(null);
 
   useEffect(() => {
-    (dispatch as any)(fetchThreadMessages({ threadId }));
+    (dispatch as any)(fetchThreadMessages(threadId));
   }, [threadId, dispatch]);
 
   const messages = threadData?.messages ?? [];

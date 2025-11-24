@@ -43,19 +43,15 @@ function Home() {
 
   const handleSend = () => {
     const trimmedMessage = inputMessage.trim();
-
     if (!trimmedMessage) {
-      Alert.alert("Error", "Please enter a message");
+      Alert.alert("Alert", "Please enter a message");
       return;
     }
-
     // Store the pending message
     setPendingInitialMessage(trimmedMessage);
-
     // Create thread via WebSocket
     const message = createThreadMessage();
     const success = sendWebSocketMessage(null, message);
-
     if (success) {
       console.log("Thread creation request sent");
     }
@@ -70,7 +66,6 @@ function Home() {
     if (shouldRedirectToChat && threadData?.id) {
       console.log("Redirecting to thread:", threadData.id);
       router.push(`/chat/${threadData.id}`);
-      // Clear the redirect flag to prevent infinite loop
       dispatch(clearRedirectFlag());
     }
   }, [shouldRedirectToChat, threadData?.id]);

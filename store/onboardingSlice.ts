@@ -1,3 +1,4 @@
+import { getToken } from "@/app/helpers";
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import axios from "axios";
 
@@ -11,10 +12,8 @@ const initialState = {
 
 export const getUserMetadata = createAsyncThunk(
   "onboarding/getUserMetadata",
-  async (
-    { token, threadId }: { token: string; threadId?: string },
-    { rejectWithValue }
-  ) => {
+  async ({ threadId }: { threadId?: any }, { rejectWithValue }) => {
+    const token = getToken();
     try {
       if (!token) {
         throw new Error("Authentication token not available");

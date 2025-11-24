@@ -4,7 +4,7 @@ import React from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
 import { setShowSidenav } from "../../store/homeSlice";
-import RenameShareDelete from "../components/RenameShareDelete";
+import RenameShareDelete from "../modals/RenameShareDelete";
 import { UserProfile } from "./UserProfile";
 
 export default function Topnav({ page, title, threadId }: any) {
