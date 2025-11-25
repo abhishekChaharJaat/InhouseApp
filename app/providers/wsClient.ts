@@ -134,14 +134,14 @@ export const handleNewFormatMessage = (message: any) => {
 
           if (sendWebSocketMessage(wsInstance, triggerMsg)) {
             dispatch(setAwaitingResponse(true));
+            dispatch(setMessagingDisabled(true));
           } else {
             dispatch(setAwaitingResponse(false));
+            dispatch(setMessagingDisabled(false));
           }
-        } else {
-          dispatch(setAwaitingResponse(false));
         }
-      } else {
-        dispatch(setAwaitingResponse(false));
+        // NOTE: Don't set awaitingResponse = false here for AI messages
+        // The enable_messaging event will handle that
       }
       dispatch(setChatInputMessage(""));
       break;
@@ -158,9 +158,22 @@ export const handleNewFormatMessage = (message: any) => {
       break;
 
     case "enable_messaging":
-      dispatch(setMessagingDisabled(false));
-      dispatch(setAwaitingResponse(false));
-      console.log("Messaging enabled");
+      // Validate thread_id matches current thread before enabling
+      const enableMsgState = store.getState();
+      const enableMsgCurrentThreadId = enableMsgState.message.threadData?.id;
+
+      if (message.payload.thread_id === enableMsgCurrentThreadId) {
+        dispatch(setMessagingDisabled(false));
+        dispatch(setAwaitingResponse(false));
+        console.log("Messaging enabled for thread:", message.payload.thread_id);
+      } else {
+        console.log(
+          "Ignoring enable_messaging for different thread:",
+          message.payload.thread_id,
+          "current:",
+          enableMsgCurrentThreadId
+        );
+      }
       break;
 
     case "document_generated":
@@ -291,6 +304,7 @@ export const handleWebSocketMessage = (event: MessageEvent) => {
     // Get requestIds from store
     const state = store.getState();
     const requestIds = state.message.requestIds || [];
+    const currentThreadId = state.message.threadData?.id;
 
     // Filter messages
     const isValidStatusCodeMessage =
@@ -300,7 +314,15 @@ export const handleWebSocketMessage = (event: MessageEvent) => {
     const isLegacyMessage =
       message.action && message.action.startsWith("chat/");
 
-    if (!isValidStatusCodeMessage && !isInRequestIds && !isLegacyMessage) {
+    // Allow enable_messaging messages through - these are critical for re-enabling chat
+    const isEnableMessagingMessage =
+      message.status_code === 200 && message.payload?.type === "enable_messaging";
+
+    // Allow messages for current thread
+    const isCurrentThreadMessage =
+      message.payload?.thread_id === currentThreadId;
+
+    if (!isValidStatusCodeMessage && !isInRequestIds && !isLegacyMessage && !isEnableMessagingMessage && !isCurrentThreadMessage) {
       console.log("Message filtered out:", message);
       return;
     }

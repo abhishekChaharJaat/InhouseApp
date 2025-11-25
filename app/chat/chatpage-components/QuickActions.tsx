@@ -1,13 +1,13 @@
 // components/QuickActions.tsx
 import { handleLegalReviewButtonClicked } from "@/app/helpers";
-import { Ionicons } from "@expo/vector-icons";
-import React from "react";
-import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import { useDispatch, useSelector } from "react-redux";
 import {
   addMessageToThread,
   sendWebSocketMessage,
 } from "@/app/providers/wsClient";
+import { Ionicons } from "@expo/vector-icons";
+import React from "react";
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { useDispatch, useSelector } from "react-redux";
 
 const QuickActions = ({ message }: any) => {
   const dispatch = useDispatch();
@@ -87,9 +87,9 @@ const QuickActions = ({ message }: any) => {
 
                 {fastDraft && (
                   <Ionicons
-                    name="leaf-outline"
+                    name="flash-outline" // lightning bolt icon
                     size={16}
-                    color="#0FAF62" // green icon
+                    color="#B45F04" // dark orange
                     style={styles.quickActionIcon}
                   />
                 )}
