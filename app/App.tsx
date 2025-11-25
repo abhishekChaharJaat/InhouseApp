@@ -25,7 +25,7 @@ import {
 // AppContent – runs inside Clerk + Redux providers
 // -------------------------------------------------------
 export function AppContent() {
-  const { getToken, isSignedIn } = useAuth();
+  const { getToken, isSignedIn, isLoaded } = useAuth();
   const dispatch = useDispatch<AppDispatch>();
   // Call on mount and when user signs in
   useEffect(() => {
@@ -49,55 +49,58 @@ export function AppContent() {
     };
   }, [isSignedIn]);
 
-  // Only run when signed in
+  // Single WebSocket effect - handles both auth and anonymous connections
   useEffect(() => {
-    if (!isSignedIn) return;
+    // Wait for Clerk to finish loading before establishing WebSocket
+    if (!isLoaded) return;
+
     let ws: WebSocket | null = null;
+    let isCleanedUp = false;
 
     const initWS = async () => {
-      console.log("✅ Authenticated - using token");
-      ws = await connectAuthWebSocket(getToken);
-      if (!ws) return console.error("❌ Failed to create WebSocket");
-      setupWebSocket(ws);
+      // Close existing connection before creating new one
+      if (ws && ws.readyState === WebSocket.OPEN) {
+        ws.close();
+      }
+
+      if (isSignedIn) {
+        console.log("✅ Authenticated - using token");
+        ws = await connectAuthWebSocket(getToken);
+      } else {
+        console.log("👻 Anonymous - using anonymous_user_id");
+        const { connectAnonymousWebSocket } = require("./providers/wsClient");
+        ws = await connectAnonymousWebSocket();
+      }
+
+      if (!ws) {
+        console.error("❌ Failed to create WebSocket");
+        return;
+      }
+
+      if (!isCleanedUp) {
+        setupWebSocket(ws);
+      }
     };
+
     initWS();
 
     const sub = AppState.addEventListener("change", (state) => {
       if (state === "active" && (!ws || ws.readyState !== WebSocket.OPEN)) {
-        console.log("App foregrounded - reconnecting AUTH WebSocket");
-        initWS();
-      }
-    });
-    return () => {
-      sub.remove();
-      if (ws && ws.readyState === WebSocket.OPEN) ws.close();
-    };
-  }, [isSignedIn]);
-
-  // Only run when logged OUT
-  useEffect(() => {
-    if (isSignedIn) return;
-    let ws: WebSocket | null = null;
-    const initWS = async () => {
-      console.log("👻 Anonymous - using anonymous_user_id");
-      const { connectAnonymousWebSocket } = require("./providers/wsClient");
-      ws = await connectAnonymousWebSocket();
-      if (!ws) return console.error("❌ Failed to create WebSocket");
-      setupWebSocket(ws);
-    };
-    initWS();
-    const sub = AppState.addEventListener("change", (state) => {
-      if (state === "active" && (!ws || ws.readyState !== WebSocket.OPEN)) {
-        console.log("App foregrounded - reconnecting ANON WebSocket");
+        console.log(
+          `App foregrounded - reconnecting ${
+            isSignedIn ? "AUTH" : "ANON"
+          } WebSocket`
+        );
         initWS();
       }
     });
 
     return () => {
+      isCleanedUp = true;
       sub.remove();
       if (ws && ws.readyState === WebSocket.OPEN) ws.close();
     };
-  }, []);
+  }, [isLoaded, isSignedIn]);
 
   const setupWebSocket = (ws: WebSocket) => {
     if (!ws) return;

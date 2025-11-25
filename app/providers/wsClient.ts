@@ -453,7 +453,6 @@ export const getAnonymousUserId = async (): Promise<string> => {
   try {
     // Try to get existing ID
     let anonymousId = await SecureStore.getItemAsync("anonymous_user_id");
-
     if (!anonymousId) {
       // Generate new ID if doesn't exist
       anonymousId = generateAnonymousId();
