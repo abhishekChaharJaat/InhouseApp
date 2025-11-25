@@ -414,13 +414,8 @@ export const triggerAIResponse = (
 };
 
 // ============================================================================
-// CONNECTION HELPER
-// ============================================================================
 
-/**
- * Basic WebSocket connection (keep this unchanged for base layout)
- */
-export const connectBasicWebSocket = async (
+export const connectAuthWebSocket = async (
   getToken: () => Promise<string | null>
 ): Promise<WebSocket | null> => {
   try {
@@ -440,7 +435,6 @@ export const connectBasicWebSocket = async (
   }
 };
 
-// ================================================================================================
 export const connectAnonymousWebSocket =
   async (): Promise<WebSocket | null> => {
     try {

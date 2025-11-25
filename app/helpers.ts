@@ -1,4 +1,5 @@
 import { AppDispatch } from "@/store";
+import { setShowAuthModal } from "@/store/authSlice";
 import {
   setReferralDrawerDetails,
   setShowMultiPlanModal,
@@ -88,17 +89,10 @@ export const handleLegalReviewButtonClicked = (
     return;
   }
   // not authenticated and not free
-  //   if (!userMetadata?.subscription_type) {
-  //     localStorage.setItem("action_type", "consult_attorney");
-  //     dispatch(
-  //       setShowSignupToUpgradeModal({
-  //         show: true,
-  //         plans: PLANS_V2.subscriber_enterprise,
-  //         slide: "signup",
-  //       })
-  //     );
-  //     return;
-  //   }
+  if (!userMetadata?.subscription_type) {
+    dispatch(setShowAuthModal({ show: true, type: "signin" }));
+    return;
+  }
 
   // Consultation case
   if (

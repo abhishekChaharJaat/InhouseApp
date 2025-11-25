@@ -1,5 +1,5 @@
 import CustomSafeAreaView from "@/app/components/CustomSafeAreaView";
-import { signUpUser } from "@/store/authSlice";
+import { setShowAuthModal, signUpUser } from "@/store/authSlice";
 import { useSignUp } from "@clerk/clerk-expo";
 import { useRouter } from "expo-router";
 import React from "react";
@@ -42,6 +42,7 @@ export default function Signup({ isModal, setAuthMode }: any) {
       })
     );
     if (result.meta?.requestStatus === "fulfilled") {
+      dispatch(setShowAuthModal({ show: false, type: "" }));
       router.replace("/home/Home");
     } else if (result.meta?.requestStatus === "rejected") {
       Alert.alert("Error", result.payload || "Failed to sign up");

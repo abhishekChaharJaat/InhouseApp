@@ -1,3 +1,4 @@
+import { clearUserMetadata } from "@/store/onboardingSlice";
 import { useClerk, useUser } from "@clerk/clerk-expo";
 import { AntDesign, Feather, Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
@@ -12,11 +13,13 @@ import {
   TouchableWithoutFeedback,
   View,
 } from "react-native";
+import { useDispatch } from "react-redux";
 
 export const UserProfile = () => {
   const { signOut } = useClerk();
   const { user } = useUser();
   const router = useRouter();
+  const dispatch = useDispatch();
   const [open, setOpen] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
 
@@ -24,6 +27,7 @@ export const UserProfile = () => {
 
   const handleSignOut = async () => {
     if (isLoggingOut) return;
+    dispatch(clearUserMetadata());
     setIsLoggingOut(true);
     try {
       await signOut();

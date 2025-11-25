@@ -16,7 +16,7 @@ import Referraldrawer from "./modals/request-review";
 import SinglePlanModal from "./modals/signle-plan-modal";
 import SideNav from "./navs/Sidenav";
 import {
-  connectBasicWebSocket,
+  connectAuthWebSocket,
   handleWebSocketMessage,
   setWebSocketInstance,
 } from "./providers/wsClient";
@@ -27,10 +27,8 @@ import {
 export function AppContent() {
   const { getToken, isSignedIn } = useAuth();
   const dispatch = useDispatch<AppDispatch>();
-
   // Call on mount and when user signs in
   useEffect(() => {
-    // Only fetch user data if signed in
     if (isSignedIn) {
       dispatch(getUserMetadata({}) as any);
       dispatch(getAllThreads() as any);
@@ -51,78 +49,83 @@ export function AppContent() {
     };
   }, [isSignedIn]);
 
-  // Inside AppContent - WebSocket setup for BOTH authenticated and anonymous users
+  // Only run when signed in
   useEffect(() => {
-    let ws: any = null;
+    if (!isSignedIn) return;
+    let ws: WebSocket | null = null;
 
     const initWS = async () => {
-      // Choose connection type based on authentication
-      if (isSignedIn) {
-        console.log("✅ Authenticated - using token");
-        ws = await connectBasicWebSocket(getToken);
-      } else {
-        console.log("👻 Anonymous - using anonymous_user_id");
-        const { connectAnonymousWebSocket } = require("./providers/wsClient");
-        ws = await connectAnonymousWebSocket();
-      }
-      if (!ws) {
-        console.error("❌ Failed to create WebSocket");
-        return;
-      }
-      console.log("✅ WebSocket instance created");
-      setWebSocketInstance(ws);
-      ws.onopen = () => {
-        console.log("🎉 WebSocket connected!");
-        dispatch(setWSConnected(true));
-        setWebSocketInstance(ws); // Store again on open
-      };
-
-      ws.onmessage = (event: any) => {
-        if (event.data === "Connection successful!") {
-          console.log("✅ WebSocket connection successful");
-        } else {
-          handleWebSocketMessage(event);
-        }
-      };
-
-      ws.onerror = (error: any) => {
-        console.error("❌ WebSocket error:", error);
-        dispatch(setWSConnected(false));
-      };
-
-      ws.onclose = () => {
-        console.log("🔌 WebSocket closed");
-        dispatch(setWSConnected(false));
-        setWebSocketInstance(null); // Clear instance on close
-      };
+      console.log("✅ Authenticated - using token");
+      ws = await connectAuthWebSocket(getToken);
+      if (!ws) return console.error("❌ Failed to create WebSocket");
+      setupWebSocket(ws);
     };
     initWS();
 
-    // Handle app state changes for WebSocket reconnection
-    const appStateSubscription = AppState.addEventListener(
-      "change",
-      (nextAppState) => {
-        if (nextAppState === "active") {
-          // Check if WebSocket is disconnected when app comes to foreground
-          if (!ws || ws.readyState !== WebSocket.OPEN) {
-            console.log("App foregrounded - reconnecting WebSocket");
-            initWS();
-          }
-        }
+    const sub = AppState.addEventListener("change", (state) => {
+      if (state === "active" && (!ws || ws.readyState !== WebSocket.OPEN)) {
+        console.log("App foregrounded - reconnecting AUTH WebSocket");
+        initWS();
       }
-    );
-
-    // Cleanup
+    });
     return () => {
-      appStateSubscription.remove();
-      dispatch(setWSConnected(false));
-      setWebSocketInstance(null);
-      if (ws && ws.readyState === WebSocket.OPEN) {
-        console.log("🛑 Cleaning up WebSocket");
-        ws.close();
+      sub.remove();
+      if (ws && ws.readyState === WebSocket.OPEN) ws.close();
+    };
+  }, [isSignedIn]);
+
+  // Only run when logged OUT
+  useEffect(() => {
+    if (isSignedIn) return;
+    let ws: WebSocket | null = null;
+    const initWS = async () => {
+      console.log("👻 Anonymous - using anonymous_user_id");
+      const { connectAnonymousWebSocket } = require("./providers/wsClient");
+      ws = await connectAnonymousWebSocket();
+      if (!ws) return console.error("❌ Failed to create WebSocket");
+      setupWebSocket(ws);
+    };
+    initWS();
+    const sub = AppState.addEventListener("change", (state) => {
+      if (state === "active" && (!ws || ws.readyState !== WebSocket.OPEN)) {
+        console.log("App foregrounded - reconnecting ANON WebSocket");
+        initWS();
+      }
+    });
+
+    return () => {
+      sub.remove();
+      if (ws && ws.readyState === WebSocket.OPEN) ws.close();
+    };
+  }, []);
+
+  const setupWebSocket = (ws: WebSocket) => {
+    if (!ws) return;
+    ws.onopen = () => {
+      console.log("🎉 WebSocket connected!");
+      dispatch(setWSConnected(true));
+      setWebSocketInstance(ws);
+    };
+
+    ws.onmessage = (event) => {
+      if (event.data === "Connection successful!") {
+        console.log("✅ WebSocket connection successful");
+      } else {
+        handleWebSocketMessage(event);
       }
     };
-  }, [isSignedIn]); // Re-run when auth status changes
+
+    ws.onerror = (error) => {
+      console.error("❌ WebSocket error:", error);
+      dispatch(setWSConnected(false));
+    };
+
+    ws.onclose = () => {
+      console.log("🔌 WebSocket closed");
+      dispatch(setWSConnected(false));
+      setWebSocketInstance(null);
+    };
+  };
 
   return (
     <>
