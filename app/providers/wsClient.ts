@@ -3,11 +3,14 @@ import { store } from "@/store";
 import {
   addMessage,
   addRequestIds,
+  resetLoadingMessageType,
   setAwaitingResponse,
   setChatInputMessage,
+  setLoadingMessagePayload,
   setMessagingDisabled,
   setThreadLastMsgType,
   setupNewThread,
+  updateLoadingMessageType,
   updateThreadDataTitle,
 } from "@/store/messageSlice";
 import { getAllThreads } from "@/store/threadSlice";
@@ -165,6 +168,8 @@ export const handleNewFormatMessage = (message: any) => {
       if (message.payload.thread_id === enableMsgCurrentThreadId) {
         dispatch(setMessagingDisabled(false));
         dispatch(setAwaitingResponse(false));
+        // Reset loading message type when messaging is re-enabled
+        dispatch(resetLoadingMessageType());
         console.log("Messaging enabled for thread:", message.payload.thread_id);
       } else {
         console.log(
@@ -174,6 +179,44 @@ export const handleNewFormatMessage = (message: any) => {
           enableMsgCurrentThreadId
         );
       }
+      break;
+
+    case "update_loading_message":
+      // Handle loading message updates from server
+      const loadingMsgType = message.payload.loading_message_type;
+      if (loadingMsgType) {
+        dispatch(updateLoadingMessageType(loadingMsgType));
+
+        // Set payload for DOC_GENERATION to track elapsed time
+        if (message.payload.doc_generation_payload) {
+          dispatch(setLoadingMessagePayload(message.payload.doc_generation_payload));
+        } else if (message.payload.web_search_payload) {
+          dispatch(setLoadingMessagePayload(message.payload.web_search_payload));
+        } else if (message.payload.issue_spotting_payload) {
+          dispatch(setLoadingMessagePayload(message.payload.issue_spotting_payload));
+        }
+      }
+
+      // Add as a message to threadData for tracking (like web app)
+      const updateLoadingState = store.getState();
+      const updateLoadingCurrentThreadId = updateLoadingState.message.threadData?.id;
+      if (message.payload.thread_id === updateLoadingCurrentThreadId) {
+        const loadingMessage = {
+          id: message.payload.message_id || `loading-${Date.now()}`,
+          is_user_message: false,
+          created_at: new Date().toISOString(),
+          message_type: "update_loading_message",
+          payload: message.payload,
+        };
+        dispatch(
+          addMessage({
+            new_messages: [loadingMessage],
+            thread_id: message.payload.thread_id,
+          })
+        );
+        dispatch(setThreadLastMsgType("update_loading_message"));
+      }
+      console.log("Loading message updated:", loadingMsgType);
       break;
 
     case "document_generated":
@@ -197,6 +240,7 @@ export const handleNewFormatMessage = (message: any) => {
       );
       dispatch(setThreadLastMsgType("document_generated"));
       dispatch(setAwaitingResponse(false));
+      dispatch(resetLoadingMessageType());
       break;
     case "locked_document_generated":
       console.log("locked_document_generated:", message.payload);
@@ -219,6 +263,7 @@ export const handleNewFormatMessage = (message: any) => {
       );
       dispatch(setThreadLastMsgType("locked_document_generated"));
       dispatch(setAwaitingResponse(false));
+      dispatch(resetLoadingMessageType());
       break;
     case "pong":
       // Health check response - no action needed

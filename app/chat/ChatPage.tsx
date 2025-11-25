@@ -1,8 +1,15 @@
 // @ts-nocheck
 import CustomSafeAreaView from "@/app/components/CustomSafeAreaView";
 import { RootState } from "@/store";
-import { fetchThreadMessages, setChatInputMessage } from "@/store/messageSlice";
-import React, { useEffect, useRef, useState } from "react";
+import {
+  fetchThreadMessages,
+  setAwaitingResponse,
+  setChatInputMessage,
+  setLoadingMessagePayload,
+  setMessagingDisabled,
+  updateLoadingMessageType,
+} from "@/store/messageSlice";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
   ActivityIndicator,
   Alert,
@@ -52,6 +59,37 @@ function ChatPage({ threadId }: any) {
 
   const messages = threadData?.messages ?? [];
 
+  // Check if last message is update_loading_message with doc_generation_payload
+  const isDocGenerating = useMemo(() => {
+    if (messages.length === 0) return false;
+    const lastMessage = messages[messages.length - 1];
+    return (
+      lastMessage?.message_type === "update_loading_message" &&
+      lastMessage?.payload?.doc_generation_payload != null
+    );
+  }, [messages]);
+
+  // When thread loads with doc_generation in progress, set up the loading state
+  useEffect(() => {
+    if (isDocGenerating && !loadingMessages) {
+      const lastMessage = messages[messages.length - 1];
+      const payload = lastMessage?.payload;
+
+      // Set loading state
+      dispatch(setAwaitingResponse(true));
+      dispatch(setMessagingDisabled(true));
+
+      // Set the loading message type and payload
+      if (payload?.doc_generation_payload) {
+        dispatch(updateLoadingMessageType("DOC_GENERATION"));
+        dispatch(setLoadingMessagePayload(payload.doc_generation_payload));
+      }
+    }
+  }, [isDocGenerating, loadingMessages, messages, dispatch]);
+
+  // Determine if shimmer should show (either awaitingResponse OR doc is generating)
+  const shouldShowShimmer = awaitingResponse || isDocGenerating;
+
   const handleInputChange = (text: string) => {
     setInputMessage(text);
     dispatch(setChatInputMessage(text));
@@ -70,7 +108,7 @@ function ChatPage({ threadId }: any) {
       return;
     }
 
-    if (awaitingResponse) {
+    if (shouldShowShimmer) {
       Alert.alert("Please wait", "Waiting for AI response...");
       return;
     }
@@ -118,7 +156,7 @@ function ChatPage({ threadId }: any) {
                 <RenderMessages message={item} threadId={threadId} />
               )}
               ListFooterComponent={
-                awaitingResponse ? (
+                shouldShowShimmer ? (
                   <View style={styles.shimmerBox}>
                     <Shimmer />
                   </View>
@@ -146,13 +184,13 @@ function ChatPage({ threadId }: any) {
                 onSend={handleSend}
                 onAttach={handleAttach}
                 placeholder={
-                  awaitingResponse
+                  shouldShowShimmer
                     ? "Waiting for AI response..."
                     : messagingDisabled
                     ? "Messaging disabled"
                     : "Type your message..."
                 }
-                disabled={awaitingResponse || messagingDisabled}
+                disabled={shouldShowShimmer || messagingDisabled}
               />
             </View>
           </TouchableWithoutFeedback>

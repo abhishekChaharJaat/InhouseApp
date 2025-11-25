@@ -93,6 +93,9 @@ const initialState = {
   requestIds: [] as string[],
   awaitingResponse: false,
   threadLastMsgType: null as any,
+  // Loading message state
+  loadingMessageType: "DEFAULT" as string,
+  loadingMessagePayload: null as any,
 };
 
 const messageSlice = createSlice({
@@ -170,6 +173,17 @@ const messageSlice = createSlice({
     setThreadLastMsgType: (state, action) => {
       state.threadLastMsgType = action.payload;
     },
+    // Loading message type for shimmer
+    updateLoadingMessageType: (state, action) => {
+      state.loadingMessageType = action.payload;
+    },
+    setLoadingMessagePayload: (state, action) => {
+      state.loadingMessagePayload = action.payload;
+    },
+    resetLoadingMessageType: (state) => {
+      state.loadingMessageType = "DEFAULT";
+      state.loadingMessagePayload = null;
+    },
     // Add legal review message when referral is stored successfully
     addLegalReviewMessage: (state) => {
       const legalReviewMessage = {
@@ -245,6 +259,9 @@ export const {
   addMessage,
   updateThreadDataTitle,
   setThreadLastMsgType,
+  updateLoadingMessageType,
+  setLoadingMessagePayload,
+  resetLoadingMessageType,
   addLegalReviewMessage,
 } = messageSlice.actions;
 export default messageSlice.reducer;

@@ -120,12 +120,14 @@ const styles = StyleSheet.create({
 
     // Shadow only at bottom for iOS
     shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: { width: 0, height: 3 }, // horizontal offset 0, vertical offset 2
     shadowOpacity: 0.1,
     shadowRadius: 3,
+
     // No elevation for Android - using border only
     elevation: 0,
   },
+
   homeTitle: {
     fontSize: 22,
     fontWeight: "700",
@@ -145,7 +147,7 @@ const styles = StyleSheet.create({
   dot: {
     position: "absolute",
     top: 10,
-    right: 40,
+    right: 10,
     width: 14,
     height: 14,
     borderRadius: 50,
