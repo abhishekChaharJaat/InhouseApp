@@ -57,9 +57,6 @@ const LandingPage = () => {
     const success = sendWebSocketMessage(null, message);
     if (success) {
       console.log("Thread creation request sent");
-      setTimeout(() => {
-        router.push(`/chat/${threadData.id}`);
-      }, 2000);
     }
   };
 
