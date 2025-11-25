@@ -56,7 +56,6 @@ function Home() {
       console.log("Thread creation request sent");
     }
   };
-
   const handleAttach = () => {
     Alert.alert("Feature Unavailable", "File attachment coming soon.");
   };

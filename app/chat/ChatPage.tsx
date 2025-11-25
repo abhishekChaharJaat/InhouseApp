@@ -2,7 +2,6 @@
 import CustomSafeAreaView from "@/app/components/CustomSafeAreaView";
 import { RootState } from "@/store";
 import { fetchThreadMessages, setChatInputMessage } from "@/store/messageSlice";
-import { navigate } from "expo-router/build/global-state/routing";
 import React, { useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator,

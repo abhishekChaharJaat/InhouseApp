@@ -1,7 +1,8 @@
 import { SignedIn, SignedOut } from "@clerk/clerk-expo";
 import { StyleSheet, View } from "react-native";
-import Signin from "./auth/Signin";
 import Home from "./home/Home";
+import LandingPage from "./try/LandingPage";
+
 export default function Index() {
   return (
     <View style={styles.container}>
@@ -9,7 +10,8 @@ export default function Index() {
         <Home />
       </SignedIn>
       <SignedOut>
-        <Signin />
+        {/* <Signin /> */}
+        <LandingPage />
       </SignedOut>
     </View>
   );

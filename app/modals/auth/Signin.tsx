@@ -17,7 +17,7 @@ import {
 } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
 
-export default function Signin() {
+export default function Signin({ isModal, setAuthMode }: any) {
   const { signIn, setActive, isLoaded } = useSignIn();
   const router = useRouter();
   const dispatch = useDispatch();
@@ -42,113 +42,125 @@ export default function Signin() {
     Alert.alert("Google sign-in", "Wire this to your Google OAuth flow.");
   };
 
+  const content = (
+    <ScrollView
+      keyboardShouldPersistTaps="handled"
+      contentContainerStyle={isModal ? styles.modalContainer : styles.container}
+    >
+      {/* Wrapper to control vertical layout */}
+      <View style={isModal ? styles.modalInner : styles.inner}>
+        {/* Top-left logo - hide in modal */}
+        {!isModal && (
+          <View style={styles.header}>
+            <Text style={styles.logo}>Inhouse</Text>
+          </View>
+        )}
+
+        {/* Centered form card */}
+        <View style={styles.card}>
+          {/* Title & subtitle */}
+          <Text style={styles.title}>Sign in to your account</Text>
+          <Text style={styles.subtitle}>
+            Welcome back! Please sign in to continue
+          </Text>
+
+          {/* Google button */}
+          <TouchableOpacity
+            style={styles.googleButton}
+            activeOpacity={0.9}
+            onPress={onGooglePress}
+          >
+            <View style={styles.googleContent}>
+              <View style={styles.googleIconCircle}>
+                <Text style={styles.googleIconText}>G</Text>
+              </View>
+              <Text style={styles.googleText}>Continue with Google</Text>
+            </View>
+          </TouchableOpacity>
+
+          {/* Divider */}
+          <View style={styles.dividerRow}>
+            <View style={styles.dividerLine} />
+            <Text style={styles.dividerText}>or</Text>
+            <View style={styles.dividerLine} />
+          </View>
+
+          {/* Email field */}
+          <View style={styles.fieldGroup}>
+            <Text style={styles.fieldLabel}>Email address</Text>
+            <TextInput
+              style={styles.input}
+              autoCapitalize="none"
+              placeholder="Enter your email address"
+              placeholderTextColor="#9CA3AF"
+              value={emailAddress}
+              onChangeText={setEmailAddress}
+              keyboardType="email-address"
+            />
+          </View>
+
+          {/* Password field */}
+          <View style={styles.fieldGroup}>
+            <Text style={styles.fieldLabel}>Password</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="Enter your password"
+              placeholderTextColor="#9CA3AF"
+              secureTextEntry
+              value={password}
+              onChangeText={setPassword}
+            />
+          </View>
+
+          {/* Continue button */}
+          <TouchableOpacity
+            style={[
+              styles.primaryButton,
+              isSigningIn && styles.primaryButtonDisabled,
+            ]}
+            activeOpacity={0.9}
+            onPress={onSignInPress}
+            disabled={isSigningIn}
+          >
+            {isSigningIn ? (
+              <ActivityIndicator color="#ffffff" />
+            ) : (
+              <Text style={styles.primaryButtonText}>
+                Continue <Text style={styles.primaryButtonArrow}>▸</Text>
+              </Text>
+            )}
+          </TouchableOpacity>
+
+          {/* Footer - sign up link */}
+          <View style={styles.footer}>
+            <Text style={styles.footerText}>Don't have an account?</Text>
+            <TouchableOpacity onPress={() => setAuthMode("signup")}>
+              <Text style={styles.footerLink}> Sign up</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+
+        {/* Bottom copyright - hide in modal */}
+        {!isModal && (
+          <Text style={styles.copyright}>
+            © 2025 Inhouse. All Rights Reserved
+          </Text>
+        )}
+      </View>
+    </ScrollView>
+  );
+
+  if (isModal) {
+    return content;
+  }
+
   return (
     <CustomSafeAreaView>
       <KeyboardAvoidingView
         style={{ flex: 1, backgroundColor: "#ffffff" }}
         behavior={Platform.OS === "ios" ? "padding" : "height"}
       >
-        <ScrollView
-          keyboardShouldPersistTaps="handled"
-          contentContainerStyle={styles.container}
-        >
-          {/* Wrapper to control vertical layout */}
-          <View style={styles.inner}>
-            {/* Top-left logo */}
-            <View style={styles.header}>
-              <Text style={styles.logo}>Inhouse</Text>
-            </View>
-
-            {/* Centered form card */}
-            <View style={styles.card}>
-              {/* Title & subtitle */}
-              <Text style={styles.title}>Sign in to your account</Text>
-              <Text style={styles.subtitle}>
-                Welcome back! Please sign in to continue
-              </Text>
-
-              {/* Google button */}
-              <TouchableOpacity
-                style={styles.googleButton}
-                activeOpacity={0.9}
-                onPress={onGooglePress}
-              >
-                <View style={styles.googleContent}>
-                  <View style={styles.googleIconCircle}>
-                    <Text style={styles.googleIconText}>G</Text>
-                  </View>
-                  <Text style={styles.googleText}>Continue with Google</Text>
-                </View>
-              </TouchableOpacity>
-
-              {/* Divider */}
-              <View style={styles.dividerRow}>
-                <View style={styles.dividerLine} />
-                <Text style={styles.dividerText}>or</Text>
-                <View style={styles.dividerLine} />
-              </View>
-
-              {/* Email field */}
-              <View style={styles.fieldGroup}>
-                <Text style={styles.fieldLabel}>Email address</Text>
-                <TextInput
-                  style={styles.input}
-                  autoCapitalize="none"
-                  placeholder="Enter your email address"
-                  placeholderTextColor="#9CA3AF"
-                  value={emailAddress}
-                  onChangeText={setEmailAddress}
-                  keyboardType="email-address"
-                />
-              </View>
-
-              {/* Password field */}
-              <View style={styles.fieldGroup}>
-                <Text style={styles.fieldLabel}>Password</Text>
-                <TextInput
-                  style={styles.input}
-                  placeholder="Enter your password"
-                  placeholderTextColor="#9CA3AF"
-                  secureTextEntry
-                  value={password}
-                  onChangeText={setPassword}
-                />
-              </View>
-
-              {/* Continue button */}
-              <TouchableOpacity
-                style={[
-                  styles.primaryButton,
-                  isSigningIn && styles.primaryButtonDisabled,
-                ]}
-                activeOpacity={0.9}
-                onPress={onSignInPress}
-                disabled={isSigningIn}
-              >
-                {isSigningIn ? (
-                  <ActivityIndicator color="#ffffff" />
-                ) : (
-                  <Text style={styles.primaryButtonText}>
-                    Continue <Text style={styles.primaryButtonArrow}>▸</Text>
-                  </Text>
-                )}
-              </TouchableOpacity>
-
-              {/* Footer - sign up link */}
-              <View style={styles.footer}>
-                <Text style={styles.footerText}>Don't have an account?</Text>
-                <TouchableOpacity onPress={() => router.push("/auth/Signup")}>
-                  <Text style={styles.footerLink}> Sign up</Text>
-                </TouchableOpacity>
-              </View>
-            </View>
-
-            {/* Bottom copyright */}
-            <Text style={styles.copyright}>
-              © 2025 Inhouse. All Rights Reserved
-            </Text>
-          </View>
-        </ScrollView>
+        {content}
       </KeyboardAvoidingView>
     </CustomSafeAreaView>
   );
@@ -315,5 +327,15 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: "#9CA3AF",
     marginTop: 32,
+  },
+  modalContainer: {
+    flexGrow: 1,
+    paddingHorizontal: 24,
+    backgroundColor: "#ffffff",
+    paddingTop: 0,
+  },
+  modalInner: {
+    flex: 1,
+    justifyContent: "center",
   },
 });

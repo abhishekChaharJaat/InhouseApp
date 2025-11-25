@@ -1,48 +1,108 @@
+import { setShowAuthModal } from "@/store/authSlice";
+import { resetThreadData } from "@/store/messageSlice";
+import { useAuth } from "@clerk/clerk-expo";
 import { MaterialIcons } from "@expo/vector-icons";
-import { useRouter } from "expo-router";
+import { navigate } from "expo-router/build/global-state/routing";
 import React from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
 import { setShowSidenav } from "../../store/homeSlice";
 import RenameShareDelete from "../modals/RenameShareDelete";
 import { UserProfile } from "./UserProfile";
-
 export default function Topnav({ page, title, threadId }: any) {
-  const router = useRouter();
   const dispatch = useDispatch();
+  const { isSignedIn } = useAuth();
   const isWSConnected = useSelector((state: any) => state.home.isWSConnected);
   return (
-    <View style={styles.container}>
-      {/* Menu Icon */}
-      <TouchableOpacity onPress={() => dispatch(setShowSidenav(true))}>
-        <MaterialIcons name="menu" size={32} color="#333" />
-      </TouchableOpacity>
+    <>
+      {isSignedIn ? (
+        <View style={styles.container}>
+          {/* Menu Icon */}
+          <TouchableOpacity onPress={() => dispatch(setShowSidenav(true))}>
+            <MaterialIcons name="menu" size={32} color="#333" />
+          </TouchableOpacity>
 
-      {page === "home" ? (
-        <Text style={styles.homeTitle}>Inhouse</Text>
-      ) : page === "chat" ? (
-        <Text style={styles.chatTitle} numberOfLines={1} ellipsizeMode="tail">
-          {title}
-        </Text>
+          {page === "home" ? (
+            <Text style={styles.homeTitle}>Inhouse</Text>
+          ) : page === "chat" ? (
+            <Text
+              style={styles.chatTitle}
+              numberOfLines={1}
+              ellipsizeMode="tail"
+            >
+              {title}
+            </Text>
+          ) : (
+            ""
+          )}
+          {/* 3-dot menu for chat page */}
+          {page === "chat" && (
+            <View style={styles.menuWrapper}>
+              <RenameShareDelete
+                threadId={threadId}
+                iconSize={24}
+                iconColor="#333"
+              />
+            </View>
+          )}
+          {/* Logout Dropdown Button */}
+          <UserProfile />
+          {isWSConnected && <View style={styles.dot}></View>}
+        </View>
       ) : (
-        ""
-      )}
-
-      {/* 3-dot menu for chat page */}
-      {page === "chat" && (
-        <View style={styles.menuWrapper}>
-          <RenameShareDelete
-            threadId={threadId}
-            iconSize={24}
-            iconColor="#333"
-          />
+        // ==================== Non auth Top nav ============================
+        <View style={styles.container}>
+          {page === "try" ? (
+            <>
+              <Text style={styles.homeTitle}>Inhouse</Text>
+              <View style={styles.buttonContainer}>
+                {/* Log In - White */}
+                <TouchableOpacity
+                  style={[styles.button, styles.whiteButton]}
+                  onPress={() => {
+                    dispatch(setShowAuthModal({ show: true, type: "signin" }));
+                  }}
+                >
+                  <Text style={[styles.buttonText, styles.whiteButtonText]}>
+                    Log In
+                  </Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[styles.button, styles.darkButton]}
+                  onPress={() => {
+                    dispatch(setShowAuthModal({ show: true, type: "signup" }));
+                  }}
+                >
+                  <Text style={[styles.buttonText, styles.darkButtonText]}>
+                    Sign Up
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            </>
+          ) : (
+            <>
+              <TouchableOpacity
+                onPress={() => {
+                  navigate("/try/LandingPage");
+                  dispatch(resetThreadData());
+                }}
+              >
+                <MaterialIcons name="add" size={32} color="#333" />
+              </TouchableOpacity>
+              <Text
+                style={styles.chatTitle}
+                numberOfLines={1}
+                ellipsizeMode="tail"
+              >
+                {title}
+              </Text>
+              <Text style={styles.homeTitle}>Inhouse</Text>
+            </>
+          )}
+          {isWSConnected && <View style={styles.dot}></View>}
         </View>
       )}
-
-      {/* Logout Dropdown Button */}
-      <UserProfile />
-      {isWSConnected && <View style={styles.dot}></View>}
-    </View>
+    </>
   );
 }
 
@@ -90,5 +150,34 @@ const styles = StyleSheet.create({
     height: 14,
     borderRadius: 50,
     backgroundColor: "#8cf148ff",
+  },
+
+  buttonContainer: {
+    flexDirection: "row",
+  },
+  button: {
+    paddingVertical: 8,
+    paddingHorizontal: 20,
+    borderRadius: 50, // pill shape
+    marginLeft: 10,
+    borderWidth: 1,
+  },
+  darkButton: {
+    backgroundColor: "#1b2b48",
+    borderColor: "#1b2b48",
+  },
+  whiteButton: {
+    backgroundColor: "#fff",
+    borderColor: "#1b2b48",
+  },
+  buttonText: {
+    fontSize: 16,
+    fontWeight: "600",
+  },
+  darkButtonText: {
+    color: "#fff",
+  },
+  whiteButtonText: {
+    color: "#1b2b48",
   },
 });

@@ -1,5 +1,4 @@
 // @ts-nocheck
-import { Alert } from "react-native";
 import { store } from "@/store";
 import {
   addMessage,
@@ -7,12 +6,13 @@ import {
   setAwaitingResponse,
   setChatInputMessage,
   setMessagingDisabled,
+  setThreadLastMsgType,
   setupNewThread,
   updateThreadDataTitle,
-  setThreadLastMsgType,
 } from "@/store/messageSlice";
 import { getAllThreads } from "@/store/threadSlice";
-
+import * as SecureStore from "expo-secure-store";
+import { Alert } from "react-native";
 const WS_BASE_ENDPOINT =
   process.env.EXPO_PUBLIC_WS_BASE_ENDPOINT || "wss://api-dev.inhouse.app";
 
@@ -430,32 +430,55 @@ export const connectBasicWebSocket = async (
       Alert.alert("WebSocket Error", "No token found from Clerk.");
       return null;
     }
-
     const wsUrl = `${WS_BASE_ENDPOINT}/ws?token=${encodeURIComponent(token)}`;
     const ws = new WebSocket(wsUrl);
-
-    ws.onopen = () => {
-      console.log("WebSocket connected");
-      setWebSocketInstance(ws); // Store the instance
-    };
-
-    ws.onmessage = (event) => {
-      handleWebSocketMessage(event);
-    };
-
-    ws.onerror = (error) => {
-      console.error("WebSocket error:", error);
-    };
-
-    ws.onclose = () => {
-      console.log("WebSocket closed");
-      setWebSocketInstance(null); // Clear the instance
-    };
-
     return ws;
   } catch (error) {
     console.error("Error getting token or creating WebSocket:", error);
     Alert.alert("WebSocket Error", "Unable to start WebSocket connection.");
     return null;
   }
+};
+
+// ================================================================================================
+export const connectAnonymousWebSocket =
+  async (): Promise<WebSocket | null> => {
+    try {
+      const anonymousId = await getAnonymousUserId();
+      const wsUrl = `${WS_BASE_ENDPOINT}/ws?anonymous_user_id=${encodeURIComponent(
+        anonymousId
+      )}`;
+      const ws = new WebSocket(wsUrl);
+      return ws;
+    } catch (error) {
+      return null;
+    }
+  };
+
+export const getAnonymousUserId = async (): Promise<string> => {
+  try {
+    // Try to get existing ID
+    let anonymousId = await SecureStore.getItemAsync("anonymous_user_id");
+
+    if (!anonymousId) {
+      // Generate new ID if doesn't exist
+      anonymousId = generateAnonymousId();
+      await SecureStore.setItemAsync("anonymous_user_id", anonymousId);
+      console.log("Generated new anonymous ID:", anonymousId);
+    }
+
+    return anonymousId;
+  } catch (error) {
+    console.error("Error managing anonymous ID:", error);
+    // Fallback to generating a new ID if storage fails
+    return generateAnonymousId();
+  }
+};
+
+const generateAnonymousId = (): string => {
+  return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function (c) {
+    const r = (Math.random() * 16) | 0;
+    const v = c === "x" ? r : (r & 0x3) | 0x8;
+    return v.toString(16);
+  });
 };

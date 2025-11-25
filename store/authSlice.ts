@@ -1,4 +1,4 @@
-import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
   token: null,
@@ -6,6 +6,10 @@ const initialState = {
   isSigningUp: false,
   signInError: null as any,
   signUpError: null as any,
+  showAuthModal: {
+    show: false,
+    type: "signin",
+  },
 };
 
 export const signInUser = createAsyncThunk(
@@ -74,6 +78,12 @@ const authSlice = createSlice({
     setToken: (state, action) => {
       state.token = action.payload;
     },
+    setShowAuthModal: (state, action) => {
+      state.showAuthModal = {
+        show: action.payload.show,
+        type: action.payload.type,
+      };
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -102,6 +112,10 @@ const authSlice = createSlice({
   },
 });
 
-export const { clearSignInError, clearSignUpError, setToken } =
-  authSlice.actions;
+export const {
+  clearSignInError,
+  clearSignUpError,
+  setToken,
+  setShowAuthModal,
+} = authSlice.actions;
 export default authSlice.reducer;
