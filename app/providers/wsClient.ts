@@ -165,11 +165,45 @@ export const handleNewFormatMessage = (message: any) => {
 
     case "document_generated":
       console.log("document_generated:", message.payload);
+      // Add the document as a message to threadData.messages
+      const docMessage = {
+        id: `doc-${Date.now()}`,
+        is_user_message: false,
+        created_at: new Date().toISOString(),
+        message_type: "document_generated",
+        payload: {
+          doc_title: message.payload.doc_title,
+          google_doc_id: message.payload.google_doc_id,
+        },
+      };
+      dispatch(
+        addMessage({
+          new_messages: [docMessage],
+          thread_id: message.payload.thread_id,
+        })
+      );
       dispatch(setThreadLastMsgType("document_generated"));
       dispatch(setAwaitingResponse(false));
       break;
     case "locked_document_generated":
       console.log("locked_document_generated:", message.payload);
+      // Add the locked document as a message to threadData.messages
+      const lockedDocMessage = {
+        id: `locked-doc-${Date.now()}`,
+        is_user_message: false,
+        created_at: new Date().toISOString(),
+        message_type: "locked_document_generated",
+        payload: {
+          doc_title: message.payload.doc_title,
+          google_doc_id: message.payload.google_doc_id,
+        },
+      };
+      dispatch(
+        addMessage({
+          new_messages: [lockedDocMessage],
+          thread_id: message.payload.thread_id,
+        })
+      );
       dispatch(setThreadLastMsgType("locked_document_generated"));
       dispatch(setAwaitingResponse(false));
       break;

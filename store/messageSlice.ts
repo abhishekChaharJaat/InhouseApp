@@ -48,6 +48,28 @@ export const getAllGeneratedDocs = createAsyncThunk(
   }
 );
 
+export const generateSharedId = createAsyncThunk(
+  "threads/generateSharedId",
+  async (threadId: string, { rejectWithValue }) => {
+    const token = await getToken();
+    try {
+      if (!token) {
+        throw new Error("Authentication token not available");
+      }
+      const url = `${BASE_ENDPOINT}/api/thread/${threadId}/share`;
+      const headers = { Authorization: `Bearer ${token}` };
+      const response = await axios.post(url, {}, { headers });
+      return response.data;
+    } catch (error: any) {
+      const errorMessage =
+        error.response?.data?.detail ||
+        error.message ||
+        "Failed to generate share link";
+      return rejectWithValue(errorMessage);
+    }
+  }
+);
+
 const initialState = {
   threadData: {
     id: null as any,
