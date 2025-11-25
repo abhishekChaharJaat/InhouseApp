@@ -7,16 +7,18 @@ const BASE_ENDPOINT = "https://api-dev.inhouse.app";
 const initialState = {
   // Threads list state
   threads: {
-    today: [],
-    yesterday: [],
-    previous_7_days: [],
-    previous_30_days: [],
-    older: [],
+    today: [] as any[],
+    yesterday: [] as any[],
+    previous_7_days: [] as any[],
+    previous_30_days: [] as any[],
+    older: [] as any[],
   },
   loadingThreads: false,
   threadsError: null as any,
   deletingThread: false,
   deleteError: null as any,
+  updatingTitle: false,
+  updateTitleError: null as any,
 };
 
 export const getAllThreads = createAsyncThunk(
@@ -36,6 +38,32 @@ export const getAllThreads = createAsyncThunk(
         error.response?.data?.detail ||
         error.message ||
         "Failed to fetch threads";
+      return rejectWithValue(errorMessage);
+    }
+  }
+);
+
+export const updateTitle = createAsyncThunk(
+  "threads/updateTitle",
+  async (data: { id: string; title: string }, { rejectWithValue }) => {
+    const token = await getToken();
+    try {
+      if (!token) {
+        throw new Error("Authentication token not available");
+      }
+      const url = `${BASE_ENDPOINT}/api/thread/${data.id}/update-title`;
+      const headers = { Authorization: `Bearer ${token}` };
+      const response = await axios.post(url, data, { headers });
+      return {
+        response: response.data,
+        thread_id: data.id,
+        title: data.title,
+      };
+    } catch (error: any) {
+      const errorMessage =
+        error.response?.data?.detail ||
+        error.message ||
+        "Failed to update title";
       return rejectWithValue(errorMessage);
     }
   }
@@ -106,6 +134,27 @@ const threadSlice = createSlice({
         state.deletingThread = false;
         state.deleteError = action.payload;
         console.log("Error deleting thread: ", action.payload);
+      })
+      .addCase(updateTitle.pending, (state) => {
+        state.updatingTitle = true;
+        state.updateTitleError = null;
+      })
+      .addCase(updateTitle.fulfilled, (state, action) => {
+        state.updatingTitle = false;
+        // Update the thread title in all buckets
+        const { thread_id, title } = action.payload;
+        (
+          Object.keys(state.threads) as Array<keyof typeof state.threads>
+        ).forEach((bucket) => {
+          state.threads[bucket] = state.threads[bucket].map((thread: any) =>
+            thread.id === thread_id ? { ...thread, title } : thread
+          );
+        });
+      })
+      .addCase(updateTitle.rejected, (state, action) => {
+        state.updatingTitle = false;
+        state.updateTitleError = action.payload;
+        console.log("Error updating title: ", action.payload);
       });
   },
 });

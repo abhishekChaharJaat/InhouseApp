@@ -40,6 +40,7 @@ export default function Topnav({ page, title, threadId }: any) {
             <View style={styles.menuWrapper}>
               <RenameShareDelete
                 threadId={threadId}
+                currentTitle={title}
                 iconSize={24}
                 iconColor="#333"
               />
@@ -129,7 +130,7 @@ const styles = StyleSheet.create({
   },
 
   homeTitle: {
-    fontSize: 22,
+    fontSize: 26,
     fontWeight: "700",
     color: "#333",
   },
@@ -158,7 +159,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
   },
   button: {
-    paddingVertical: 8,
+    paddingVertical: 14,
     paddingHorizontal: 20,
     borderRadius: 50, // pill shape
     marginLeft: 10,

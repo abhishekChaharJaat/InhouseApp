@@ -100,6 +100,7 @@ const ChatHistory = () => {
         <View style={styles.menuContainer}>
           <RenameShareDelete
             threadId={item.id}
+            currentTitle={item.title}
             iconSize={20}
             iconColor="#666"
           />

@@ -69,7 +69,7 @@ export default function UnlockedDocument({ message }: any) {
           >
             <MaterialCommunityIcons
               name="download"
-              size={16}
+              size={18}
               color="#1b2b48"
               style={{ marginRight: 6 }}
             />
@@ -173,14 +173,14 @@ const styles = StyleSheet.create({
   downloadPill: {
     flexDirection: "row",
     alignItems: "center",
-    paddingVertical: 6,
+    paddingVertical: 12,
     paddingHorizontal: 14,
     borderRadius: 999,
     backgroundColor: "#e6ecf5",
   },
 
   downloadText: {
-    fontSize: 13,
+    fontSize: 14,
     fontWeight: "600",
     color: "#1b2b48",
   },
@@ -209,8 +209,8 @@ const styles = StyleSheet.create({
     alignSelf: "center",
     flexDirection: "row",
     alignItems: "center",
-    paddingVertical: 10,
-    paddingHorizontal: 18,
+    paddingVertical: 16,
+    paddingHorizontal: 24,
     borderRadius: 999,
     backgroundColor: "#1b2b48",
     borderWidth: 1,
@@ -235,7 +235,7 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     paddingHorizontal: 14,
     paddingVertical: 6,
-    backgroundColor: "#f9f1faff",
+    backgroundColor: "#fef9ffff",
     borderTopWidth: 1,
     borderTopColor: "#E6D9FF",
     gap: 6,
@@ -257,7 +257,7 @@ const styles = StyleSheet.create({
   footerButton: {
     borderWidth: 1,
     borderColor: "#1b2b48",
-    paddingVertical: 8,
+    paddingVertical: 14,
     paddingHorizontal: 18,
     borderRadius: 999,
     backgroundColor: "white",

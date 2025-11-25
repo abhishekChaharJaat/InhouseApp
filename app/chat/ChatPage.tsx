@@ -190,7 +190,11 @@ function ChatPage({ threadId }: any) {
                     ? "Messaging disabled"
                     : "Type your message..."
                 }
-                disabled={shouldShowShimmer || messagingDisabled}
+                disabled={
+                  shouldShowShimmer ||
+                  messagingDisabled ||
+                  threadData?.messaging_disabled
+                }
               />
             </View>
           </TouchableWithoutFeedback>

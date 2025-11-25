@@ -1,5 +1,5 @@
-import { resetThreadData } from "@/store/messageSlice";
-import { deleteThread } from "@/store/threadSlice";
+import { resetThreadData, updateThreadDataTitle } from "@/store/messageSlice";
+import { deleteThread, updateTitle } from "@/store/threadSlice";
 import { Ionicons } from "@expo/vector-icons";
 import { router, usePathname } from "expo-router";
 import React, { useState } from "react";
@@ -9,6 +9,7 @@ import {
   Modal,
   StyleSheet,
   Text,
+  TextInput,
   TouchableOpacity,
   View,
 } from "react-native";
@@ -16,24 +17,30 @@ import { useDispatch, useSelector } from "react-redux";
 
 interface RenameShareDeleteProps {
   threadId?: string;
+  currentTitle?: string;
   onShare?: () => void;
-  onRename?: () => void;
+  onRename?: (newTitle: string) => void;
   iconSize?: number;
   iconColor?: string;
 }
 
 const RenameShareDelete: React.FC<RenameShareDeleteProps> = ({
   threadId = null,
+  currentTitle = "",
   onShare,
   onRename,
   iconSize = 24,
   iconColor = "#333",
 }) => {
   const [menuVisible, setMenuVisible] = useState(false);
+  const [renameModalVisible, setRenameModalVisible] = useState(false);
+  const [newTitle, setNewTitle] = useState(currentTitle);
   const dispatch = useDispatch();
   const pathname = usePathname();
 
-  const { deletingThread } = useSelector((state: any) => state.thread);
+  const { deletingThread, updatingTitle } = useSelector(
+    (state: any) => state.thread
+  );
 
   const handleShare = () => {
     setMenuVisible(false);
@@ -47,12 +54,30 @@ const RenameShareDelete: React.FC<RenameShareDeleteProps> = ({
 
   const handleRename = () => {
     setMenuVisible(false);
-    if (onRename) {
-      onRename();
-    } else {
-      // TODO: Implement default rename functionality
-      console.log("Rename thread:", threadId);
+    setNewTitle(currentTitle);
+    setRenameModalVisible(true);
+  };
+
+  const handleRenameSubmit = () => {
+    if (!threadId || !newTitle.trim()) {
+      Alert.alert("Error", "Please enter a valid title.");
+      return;
     }
+
+    dispatch(updateTitle({ id: threadId, title: newTitle.trim() }) as any).then(
+      (result: any) => {
+        if (!result.error) {
+          // Update the title in threadData for instant UI update
+          dispatch(updateThreadDataTitle({ title: newTitle.trim() }));
+          setRenameModalVisible(false);
+          if (onRename) {
+            onRename(newTitle.trim());
+          }
+        } else {
+          Alert.alert("Error", "Failed to rename thread. Please try again.");
+        }
+      }
+    );
   };
 
   const deleteConfirm = () => {
@@ -150,6 +175,58 @@ const RenameShareDelete: React.FC<RenameShareDeleteProps> = ({
           </View>
         </TouchableOpacity>
       </Modal>
+
+      {/* Rename Modal */}
+      <Modal
+        visible={renameModalVisible}
+        transparent={true}
+        animationType="fade"
+        onRequestClose={() => setRenameModalVisible(false)}
+      >
+        <TouchableOpacity
+          style={styles.modalOverlay}
+          activeOpacity={1}
+          onPress={() => setRenameModalVisible(false)}
+        >
+          <View
+            style={styles.renameContainer}
+            onStartShouldSetResponder={() => true}
+          >
+            <Text style={styles.renameTitle}>Rename Thread</Text>
+            <TextInput
+              style={styles.renameInput}
+              value={newTitle}
+              onChangeText={setNewTitle}
+              placeholder="Enter new title"
+              autoFocus
+              selectTextOnFocus
+            />
+            <View style={styles.renameButtons}>
+              <TouchableOpacity
+                style={styles.renameCancelButton}
+                onPress={() => setRenameModalVisible(false)}
+                disabled={updatingTitle}
+              >
+                <Text style={styles.renameCancelText}>Cancel</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[
+                  styles.renameSubmitButton,
+                  updatingTitle && styles.renameSubmitButtonDisabled,
+                ]}
+                onPress={handleRenameSubmit}
+                disabled={updatingTitle}
+              >
+                {updatingTitle ? (
+                  <ActivityIndicator size="small" color="#fff" />
+                ) : (
+                  <Text style={styles.renameSubmitText}>Save</Text>
+                )}
+              </TouchableOpacity>
+            </View>
+          </View>
+        </TouchableOpacity>
+      </Modal>
     </>
   );
 };
@@ -198,5 +275,58 @@ const styles = StyleSheet.create({
     fontWeight: "600",
     color: "#666",
     textAlign: "center",
+  },
+  renameContainer: {
+    backgroundColor: "#ffffff",
+    borderRadius: 12,
+    width: "85%",
+    maxWidth: "100%",
+    padding: 20,
+  },
+  renameTitle: {
+    fontSize: 18,
+    fontWeight: "600",
+    color: "#000",
+    marginBottom: 16,
+    textAlign: "center",
+  },
+  renameInput: {
+    borderWidth: 1,
+    borderColor: "#ddd",
+    borderRadius: 8,
+    padding: 12,
+    fontSize: 16,
+    marginBottom: 20,
+  },
+  renameButtons: {
+    flexDirection: "row",
+    justifyContent: "center",
+    gap: 12,
+  },
+  renameCancelButton: {
+    paddingVertical: 16,
+    paddingHorizontal: 40,
+    borderRadius: 50,
+    backgroundColor: "#f0f0f0",
+  },
+  renameCancelText: {
+    fontSize: 16,
+    color: "#666",
+  },
+  renameSubmitButton: {
+    paddingVertical: 16,
+    paddingHorizontal: 40,
+    borderRadius: 50,
+    backgroundColor: "#1b2b48",
+    minWidth: 80,
+    alignItems: "center",
+  },
+  renameSubmitButtonDisabled: {
+    backgroundColor: "#99c9ff",
+  },
+  renameSubmitText: {
+    fontSize: 16,
+    color: "#fff",
+    fontWeight: "600",
   },
 });

@@ -19,7 +19,6 @@ function ConsultationHeader() {
     <View style={styles.container}>
       {/* Title */}
       <Text style={styles.title}>{title}</Text>
-
       {/* Lawyer row */}
       <View style={styles.row}>
         {avatarUri ? (
