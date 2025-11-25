@@ -63,9 +63,10 @@ const LandingPage = () => {
   // Redirect to chat page when thread is created (same pattern as Home page)
   useEffect(() => {
     if (shouldRedirectToChat && threadData?.id) {
+      dispatch(clearRedirectFlag());
       console.log("✅ Redirecting to thread:", threadData.id);
       router.push(`/chat/${threadData.id}`);
-      dispatch(clearRedirectFlag());
+      console.log("---Thread Created Redirect to /chat page");
     }
   }, [shouldRedirectToChat, threadData?.id]);
 

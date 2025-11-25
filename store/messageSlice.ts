@@ -123,11 +123,22 @@ const messageSlice = createSlice({
     },
     addMessage: (state, action) => {
       const { new_messages } = action.payload;
+      console.log("new message ", new_messages);
       if (new_messages && Array.isArray(new_messages)) {
-        state.threadData.messages = [
-          ...state.threadData.messages,
-          ...new_messages,
-        ];
+        // Get existing message IDs to prevent duplicates
+        const existingIds = new Set(
+          state.threadData.messages.map((msg: any) => msg.id)
+        );
+        // Only add messages that don't already exist
+        const uniqueNewMessages = new_messages.filter(
+          (msg: any) => !existingIds.has(msg.id)
+        );
+        if (uniqueNewMessages.length > 0) {
+          state.threadData.messages = [
+            ...state.threadData.messages,
+            ...uniqueNewMessages,
+          ];
+        }
       }
     },
     updateThreadDataTitle: (state, action) => {
