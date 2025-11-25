@@ -170,6 +170,20 @@ const messageSlice = createSlice({
     setThreadLastMsgType: (state, action) => {
       state.threadLastMsgType = action.payload;
     },
+    // Add legal review message when referral is stored successfully
+    addLegalReviewMessage: (state) => {
+      const legalReviewMessage = {
+        id: `legal-review-${Date.now()}`,
+        is_user_message: false,
+        created_at: new Date().toISOString(),
+        message_type: "legal_review_message",
+        payload: null,
+      };
+      state.threadData.messages = [
+        ...state.threadData.messages,
+        legalReviewMessage,
+      ];
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -231,5 +245,6 @@ export const {
   addMessage,
   updateThreadDataTitle,
   setThreadLastMsgType,
+  addLegalReviewMessage,
 } = messageSlice.actions;
 export default messageSlice.reducer;

@@ -1,11 +1,15 @@
 // PaymentStatusCheckModal.tsx
 import { PLANS } from "@/app/constants";
+import { showReferralDrawer } from "@/app/helpers";
 import { AppDispatch } from "@/store";
 import {
   getPaymentStatus,
   resetPaymentStatus,
+  setReferralFormData,
   setShowPaymentStatusCheckModal,
+  storeReferral,
 } from "@/store/homeSlice";
+import { addLegalReviewMessage } from "@/store/messageSlice";
 import { getUserMetadata } from "@/store/onboardingSlice";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import React, { useEffect, useRef, useState } from "react";
@@ -39,6 +43,12 @@ export default function PaymentStatusCheckModal() {
   const userMetadata = useSelector(
     (state: any) => state.onboarding.userMetadata
   );
+  const referralFormData = useSelector(
+    (state: any) => state.home.referralFormData
+  );
+  const referralDrawerDetails = useSelector(
+    (state: any) => state.home.referralDrawerDetails
+  );
 
   useEffect(() => {
     if (showPaymentStatusCheckModal) {
@@ -53,8 +63,18 @@ export default function PaymentStatusCheckModal() {
     };
   }, [showPaymentStatusCheckModal]);
 
-  // Check if subscription updated
+  // Check if payment is successful
   useEffect(() => {
+    // For consultation payments ($99), just check paymentStatus
+    if (
+      selectedPaymentPlanName === PLANS.LEGAL_CONSULTATION &&
+      paymentStatus === "successful"
+    ) {
+      handleSuccess();
+      return;
+    }
+
+    // For subscription payments, check both paymentStatus and subscription update
     if (
       paymentStatus === "successful" &&
       userMetadata?.subscription_type &&
@@ -64,7 +84,7 @@ export default function PaymentStatusCheckModal() {
       // Payment confirmed and subscription updated
       handleSuccess();
     }
-  }, [paymentStatus, userMetadata?.subscription_type]);
+  }, [paymentStatus, userMetadata?.subscription_type, selectedPaymentPlanName]);
 
   const startTimer = () => {
     timerRef.current = setInterval(() => {
@@ -105,10 +125,45 @@ export default function PaymentStatusCheckModal() {
   const handleSuccess = () => {
     stopTimer();
     stopPolling();
-    // Close after a brief delay to show success state
-    setTimeout(() => {
-      handleClose();
-    }, 1500);
+
+    // If this was a consultation payment ($99) and we have form data, store the referral
+    if (
+      selectedPaymentPlanName === PLANS.LEGAL_CONSULTATION &&
+      referralFormData
+    ) {
+      dispatch(
+        storeReferral({
+          name: referralFormData.name || "",
+          email: referralFormData.email || userMetadata?.email || "",
+          phone: referralFormData.phone || "",
+          thread_id: referralDrawerDetails?.threadId || null,
+          description: referralFormData.description || "",
+          state: referralFormData.state || "",
+          type: "consultation",
+        })
+      );
+      // Add legal review message to thread for instant display
+      dispatch(addLegalReviewMessage());
+      // Clear the form data
+      dispatch(setReferralFormData(null));
+
+      // Show the referral drawer with success screen after a delay
+      setTimeout(() => {
+        handleClose();
+        // Re-open the referral drawer to show success
+        showReferralDrawer(
+          true,
+          dispatch,
+          "consultation",
+          referralDrawerDetails?.threadId
+        );
+      }, 1500);
+    } else {
+      // Close after a brief delay to show success state
+      setTimeout(() => {
+        handleClose();
+      }, 1500);
+    }
   };
 
   const handleClose = () => {
@@ -146,10 +201,16 @@ export default function PaymentStatusCheckModal() {
     return "your plan";
   };
 
-  const isPaymentSuccessful =
-    paymentStatus === "successful" ||
-    userMetadata?.subscription_type === PLANS.SUBSCRIBER_BUSINESS ||
-    userMetadata?.subscription_type === PLANS.SUBSCRIBER_ENTERPRISE;
+  // For consultation payments, we just check paymentStatus
+  // For subscription payments, we also check userMetadata
+  const isConsultationPayment =
+    selectedPaymentPlanName === PLANS.LEGAL_CONSULTATION;
+
+  const isPaymentSuccessful = isConsultationPayment
+    ? paymentStatus === "successful"
+    : paymentStatus === "successful" ||
+      userMetadata?.subscription_type === PLANS.SUBSCRIBER_BUSINESS ||
+      userMetadata?.subscription_type === PLANS.SUBSCRIBER_ENTERPRISE;
 
   if (!showPaymentStatusCheckModal) {
     return null;

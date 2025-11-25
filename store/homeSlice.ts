@@ -87,7 +87,8 @@ export const getConsultationCheckoutUrl = createAsyncThunk(
       const checkoutData = {
         payment_type: "transaction",
         legal_review_thread_id: data.legal_review_thread_id,
-        redirect_url: data.redirect_url || "https://app.inhouse.app/payment-success",
+        redirect_url:
+          data.redirect_url || "https://app.inhouse.app/payment-success",
       };
 
       const response = await axios.post(url, checkoutData, { headers });
@@ -98,6 +99,55 @@ export const getConsultationCheckoutUrl = createAsyncThunk(
         error.response?.data?.message ||
         error.message ||
         "Failed to get checkout URL";
+      return rejectWithValue({ error: errorMessage });
+    }
+  }
+);
+
+// Async thunk to store referral lead
+export const storeReferral = createAsyncThunk(
+  "home/storeReferral",
+  async (
+    data: {
+      name: string;
+      email: string;
+      phone?: string;
+      thread_id: string | null;
+      description?: string;
+      state?: string;
+      category?: string;
+      type: "consultation" | "document_finalization";
+    },
+    { rejectWithValue }
+  ) => {
+    const token = await getToken();
+    console.log("LEad ", data);
+    try {
+      if (!token) {
+        throw new Error("Authentication token not available");
+      }
+      const url = `${BASE_ENDPOINT}/api/store-referral-lead`;
+      const headers = { Authorization: `Bearer ${token}` };
+
+      const payload = {
+        name: data.name,
+        email: data.email,
+        phone: data.phone || "",
+        thread_id: data.thread_id,
+        description: data.description || "",
+        state: data.state || null,
+        category: data.category || null,
+        type: data.type,
+      };
+
+      const response = await axios.post(url, payload, { headers });
+      return response.data;
+    } catch (error: any) {
+      const errorMessage =
+        error.response?.data?.detail ||
+        error.response?.data?.message ||
+        error.message ||
+        "Failed to store referral";
       return rejectWithValue({ error: errorMessage });
     }
   }
@@ -166,6 +216,16 @@ const initialState = {
     | "loading"
     | "success"
     | "failed",
+  // Referral state
+  storeReferralStatus: "idle" as "idle" | "loading" | "success" | "failed",
+  storeReferralError: null as string | null,
+  referralFormData: null as {
+    name: string;
+    email: string;
+    phone?: string;
+    description?: string;
+    state?: string;
+  } | null,
 };
 
 const homeSlice = createSlice({
@@ -211,6 +271,14 @@ const homeSlice = createSlice({
     },
     closeChargebeePaymentModal: (state) => {
       state.openChargebeePaymentModal = false;
+    },
+    // Referral reducers
+    setReferralFormData: (state, action) => {
+      state.referralFormData = action.payload;
+    },
+    resetStoreReferralStatus: (state) => {
+      state.storeReferralStatus = "idle";
+      state.storeReferralError = null;
     },
   },
   extraReducers: (builder) => {
@@ -273,6 +341,20 @@ const homeSlice = createSlice({
         }
         state.checkoutUrl = null;
         state.checkoutUrlStatus = message;
+      })
+      // storeReferral handlers
+      .addCase(storeReferral.pending, (state) => {
+        state.storeReferralStatus = "loading";
+        state.storeReferralError = null;
+      })
+      .addCase(storeReferral.fulfilled, (state) => {
+        state.storeReferralStatus = "success";
+        state.storeReferralError = null;
+      })
+      .addCase(storeReferral.rejected, (state, action: any) => {
+        state.storeReferralStatus = "failed";
+        state.storeReferralError =
+          action.payload?.error || "Failed to store referral";
       });
   },
 });
@@ -291,6 +373,9 @@ export const {
   setShowPaymentStatusCheckModal,
   resetPaymentStatus,
   closeChargebeePaymentModal,
+  // Referral actions
+  setReferralFormData,
+  resetStoreReferralStatus,
 } = homeSlice.actions;
 
 export default homeSlice.reducer;

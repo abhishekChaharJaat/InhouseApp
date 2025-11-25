@@ -20,7 +20,7 @@ export default function UnlockedDocument({ message }: any) {
     (state: any) => state.onboarding.userMetadata
   );
   if (!googleDocId) return null;
-  const threadData = useSelector((state: any) => state.onboarding.threadDtata);
+  const threadData = useSelector((state: any) => state.message.threadData);
   if (!googleDocId) return null;
   const previewUrl = `https://docs.google.com/document/d/${googleDocId}/preview?rm=minimal`;
   const viewUrl = `https://docs.google.com/document/d/${googleDocId}/view`;
