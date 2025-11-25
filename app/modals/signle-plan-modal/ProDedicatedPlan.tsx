@@ -1,12 +1,42 @@
-// ProDedicatedPlanCard.js
+// ProDedicatedPlanCard.tsx
 import React from "react";
-import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  ActivityIndicator,
+} from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch } from "@/store";
+import { PLANS } from "@/app/constants";
+import { handlePlanUpgrade } from "@/app/helpers";
 
 export default function ProDedicatedPlanCard({
   docTitle = "AI Generated Document",
   priceLabel = "Access for $49",
 }) {
+  const dispatch = useDispatch<AppDispatch>();
+
+  const checkoutUrlStatus = useSelector(
+    (state: any) => state.home.checkoutUrlStatus
+  );
+  const singlePlanModal = useSelector(
+    (state: any) => state.home.singlePlanModal
+  );
+
+  const isLoading = checkoutUrlStatus === "loading";
+
+  const handleUpgrade = () => {
+    handlePlanUpgrade({
+      dispatch,
+      planType: PLANS.SUBSCRIBER_BUSINESS,
+      threadId: singlePlanModal?.threadId,
+      modalType: "single",
+    });
+  };
+
   return (
     <View style={styles.card}>
       {/* LEFT SIDE */}
@@ -68,7 +98,7 @@ export default function ProDedicatedPlanCard({
             <MaterialCommunityIcons
               name="alert-circle"
               size={18}
-              color="#EAB308" // yellow-500
+              color="#EAB308"
               style={{ marginRight: 6 }}
             />
             <Text style={styles.disclaimerText}>
@@ -83,22 +113,27 @@ export default function ProDedicatedPlanCard({
         {/* CTA Button */}
         <View style={styles.buttonRow}>
           <TouchableOpacity
-            style={styles.primaryButton}
-            onPress={() => {}}
+            style={[styles.primaryButton, isLoading && styles.buttonDisabled]}
+            onPress={handleUpgrade}
             activeOpacity={0.85}
+            disabled={isLoading}
           >
-            <Text style={styles.primaryButtonText}>{priceLabel}</Text>
-            <MaterialCommunityIcons
-              name="arrow-right"
-              size={16}
-              color="#000"
-              style={{ marginLeft: 8 }}
-            />
+            {isLoading ? (
+              <ActivityIndicator size="small" color="#FFFFFF" />
+            ) : (
+              <>
+                <Text style={styles.primaryButtonText}>{priceLabel}</Text>
+                <MaterialCommunityIcons
+                  name="arrow-right"
+                  size={16}
+                  color="#FFFFFF"
+                  style={{ marginLeft: 8 }}
+                />
+              </>
+            )}
           </TouchableOpacity>
         </View>
       </View>
-
-      {/* RIGHT SIDE – Locked document preview */}
     </View>
   );
 }
@@ -189,6 +224,10 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "600",
     color: "#FFFFFF",
+  },
+
+  buttonDisabled: {
+    opacity: 0.7,
   },
 
   /* RIGHT SIDE */

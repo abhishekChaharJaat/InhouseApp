@@ -1,13 +1,52 @@
-// CounselDedicatedCard.js
+// CounselDedicatedCard.tsx
+import { PLANS } from "@/app/constants";
+import { handlePlanUpgrade } from "@/app/helpers";
+import { AppDispatch } from "@/store";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import React from "react";
-import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import {
+  ActivityIndicator,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import { useDispatch, useSelector } from "react-redux";
 
 export default function CounselDedicatedCard({
   buttonText = "Upgrade to counsel | $349",
   title = "Loop in an Expert",
   priceBlurb = "Trusted legal network of 2,000+ lawyers specializing in 25+ practice areas",
 }) {
+  const dispatch = useDispatch<AppDispatch>();
+
+  const checkoutUrlStatus = useSelector(
+    (state: any) => state.home.checkoutUrlStatus
+  );
+  const upgradeProUserToCounselStatus = useSelector(
+    (state: any) => state.home.upgradeProUserToCounselStatus
+  );
+  const singlePlanModal = useSelector(
+    (state: any) => state.home.singlePlanModal
+  );
+  const userMetadata = useSelector(
+    (state: any) => state.onboarding.userMetadata
+  );
+
+  const isLoading =
+    checkoutUrlStatus === "loading" ||
+    upgradeProUserToCounselStatus === "loading";
+
+  const handleUpgrade = () => {
+    handlePlanUpgrade({
+      dispatch,
+      planType: PLANS.SUBSCRIBER_ENTERPRISE,
+      threadId: singlePlanModal?.threadId,
+      modalType: "single",
+      currentSubscriptionType: userMetadata?.subscription_type,
+    });
+  };
+
   return (
     <View style={styles.card}>
       {/* LEFT SIDE */}
@@ -64,17 +103,24 @@ export default function CounselDedicatedCard({
         {/* Button + secure text */}
         <View style={styles.buttonBlock}>
           <TouchableOpacity
-            style={styles.primaryButton}
-            onPress={() => {}}
+            style={[styles.primaryButton, isLoading && styles.buttonDisabled]}
+            onPress={handleUpgrade}
             activeOpacity={0.85}
+            disabled={isLoading}
           >
-            <Text style={styles.primaryButtonText}>{buttonText}</Text>
-            <MaterialCommunityIcons
-              name="arrow-right"
-              size={16}
-              color="#FFFFFF"
-              style={{ marginLeft: 8 }}
-            />
+            {isLoading ? (
+              <ActivityIndicator size="small" color="#FFFFFF" />
+            ) : (
+              <>
+                <Text style={styles.primaryButtonText}>{buttonText}</Text>
+                <MaterialCommunityIcons
+                  name="arrow-right"
+                  size={16}
+                  color="#FFFFFF"
+                  style={{ marginLeft: 8 }}
+                />
+              </>
+            )}
           </TouchableOpacity>
 
           <Text style={styles.secureText}>
@@ -163,6 +209,10 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontStyle: "italic",
     color: "#4B5563",
+  },
+
+  buttonDisabled: {
+    opacity: 0.7,
   },
 
   /* RIGHT */

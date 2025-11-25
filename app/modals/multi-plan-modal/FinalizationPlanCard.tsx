@@ -5,14 +5,51 @@ import {
   TouchableOpacity,
   StyleSheet,
   ViewStyle,
+  ActivityIndicator,
 } from "react-native";
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch } from "@/store";
+import { PLANS } from "@/app/constants";
+import { handlePlanUpgrade } from "@/app/helpers";
 
 type Props = {
   onSelect?: () => void;
   style?: ViewStyle;
+  threadId?: string | null;
 };
 
-const FinalizationPlanCard: React.FC<Props> = ({ onSelect, style }) => {
+const FinalizationPlanCard: React.FC<Props> = ({
+  onSelect,
+  style,
+  threadId,
+}) => {
+  const dispatch = useDispatch<AppDispatch>();
+
+  const checkoutUrlStatus = useSelector(
+    (state: any) => state.home.checkoutUrlStatus
+  );
+  const upgradeProUserToCounselStatus = useSelector(
+    (state: any) => state.home.upgradeProUserToCounselStatus
+  );
+  const userMetadata = useSelector(
+    (state: any) => state.onboarding.userMetadata
+  );
+
+  const isLoading =
+    checkoutUrlStatus === "loading" ||
+    upgradeProUserToCounselStatus === "loading";
+
+  const handleUpgrade = () => {
+    handlePlanUpgrade({
+      dispatch,
+      planType: PLANS.SUBSCRIBER_ENTERPRISE,
+      threadId,
+      modalType: "multi",
+      currentSubscriptionType: userMetadata?.subscription_type,
+      onComplete: onSelect,
+    });
+  };
+
   return (
     <View style={[styles.card, style]}>
       <Text style={styles.planTitle}>Attorney-Finalized</Text>
@@ -26,8 +63,16 @@ const FinalizationPlanCard: React.FC<Props> = ({ onSelect, style }) => {
         version in 2 days.
       </Text>
 
-      <TouchableOpacity style={styles.buttonFilled} onPress={onSelect}>
-        <Text style={styles.buttonFilledText}>Attorney Finalized</Text>
+      <TouchableOpacity
+        style={[styles.buttonFilled, isLoading && styles.buttonDisabled]}
+        onPress={handleUpgrade}
+        disabled={isLoading}
+      >
+        {isLoading ? (
+          <ActivityIndicator size="small" color="#FFFFFF" />
+        ) : (
+          <Text style={styles.buttonFilledText}>Attorney Finalized</Text>
+        )}
       </TouchableOpacity>
 
       <View style={styles.featureList}>
@@ -35,15 +80,15 @@ const FinalizationPlanCard: React.FC<Props> = ({ onSelect, style }) => {
           Everything included in AI-Document, plus:
         </Text>
         <Text style={styles.feature}>
-          ✅ Your AI document reviewed, analyzed and finalized by an Inhouse
+          Your AI document reviewed, analyzed and finalized by an Inhouse
           attorney.
         </Text>
         <Text style={styles.feature}>
-          ✅ Communicate with the lawyer to answer your questions and ensure the
+          Communicate with the lawyer to answer your questions and ensure the
           work meets your business objectives.
         </Text>
         <Text style={styles.feature}>
-          ✅ Guaranteed to match the quality of a top firm.
+          Guaranteed to match the quality of a top firm.
         </Text>
       </View>
     </View>
@@ -116,6 +161,9 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: "#1B2B48",
     lineHeight: 18,
+  },
+  buttonDisabled: {
+    opacity: 0.7,
   },
 });
 

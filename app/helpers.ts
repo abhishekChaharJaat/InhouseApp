@@ -1,13 +1,86 @@
 import { AppDispatch } from "@/store";
 import { setShowAuthModal } from "@/store/authSlice";
 import {
+  getCheckoutUrl,
+  getConsultationCheckoutUrl,
   setReferralDrawerDetails,
+  setSelectedPaymentPlanName,
   setShowMultiPlanModal,
   setShowNotSupportedModal,
   setShowSinglePlanModal,
+  upgradeProUserToCounsel,
 } from "@/store/homeSlice";
 import { Clerk } from "@clerk/clerk-expo";
 import { DRAWER, PLANS } from "./constants";
+
+export const handlePlanUpgrade = async ({
+  dispatch,
+  planType,
+  threadId = null,
+  modalType,
+  currentSubscriptionType = null,
+  onComplete = () => {},
+}: any) => {
+  // Set the selected plan name for tracking
+  dispatch(setSelectedPaymentPlanName(planType));
+
+  // Close the appropriate modal
+  if (modalType === "single") {
+    dispatch(
+      setShowSinglePlanModal({ show: false, planType: "", threadId: null })
+    );
+  } else {
+    dispatch(setShowMultiPlanModal(false));
+  }
+  // Prepare checkout data
+  const checkoutData = {
+    payment_type: "subscription",
+    subscription_info: {
+      subscription_type: planType,
+      payment_frequency: "two_day",
+    },
+    legal_review_thread_id: threadId || null,
+    redirect_url: "https://app.inhouse.app/payment-success",
+  };
+
+  // If upgrading to Counsel and user is already Pro, use upgrade endpoint
+  const isUpgradingToCounsel = planType === PLANS.SUBSCRIBER_ENTERPRISE;
+  const isProSubscriber = currentSubscriptionType === PLANS.SUBSCRIBER_BUSINESS;
+
+  if (isUpgradingToCounsel && isProSubscriber) {
+    await dispatch(upgradeProUserToCounsel(checkoutData));
+  } else {
+    await dispatch(getCheckoutUrl(checkoutData));
+  }
+
+  // Call optional callback
+  if (onComplete) {
+    onComplete();
+  }
+};
+
+export const handleConsultationCheckout = async ({
+  dispatch,
+  threadId = null,
+  onComplete,
+}: any) => {
+  // Set the selected plan name for tracking
+  dispatch(setSelectedPaymentPlanName(PLANS.LEGAL_CONSULTATION));
+  // Close the referral drawer
+  closeReferralDrawer(dispatch);
+
+  // Trigger consultation checkout
+  await dispatch(
+    getConsultationCheckoutUrl({
+      legal_review_thread_id: threadId || null,
+      redirect_url: "https://app.inhouse.app/payment-success",
+    })
+  );
+  // Call optional callback
+  if (onComplete) {
+    onComplete();
+  }
+};
 
 // For store token
 export const getToken = async () => {

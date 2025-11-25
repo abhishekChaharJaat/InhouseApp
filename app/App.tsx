@@ -14,6 +14,8 @@ import MultiPlanModal from "./modals/multi-plan-modal";
 import NotSupportedModal from "./modals/NotSupportedModal";
 import Referraldrawer from "./modals/request-review";
 import SinglePlanModal from "./modals/signle-plan-modal";
+import ChargebeePaymentModal from "./modals/chargebee-payment";
+import PaymentStatusCheckModal from "./modals/chargebee-payment/PaymentStatusCheckModal";
 import SideNav from "./navs/Sidenav";
 import {
   connectAuthWebSocket,
@@ -139,6 +141,8 @@ export function AppContent() {
       <SideNav />
       <SinglePlanModal />
       <MultiPlanModal />
+      <ChargebeePaymentModal />
+      <PaymentStatusCheckModal />
       <Stack
         screenOptions={{
           headerShown: false,

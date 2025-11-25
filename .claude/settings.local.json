@@ -4,7 +4,10 @@
       "Bash(rmdir:*)",
       "Bash(mkdir:*)",
       "Bash(NUL)",
-      "Bash(findstr:*)"
+      "Bash(findstr:*)",
+      "Bash(dir \"C:\\Users\\abhis\\OneDrive\\Desktop\\app\" /b)",
+      "Bash(dir \"C:\\Users\\abhis\\OneDrive\\Desktop\\app\\inhouse\" /b)",
+      "mcp__ide__getDiagnostics"
     ],
     "deny": [],
     "ask": []

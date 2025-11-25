@@ -1,9 +1,10 @@
 import { DRAWER } from "@/app/constants";
-import { closeReferralDrawer } from "@/app/helpers";
+import { closeReferralDrawer, handleConsultationCheckout } from "@/app/helpers";
+import { AppDispatch } from "@/store";
 import { useAuth } from "@clerk/clerk-expo";
-import { Ionicons } from "@expo/vector-icons";
 import React, { useState } from "react";
 import {
+  ActivityIndicator,
   Modal,
   ScrollView,
   StyleSheet,
@@ -23,14 +24,30 @@ function Referraldrawer() {
   const [email, setEmail] = useState("");
   const [details, setDetails] = useState("");
 
+  const dispatch = useDispatch<AppDispatch>();
+
   const { show, drawerType, threadId } = useSelector(
     (state: any) => state.home.referralDrawerDetails
   );
-  const dispatch = useDispatch();
+  const checkoutUrlStatus = useSelector(
+    (state: any) => state.home.checkoutUrlStatus
+  );
+
+  const isLoading = checkoutUrlStatus === "loading";
 
   const handleSubmit = () => {
-    console.log(name, email, details, threadId);
-    // Add your submit logic here
+    // Add your submit logic here for non-consultation types
+  };
+
+  const onConsultationCheckout = () => {
+    handleConsultationCheckout({
+      dispatch,
+      threadId,
+      onComplete: () => {
+        // Add any post-checkout logic here
+        console.log("Consultaion complete yehhhhhhhhhhhhhhhhhhhhhhhhh......");
+      },
+    });
   };
 
   const onClose = () => {
@@ -112,10 +129,20 @@ function Referraldrawer() {
               {/* Footer CTA */}
               {drawerType === DRAWER.CONSULTATION ? (
                 <TouchableOpacity
-                  style={styles.ctaButton}
-                  onPress={handleSubmit}
+                  style={[
+                    styles.ctaButton,
+                    isLoading && styles.ctaButtonDisabled,
+                  ]}
+                  onPress={onConsultationCheckout}
+                  disabled={isLoading}
                 >
-                  <Text style={styles.ctaText}>Proceed to Checkout | $99</Text>
+                  {isLoading ? (
+                    <ActivityIndicator size="small" color="#FFFFFF" />
+                  ) : (
+                    <Text style={styles.ctaText}>
+                      Proceed to Checkout | $99
+                    </Text>
+                  )}
                 </TouchableOpacity>
               ) : (
                 <TouchableOpacity
@@ -255,6 +282,9 @@ const styles = StyleSheet.create({
     color: "#FFFFFF",
     fontSize: 15,
     fontWeight: "600",
+  },
+  ctaButtonDisabled: {
+    opacity: 0.7,
   },
   footerText: {
     fontSize: 12,

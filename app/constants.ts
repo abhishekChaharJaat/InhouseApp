@@ -7,6 +7,7 @@ export const PLANS = {
   AI_DOC: "subscriber_business", // Inhouse Pro
   LAWYER_FINALLIZATION: "subscriber_enterprise", // Inhouse counsel,
   COURT_DOCUMENT: "Court-Document-USD-Daily", // 99$ plan : document only
+  LEGAL_CONSULTATION: "legal_consultation", // $99 consultation plan
 };
 
 export const DRAWER = {

@@ -13,10 +13,11 @@ import FinalizationPlanCard from "./FinalizationPlanCard";
 import { useSelector, useDispatch } from "react-redux";
 import { setShowMultiPlanModal } from "@/store/homeSlice";
 
-const onSelectAIDoc = () => {};
-const onSelectAttorney = () => {};
+type MultiPlanModalProps = {
+  threadId?: string | null;
+};
 
-const MultiPlanModal = () => {
+const MultiPlanModal: React.FC<MultiPlanModalProps> = ({ threadId }) => {
   const dispatch = useDispatch();
 
   const showMultiPlanModal = useSelector(
@@ -26,6 +27,7 @@ const MultiPlanModal = () => {
   const onClose = () => {
     dispatch(setShowMultiPlanModal(false));
   };
+
   return (
     <Modal visible={showMultiPlanModal} transparent animationType="slide">
       <View style={styles.overlay}>
@@ -48,8 +50,8 @@ const MultiPlanModal = () => {
             </Text>
 
             <View style={styles.planRow}>
-              <FinalizationPlanCard onSelect={onSelectAttorney} />
-              <AIDocumentPlanCard onSelect={onSelectAIDoc} />
+              <FinalizationPlanCard threadId={threadId} />
+              <AIDocumentPlanCard threadId={threadId} />
             </View>
           </ScrollView>
         </View>
