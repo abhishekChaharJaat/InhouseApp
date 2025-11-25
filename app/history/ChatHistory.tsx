@@ -11,7 +11,7 @@ import {
 } from "react-native";
 // If you don't use Expo, change/remove this and the <Ionicons> below
 import CustomSafeAreaView from "@/app/components/CustomSafeAreaView";
-import RenameShareDelete from "@/app/modals/RenameShareDelete";
+import ThreadOptionsModal from "@/app/modals/thread-options-modal";
 import { getAllThreads } from "@/store/threadSlice";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
@@ -98,7 +98,7 @@ const ChatHistory = () => {
         </TouchableOpacity>
 
         <View style={styles.menuContainer}>
-          <RenameShareDelete
+          <ThreadOptionsModal
             threadId={item.id}
             currentTitle={item.title}
             iconSize={20}

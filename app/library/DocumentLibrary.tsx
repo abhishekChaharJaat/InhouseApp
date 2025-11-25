@@ -43,21 +43,28 @@ const DocumentLibrary = () => {
     setSelectedDoc(null);
   };
 
-  const handleDownload = () => {
-    console.log("Download document:", selectedDoc);
-    handleMenuClose();
-  };
-
-  const handleRename = () => {
-    // TODO: Implement rename functionality
-    console.log("Rename document:", selectedDoc);
-    handleMenuClose();
-  };
-
-  const handleView = () => {
+  const handleViewDoc = () => {
     if (selectedDoc?.thread_id) {
       router.push(`/chat/${selectedDoc.thread_id}` as any);
     }
+    handleMenuClose();
+  };
+
+  const handleDownloadPDF = () => {
+    // TODO: Implement PDF download functionality
+    console.log("Download as PDF:", selectedDoc);
+    handleMenuClose();
+  };
+
+  const handleDownloadDoc = () => {
+    // TODO: Implement DOC download functionality
+    console.log("Download as DOC:", selectedDoc);
+    handleMenuClose();
+  };
+
+  const handleRequestFinalize = () => {
+    // TODO: Implement request finalize functionality
+    console.log("Request Finalize:", selectedDoc);
     handleMenuClose();
   };
 
@@ -178,19 +185,24 @@ const DocumentLibrary = () => {
           onPress={handleMenuClose}
         >
           <View style={styles.menuContainer}>
-            <TouchableOpacity style={styles.menuItem} onPress={handleView}>
+            <TouchableOpacity style={styles.menuItem} onPress={handleViewDoc}>
               <Ionicons name="eye-outline" size={20} color="#000" />
-              <Text style={styles.menuItemText}>View</Text>
+              <Text style={styles.menuItemText}>View Doc</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity style={styles.menuItem} onPress={handleDownload}>
-              <Ionicons name="download-outline" size={20} color="#000" />
-              <Text style={styles.menuItemText}>Download</Text>
+            <TouchableOpacity style={styles.menuItem} onPress={handleDownloadPDF}>
+              <Ionicons name="document-outline" size={20} color="#000" />
+              <Text style={styles.menuItemText}>Download as PDF</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity style={styles.menuItem} onPress={handleRename}>
-              <Ionicons name="create-outline" size={20} color="#000" />
-              <Text style={styles.menuItemText}>Rename</Text>
+            <TouchableOpacity style={styles.menuItem} onPress={handleDownloadDoc}>
+              <Ionicons name="document-text-outline" size={20} color="#000" />
+              <Text style={styles.menuItemText}>Download as Doc</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity style={styles.menuItem} onPress={handleRequestFinalize}>
+              <Ionicons name="checkmark-circle-outline" size={20} color="#000" />
+              <Text style={styles.menuItemText}>Request Finalize</Text>
             </TouchableOpacity>
 
             <TouchableOpacity
