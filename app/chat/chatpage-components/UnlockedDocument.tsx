@@ -1,8 +1,8 @@
 // UnlockedDocument.tsx
+import { handleLegalReviewButtonClicked } from "@/app/helpers";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import React from "react";
 import {
-  Alert,
   Linking,
   StyleSheet,
   Text,
@@ -10,21 +10,41 @@ import {
   View,
 } from "react-native";
 import { WebView } from "react-native-webview";
+import { useDispatch, useSelector } from "react-redux";
 
 export default function UnlockedDocument({ message }: any) {
+  const dispatch = useDispatch();
   const googleDocId = message?.payload?.google_doc_id;
   const docTitle = message?.payload?.doc_title || "Untitled Document";
-
+  const userMetadata = useSelector(
+    (state: any) => state.onboarding.userMetadata
+  );
   if (!googleDocId) return null;
-
+  const threadData = useSelector((state: any) => state.onboarding.threadDtata);
+  if (!googleDocId) return null;
   const previewUrl = `https://docs.google.com/document/d/${googleDocId}/preview?rm=minimal`;
   const viewUrl = `https://docs.google.com/document/d/${googleDocId}/view`;
   const pdfUrl = `https://docs.google.com/document/d/${googleDocId}/export?format=pdf`;
 
   const handleViewDoc = () => Linking.openURL(viewUrl);
   const handleDownloadPdf = () => Linking.openURL(pdfUrl);
-  const handleRequestFinalization = () =>
-    Alert.alert("Request Finalization", "Finalization request triggered.");
+  const handleRequestFinalization = () => {
+    const btn = {
+      text: "Finalize with Attorney",
+      eligible_offers: {
+        ai_document: null,
+        lawyer_finalization: "default",
+        lawyer_consultation: null,
+      },
+    };
+    handleLegalReviewButtonClicked(
+      btn,
+      dispatch,
+      userMetadata,
+      threadData?.id,
+      false
+    );
+  };
 
   return (
     <View style={styles.wrapper}>

@@ -1,31 +1,44 @@
 // LockedDocument.tsx
+import { handleLegalReviewButtonClicked } from "@/app/helpers";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import React, { useEffect, useState } from "react";
-import { Alert, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { WebView } from "react-native-webview";
-import { useSelector } from "react-redux";
-
+import { useDispatch, useSelector } from "react-redux";
 export default function LockedDocument({ message }: any) {
   const [showLockedDoc, setShowLockedDoc] = useState(false);
   const googleDocId = message?.payload?.google_doc_id;
   const threadData = useSelector((state: any) => state.message.threadData);
+  const userMetadata = useSelector(
+    (state: any) => state.onboarding.userMetadata
+  );
   if (!googleDocId) return null;
   // const previewUrl = `https://docs.google.com/document/d/${googleDocId}/export?format=pdf`;
   const previewUrl = `https://docs.google.com/document/d/${googleDocId}/preview?rm=minimal`;
-
+  const dispatch = useDispatch();
   useEffect(() => {
     const unlockDoc = threadData?.messages.find(
       (msg: any) => msg.message_type === "document_generated"
     );
+
     if (!unlockDoc) {
       setShowLockedDoc(true);
     }
   }, []);
 
-  const handleAccessDoc = () => {
-    Alert.alert(
-      "Access Required",
-      "You'll be able to access this document from here."
+  const handleAccessDoc = async () => {
+    const msg = threadData.messages
+      .slice()
+      .reverse()
+      .find((m: any) => m.message_type === "quick_actions");
+
+    const btn = msg.payload.buttons[0];
+    handleLegalReviewButtonClicked(
+      btn,
+      dispatch,
+      userMetadata,
+      threadData?.id,
+      true
     );
   };
 

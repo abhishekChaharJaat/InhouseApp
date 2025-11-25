@@ -164,11 +164,15 @@ export const handleNewFormatMessage = (message: any) => {
       break;
 
     case "document_generated":
+      console.log("document_generated:", message.payload);
       dispatch(setThreadLastMsgType("document_generated"));
       dispatch(setAwaitingResponse(false));
-      console.log("Document generated");
       break;
-
+    case "locked_document_generated":
+      console.log("locked_document_generated:", message.payload);
+      dispatch(setThreadLastMsgType("locked_document_generated"));
+      dispatch(setAwaitingResponse(false));
+      break;
     case "pong":
       // Health check response - no action needed
       break;

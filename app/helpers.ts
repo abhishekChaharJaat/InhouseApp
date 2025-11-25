@@ -121,7 +121,7 @@ export const handleLegalReviewButtonClicked = (
   if (
     btn?.eligible_offers?.ai_document === "default" &&
     btn?.eligible_offers?.lawyer_finalization === "default" &&
-    btn.text === "Access Document"
+    btn?.eligible_offers?.lawyer_consultation === null
   ) {
     dispatch(setShowMultiPlanModal(true));
     return;

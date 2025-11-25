@@ -62,10 +62,12 @@ export default function SideNav() {
         break;
       }
       case "document-library": {
+        dispatch(resetThreadData());
         navigate("/library/DocumentLibrary");
         break;
       }
       case "chat-history": {
+        dispatch(resetThreadData());
         navigate("/history/ChatHistory");
         break;
       }
