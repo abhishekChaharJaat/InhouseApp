@@ -1,5 +1,9 @@
 import CustomSafeAreaView from "@/app/components/CustomSafeAreaView";
-import { setShowAuthModal, signInUser } from "@/store/authSlice";
+import {
+  resetPendingPasswordReset,
+  setShowAuthModal,
+  signInUser,
+} from "@/store/authSlice";
 import { useSignIn } from "@clerk/clerk-expo";
 import { useRouter } from "expo-router";
 import React from "react";
@@ -9,22 +13,27 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
-  StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
   View,
 } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
+import { authStyles as styles } from "./authStyles";
+import ForgotPassword from "./ForgotPassword";
+import ResetPassword from "./ResetPassword";
 
 export default function Signin({ isModal, setAuthMode }: any) {
   const { signIn, setActive, isLoaded } = useSignIn();
   const router = useRouter();
   const dispatch = useDispatch();
-  const isSigningIn = useSelector((state: any) => state.auth.isSigningIn);
+  const { isSigningIn, pendingPasswordReset } = useSelector(
+    (state: any) => state.auth
+  );
 
   const [emailAddress, setEmailAddress] = React.useState("");
   const [password, setPassword] = React.useState("");
+  const [showForgotPassword, setShowForgotPassword] = React.useState(false);
 
   const onSignInPress = async () => {
     if (!isLoaded || isSigningIn) return;
@@ -39,27 +48,52 @@ export default function Signin({ isModal, setAuthMode }: any) {
     }
   };
 
+  const onBackToSignin = () => {
+    setShowForgotPassword(false);
+    dispatch(resetPendingPasswordReset());
+  };
+
   const onGooglePress = () => {
     Alert.alert("Google sign-in", "Wire this to your Google OAuth flow.");
   };
 
-  const content = (
+  // Show Reset Password screen (after code is sent)
+  if (pendingPasswordReset) {
+    return (
+      <ResetPassword
+        isModal={isModal}
+        emailAddress={emailAddress}
+        onBack={onBackToSignin}
+      />
+    );
+  }
+
+  // Show Forgot Password screen
+  if (showForgotPassword) {
+    return (
+      <ForgotPassword
+        isModal={isModal}
+        emailAddress={emailAddress}
+        setEmailAddress={setEmailAddress}
+        onBack={onBackToSignin}
+      />
+    );
+  }
+
+  // Sign in screen
+  const signinContent = (
     <ScrollView
       keyboardShouldPersistTaps="handled"
       contentContainerStyle={isModal ? styles.modalContainer : styles.container}
     >
-      {/* Wrapper to control vertical layout */}
       <View style={isModal ? styles.modalInner : styles.inner}>
-        {/* Top-left logo - hide in modal */}
         {!isModal && (
           <View style={styles.header}>
             <Text style={styles.logo}>Inhouse</Text>
           </View>
         )}
 
-        {/* Centered form card */}
         <View style={styles.card}>
-          {/* Title & subtitle */}
           <Text style={styles.title}>Sign in to your account</Text>
           <Text style={styles.subtitle}>
             Welcome back! Please sign in to continue
@@ -113,6 +147,14 @@ export default function Signin({ isModal, setAuthMode }: any) {
             />
           </View>
 
+          {/* Forgot password link */}
+          <TouchableOpacity
+            style={styles.forgotPasswordButton}
+            onPress={() => setShowForgotPassword(true)}
+          >
+            <Text style={styles.forgotPasswordText}>Forgot password?</Text>
+          </TouchableOpacity>
+
           {/* Continue button */}
           <TouchableOpacity
             style={[
@@ -141,7 +183,6 @@ export default function Signin({ isModal, setAuthMode }: any) {
           </View>
         </View>
 
-        {/* Bottom copyright - hide in modal */}
         {!isModal && (
           <Text style={styles.copyright}>
             © 2025 Inhouse. All Rights Reserved
@@ -152,7 +193,7 @@ export default function Signin({ isModal, setAuthMode }: any) {
   );
 
   if (isModal) {
-    return content;
+    return signinContent;
   }
 
   return (
@@ -161,182 +202,8 @@ export default function Signin({ isModal, setAuthMode }: any) {
         style={{ flex: 1, backgroundColor: "#ffffff" }}
         behavior={Platform.OS === "ios" ? "padding" : "height"}
       >
-        {content}
+        {signinContent}
       </KeyboardAvoidingView>
     </CustomSafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flexGrow: 1,
-    paddingHorizontal: 24,
-    backgroundColor: "#ffffff",
-  },
-  inner: {
-    flex: 1,
-    justifyContent: "space-between", // header at top, form mid, copyright bottom
-  },
-
-  // Header / logo
-  header: {
-    marginBottom: 24,
-  },
-  logo: {
-    fontSize: 30,
-    fontWeight: "700",
-    color: "#111827",
-    textAlign: "left", // top-left
-  },
-
-  // Card (form) centered by maxWidth + inner flex layout
-  card: {
-    width: "100%",
-    maxWidth: 360,
-    alignSelf: "center",
-  },
-
-  title: {
-    fontSize: 22,
-    fontWeight: "700",
-    color: "#111827",
-    marginBottom: 4,
-    textAlign: "center",
-  },
-  subtitle: {
-    fontSize: 14,
-    color: "#6B7280",
-    marginBottom: 24,
-    textAlign: "center",
-  },
-
-  // Google button
-  googleButton: {
-    borderRadius: 999,
-    backgroundColor: "#ffffff",
-    borderWidth: 1,
-    borderColor: "#E5E7EB",
-    paddingVertical: 10,
-    paddingHorizontal: 12,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 2,
-    elevation: 1,
-    marginBottom: 24,
-  },
-  googleContent: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  googleIconCircle: {
-    width: 22,
-    height: 22,
-    borderRadius: 11,
-    backgroundColor: "#fff",
-    alignItems: "center",
-    justifyContent: "center",
-    marginRight: 8,
-  },
-  googleIconText: {
-    fontSize: 14,
-  },
-  googleText: {
-    fontSize: 15,
-    fontWeight: "500",
-    color: "#111827",
-  },
-
-  // Divider
-  dividerRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: 18,
-  },
-  dividerLine: {
-    flex: 1,
-    height: 1,
-    backgroundColor: "#E5E7EB",
-  },
-  dividerText: {
-    marginHorizontal: 10,
-    fontSize: 12,
-    color: "#9CA3AF",
-  },
-
-  // Fields
-  fieldGroup: {
-    marginBottom: 16,
-  },
-  fieldLabel: {
-    fontSize: 13,
-    fontWeight: "600",
-    color: "#111827",
-    marginBottom: 6,
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: "#E5E7EB",
-    backgroundColor: "#ffffff",
-    paddingHorizontal: 16,
-    height: 46,
-    borderRadius: 999,
-    fontSize: 15,
-  },
-
-  // Primary button
-  primaryButton: {
-    marginTop: 8,
-    backgroundColor: "#2F3C5A",
-    borderRadius: 999,
-    height: 48,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  primaryButtonDisabled: {
-    opacity: 0.7,
-  },
-  primaryButtonText: {
-    color: "#ffffff",
-    fontSize: 16,
-    fontWeight: "600",
-  },
-  primaryButtonArrow: {
-    fontWeight: "700",
-  },
-
-  // Footer (auth link)
-  footer: {
-    flexDirection: "row",
-    justifyContent: "center",
-    marginTop: 18,
-  },
-  footerText: {
-    fontSize: 13,
-    color: "#6B7280",
-  },
-  footerLink: {
-    fontSize: 13,
-    color: "#1F6FEB",
-    fontWeight: "600",
-  },
-
-  // Copyright bottom text
-  copyright: {
-    textAlign: "center",
-    fontSize: 12,
-    color: "#9CA3AF",
-    marginTop: 32,
-  },
-  modalContainer: {
-    flexGrow: 1,
-    paddingHorizontal: 24,
-    backgroundColor: "#ffffff",
-    paddingTop: 0,
-  },
-  modalInner: {
-    flex: 1,
-    justifyContent: "center",
-  },
-});

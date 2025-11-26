@@ -5,10 +5,13 @@ const initialState = {
   isSigningIn: false,
   isSigningUp: false,
   isVerifyingOtp: false,
+  isResettingPassword: false,
   signInError: null as any,
   signUpError: null as any,
   otpError: null as any,
+  resetPasswordError: null as any,
   pendingVerification: false,
+  pendingPasswordReset: false,
   showAuthModal: {
     show: false,
     type: "signin",
@@ -91,6 +94,58 @@ export const verifyOtp = createAsyncThunk(
   }
 );
 
+// Forgot Password - Step 1: Send reset code
+export const forgotPassword = createAsyncThunk(
+  "auth/forgotPassword",
+  async (params: any, { rejectWithValue }) => {
+    const { signIn, emailAddress } = params;
+    try {
+      await signIn.create({
+        strategy: "reset_password_email_code",
+        identifier: emailAddress,
+      });
+
+      return { pendingPasswordReset: true };
+    } catch (err: any) {
+      console.log("Forgot Password Error:", JSON.stringify(err, null, 2));
+      return rejectWithValue(
+        err?.errors?.[0]?.longMessage ||
+          err?.errors?.[0]?.message ||
+          "Failed to send reset code. Please try again."
+      );
+    }
+  }
+);
+
+// Forgot Password - Step 2: Verify code and set new password
+export const resetPassword = createAsyncThunk(
+  "auth/resetPassword",
+  async (params: any, { rejectWithValue }) => {
+    const { signIn, setActive, code, newPassword } = params;
+    try {
+      const result = await signIn.attemptFirstFactor({
+        strategy: "reset_password_email_code",
+        code,
+        password: newPassword,
+      });
+
+      if (result.status === "complete") {
+        await setActive({ session: result.createdSessionId });
+        return { success: true };
+      } else {
+        return rejectWithValue("Password reset incomplete. Please try again.");
+      }
+    } catch (err: any) {
+      console.log("Reset Password Error:", JSON.stringify(err, null, 2));
+      return rejectWithValue(
+        err?.errors?.[0]?.longMessage ||
+          err?.errors?.[0]?.message ||
+          "Failed to reset password. Please try again."
+      );
+    }
+  }
+);
+
 const authSlice = createSlice({
   name: "auth",
   initialState,
@@ -104,8 +159,14 @@ const authSlice = createSlice({
     clearOtpError: (state) => {
       state.otpError = null;
     },
+    clearResetPasswordError: (state) => {
+      state.resetPasswordError = null;
+    },
     resetPendingVerification: (state) => {
       state.pendingVerification = false;
+    },
+    resetPendingPasswordReset: (state) => {
+      state.pendingPasswordReset = false;
     },
     setToken: (state, action) => {
       state.token = action.payload;
@@ -153,6 +214,30 @@ const authSlice = createSlice({
       .addCase(verifyOtp.rejected, (state, action) => {
         state.isVerifyingOtp = false;
         state.otpError = action.payload;
+      })
+      .addCase(forgotPassword.pending, (state) => {
+        state.isResettingPassword = true;
+        state.resetPasswordError = null;
+      })
+      .addCase(forgotPassword.fulfilled, (state, action) => {
+        state.isResettingPassword = false;
+        state.pendingPasswordReset = action.payload.pendingPasswordReset;
+      })
+      .addCase(forgotPassword.rejected, (state, action) => {
+        state.isResettingPassword = false;
+        state.resetPasswordError = action.payload;
+      })
+      .addCase(resetPassword.pending, (state) => {
+        state.isResettingPassword = true;
+        state.resetPasswordError = null;
+      })
+      .addCase(resetPassword.fulfilled, (state) => {
+        state.isResettingPassword = false;
+        state.pendingPasswordReset = false;
+      })
+      .addCase(resetPassword.rejected, (state, action) => {
+        state.isResettingPassword = false;
+        state.resetPasswordError = action.payload;
       });
   },
 });
@@ -161,7 +246,9 @@ export const {
   clearSignInError,
   clearSignUpError,
   clearOtpError,
+  clearResetPasswordError,
   resetPendingVerification,
+  resetPendingPasswordReset,
   setToken,
   setShowAuthModal,
 } = authSlice.actions;

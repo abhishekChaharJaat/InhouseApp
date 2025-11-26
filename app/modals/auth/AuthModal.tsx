@@ -1,3 +1,4 @@
+import { setShowAuthModal } from "@/store/authSlice";
 import { Ionicons } from "@expo/vector-icons";
 import React, { useState } from "react";
 import {
@@ -12,7 +13,6 @@ import {
   View,
 } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
-import { setShowAuthModal } from "@/store/authSlice";
 import Signin from "./Signin";
 import Signup from "./Signup";
 const { height } = Dimensions.get("window");
@@ -102,8 +102,8 @@ const styles = StyleSheet.create({
   },
   modalContainer: {
     backgroundColor: "#ffffff",
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
+    borderTopLeftRadius: 30,
+    borderTopRightRadius: 30,
     minHeight: "85%",
     shadowColor: "#000",
     shadowOffset: {
