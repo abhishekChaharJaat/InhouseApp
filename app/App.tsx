@@ -7,15 +7,15 @@ import React, { useEffect } from "react";
 import { AppState } from "react-native";
 import { useDispatch } from "react-redux";
 import { AppDispatch } from "../store";
-import { getUserMetadata } from "../store/onboardingSlice";
+import { getLawyerHub, getUserMetadata } from "../store/onboardingSlice";
 import AuthModal from "./modals/auth/AuthModal";
+import ChargebeePaymentModal from "./modals/chargebee-payment";
+import PaymentStatusCheckModal from "./modals/chargebee-payment/PaymentStatusCheckModal";
 import ContactHelp from "./modals/ContactHelp";
 import MultiPlanModal from "./modals/multi-plan-modal";
 import NotSupportedModal from "./modals/NotSupportedModal";
 import Referraldrawer from "./modals/request-review";
 import SinglePlanModal from "./modals/signle-plan-modal";
-import ChargebeePaymentModal from "./modals/chargebee-payment";
-import PaymentStatusCheckModal from "./modals/chargebee-payment/PaymentStatusCheckModal";
 import SideNav from "./navs/Sidenav";
 import {
   connectAuthWebSocket,
@@ -34,6 +34,7 @@ export function AppContent() {
     if (isSignedIn) {
       dispatch(getUserMetadata({}) as any);
       dispatch(getAllThreads() as any);
+      dispatch(getLawyerHub());
     }
   }, [isSignedIn]);
 
@@ -44,6 +45,7 @@ export function AppContent() {
       if (nextAppState === "active" && isSignedIn) {
         dispatch(getUserMetadata({}) as any);
         dispatch(getAllThreads() as any);
+        dispatch(getLawyerHub());
       }
     });
     return () => {

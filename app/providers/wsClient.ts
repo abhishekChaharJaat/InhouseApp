@@ -89,7 +89,6 @@ export const handleNewFormatMessage = (message: any) => {
           new_messages: [],
         })
       );
-      console.log("Thread created:", threadId);
 
       // Send pending initial message if exists
       if (pendingInitialMessage && wsInstance) {
@@ -189,17 +188,24 @@ export const handleNewFormatMessage = (message: any) => {
 
         // Set payload for DOC_GENERATION to track elapsed time
         if (message.payload.doc_generation_payload) {
-          dispatch(setLoadingMessagePayload(message.payload.doc_generation_payload));
+          dispatch(
+            setLoadingMessagePayload(message.payload.doc_generation_payload)
+          );
         } else if (message.payload.web_search_payload) {
-          dispatch(setLoadingMessagePayload(message.payload.web_search_payload));
+          dispatch(
+            setLoadingMessagePayload(message.payload.web_search_payload)
+          );
         } else if (message.payload.issue_spotting_payload) {
-          dispatch(setLoadingMessagePayload(message.payload.issue_spotting_payload));
+          dispatch(
+            setLoadingMessagePayload(message.payload.issue_spotting_payload)
+          );
         }
       }
 
       // Add as a message to threadData for tracking (like web app)
       const updateLoadingState = store.getState();
-      const updateLoadingCurrentThreadId = updateLoadingState.message.threadData?.id;
+      const updateLoadingCurrentThreadId =
+        updateLoadingState.message.threadData?.id;
       if (message.payload.thread_id === updateLoadingCurrentThreadId) {
         const loadingMessage = {
           id: message.payload.message_id || `loading-${Date.now()}`,
@@ -220,8 +226,6 @@ export const handleNewFormatMessage = (message: any) => {
       break;
 
     case "document_generated":
-      console.log("document_generated:", message.payload);
-      // Add the document as a message to threadData.messages
       const docMessage = {
         id: `doc-${Date.now()}`,
         is_user_message: false,
@@ -243,8 +247,6 @@ export const handleNewFormatMessage = (message: any) => {
       dispatch(resetLoadingMessageType());
       break;
     case "locked_document_generated":
-      console.log("locked_document_generated:", message.payload);
-      // Add the locked document as a message to threadData.messages
       const lockedDocMessage = {
         id: `locked-doc-${Date.now()}`,
         is_user_message: false,
@@ -266,7 +268,6 @@ export const handleNewFormatMessage = (message: any) => {
       dispatch(resetLoadingMessageType());
       break;
     case "pong":
-      // Health check response - no action needed
       break;
 
     default:
@@ -361,13 +362,20 @@ export const handleWebSocketMessage = (event: MessageEvent) => {
 
     // Allow enable_messaging messages through - these are critical for re-enabling chat
     const isEnableMessagingMessage =
-      message.status_code === 200 && message.payload?.type === "enable_messaging";
+      message.status_code === 200 &&
+      message.payload?.type === "enable_messaging";
 
     // Allow messages for current thread
     const isCurrentThreadMessage =
       message.payload?.thread_id === currentThreadId;
 
-    if (!isValidStatusCodeMessage && !isInRequestIds && !isLegacyMessage && !isEnableMessagingMessage && !isCurrentThreadMessage) {
+    if (
+      !isValidStatusCodeMessage &&
+      !isInRequestIds &&
+      !isLegacyMessage &&
+      !isEnableMessagingMessage &&
+      !isCurrentThreadMessage
+    ) {
       console.log("Message filtered out:", message);
       return;
     }

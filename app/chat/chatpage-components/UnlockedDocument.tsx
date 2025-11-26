@@ -2,7 +2,7 @@
 import { handleLegalReviewButtonClicked } from "@/app/helpers";
 import ViewDocumentModal from "@/app/modals/ViewDocumentModal";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Linking,
   StyleSheet,
@@ -16,6 +16,7 @@ import { useDispatch, useSelector } from "react-redux";
 export default function UnlockedDocument({ message }: any) {
   const dispatch = useDispatch();
   const [viewModalVisible, setViewModalVisible] = useState(false);
+  const [finalized, setFinalized] = useState(false);
   const googleDocId = message?.payload?.google_doc_id;
   const docTitle = message?.payload?.doc_title || "Untitled Document";
   const userMetadata = useSelector(
@@ -46,6 +47,21 @@ export default function UnlockedDocument({ message }: any) {
       false
     );
   };
+
+  useEffect(() => {
+    if (!threadData.id) return;
+    let legalReviewMessages = threadData?.messages.filter(
+      (msg: any) => msg.message_type === "legal_review_message"
+    );
+    let documentGenerated = threadData?.messages.some(
+      (msg: any) => msg.message_type === "document_generated"
+    );
+    if (legalReviewMessages && documentGenerated) {
+      setFinalized(true);
+    } else {
+      setFinalized(false);
+    }
+  }, [threadData]);
 
   return (
     <View style={styles.wrapper}>
@@ -109,34 +125,46 @@ export default function UnlockedDocument({ message }: any) {
         </View>
 
         {/* FOOTER */}
-        <View style={styles.footer}>
-          <View style={styles.footerLeft}>
-            {/* <MaterialCommunityIcons
-              name="briefcase-outline"
-              size={18}
-              color="#1b2b48"
-              style={{ marginRight: 10 }}
-            /> */}
-            <Text style={styles.footerText}>
-              Have your document finalized by an expert lawyer to ensure it’s
-              airtight.
-            </Text>
-          </View>
+        {finalized ? (
+          <View style={styles.requestedFooter}>
+            <View style={styles.footerLeft}>
+              <MaterialCommunityIcons
+                name="check-circle-outline"
+                size={20}
+                color="#24990cff"
+                style={{ marginRight: 10 }}
+              />
 
-          <TouchableOpacity
-            style={styles.footerButton}
-            onPress={handleRequestFinalization}
-            activeOpacity={0.8}
-          >
-            <MaterialCommunityIcons
-              name="briefcase-outline"
-              size={18}
-              color="#1b2b48"
-              style={{ marginRight: 6 }}
-            />
-            <Text style={styles.footerButtonText}>Finalization</Text>
-          </TouchableOpacity>
-        </View>
+              <Text style={styles.footerText}>
+                Review requested successfully! Further details have been sent to
+                your email.
+              </Text>
+            </View>
+          </View>
+        ) : (
+          <View style={styles.footer}>
+            <View style={styles.footerLeft}>
+              <Text style={styles.footerText}>
+                Have your document finalized by an expert lawyer to ensure it’s
+                airtight.
+              </Text>
+            </View>
+
+            <TouchableOpacity
+              style={styles.footerButton}
+              onPress={handleRequestFinalization}
+              activeOpacity={0.8}
+            >
+              <MaterialCommunityIcons
+                name="briefcase-outline"
+                size={18}
+                color="#1b2b48"
+                style={{ marginRight: 6 }}
+              />
+              <Text style={styles.footerButtonText}>Finalization</Text>
+            </TouchableOpacity>
+          </View>
+        )}
       </View>
 
       {/* View Document Modal */}
@@ -249,6 +277,17 @@ const styles = StyleSheet.create({
   },
 
   /** FOOTER **/
+  requestedFooter: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingHorizontal: 8,
+    paddingVertical: 14,
+    backgroundColor: "#f5fceeff",
+    borderTopWidth: 1,
+    borderTopColor: "#E6D9FF",
+    gap: 6,
+  },
   footer: {
     flexDirection: "row",
     alignItems: "center",

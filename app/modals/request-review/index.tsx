@@ -1,4 +1,4 @@
-import { DRAWER, PLANS } from "@/app/constants";
+import { DRAWER } from "@/app/constants";
 import { closeReferralDrawer, handleConsultationCheckout } from "@/app/helpers";
 import { AppDispatch } from "@/store";
 import {
@@ -31,7 +31,7 @@ function Referraldrawer() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [details, setDetails] = useState("");
-  const [showSuccess, setShowSuccess] = useState(false);
+  const [reviewRequested, setReviewRequested] = useState(false);
 
   const dispatch = useDispatch<AppDispatch>();
 
@@ -47,18 +47,40 @@ function Referraldrawer() {
   const userMetadata = useSelector(
     (state: any) => state.onboarding.userMetadata
   );
+  const threadData = useSelector((state: any) => state.message.threadData);
 
   const isLoading =
     checkoutUrlStatus === "loading" || storeReferralStatus === "loading";
 
-  // Check if user is enterprise (subscriber_enterprise)
-  const isEnterpriseUser =
-    userMetadata?.subscription_type === PLANS.SUBSCRIBER_ENTERPRISE;
+  useEffect(() => {
+    if (!show) return;
+    let legalReviewMessages = threadData?.messages.filter(
+      (msg: any) => msg.message_type === "legal_review_message"
+    );
+    let documentGenerated = threadData?.messages.some(
+      (msg: any) => msg.message_type === "document_generated"
+    );
+    // console.log("legalReviewMessages ", legalReviewMessages);
+    // console.log("documentGenerated ", documentGenerated);
+    if (!legalReviewMessages || legalReviewMessages.length < 1) {
+      setReviewRequested(false);
+      return;
+    }
+    if (legalReviewMessages?.length === 1 && !documentGenerated) {
+      setReviewRequested(true);
+      return;
+    }
+    if (legalReviewMessages?.length > 1 && documentGenerated) {
+      setReviewRequested(true);
+      return;
+    }
+    setReviewRequested(false);
+  }, [show, threadData]);
 
   // Show success screen and add legal review message when storeReferral succeeds
   useEffect(() => {
     if (storeReferralStatus === "success") {
-      setShowSuccess(true);
+      setReviewRequested(true);
       // Add legal review message to thread for instant display
       dispatch(addLegalReviewMessage());
     }
@@ -70,7 +92,7 @@ function Referraldrawer() {
       setName("");
       setEmail("");
       setDetails("");
-      setShowSuccess(false);
+      setReviewRequested(false);
       dispatch(resetStoreReferralStatus());
     }
   }, [show]);
@@ -170,7 +192,7 @@ function Referraldrawer() {
               contentContainerStyle={styles.contentContainer}
               showsVerticalScrollIndicator={false}
             >
-              {showSuccess ? (
+              {reviewRequested ? (
                 // Success Screen
                 <View style={styles.successContainer}>
                   <View style={styles.successIconContainer}>
@@ -394,9 +416,9 @@ const styles = StyleSheet.create({
   },
   ctaButton: {
     backgroundColor: "#1b2b48",
-    borderRadius: 24,
-    paddingVertical: 14,
-    paddingHorizontal: 20,
+    borderRadius: 50,
+    paddingVertical: 18,
+    paddingHorizontal: 28,
     alignItems: "center",
     justifyContent: "center",
     marginTop: 8,
