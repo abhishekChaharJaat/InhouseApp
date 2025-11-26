@@ -2,19 +2,27 @@
 import ChatBox from "@/app/chat/chatpage-components/ChatBox";
 import CustomSafeAreaView from "@/app/components/CustomSafeAreaView";
 import { RootState } from "@/store";
-import { clearRedirectFlag, setChatInputMessage } from "@/store/messageSlice";
+import {
+  clearRedirectFlag,
+  resetThreadData,
+  setChatInputMessage,
+} from "@/store/messageSlice";
 import { useUser } from "@clerk/clerk-expo";
 import { useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
 import {
   Alert,
   Keyboard,
+  RefreshControl,
+  ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
 } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
+import { getLawyerHub, getUserMetadata } from "../../store/onboardingSlice";
+import { getAllThreads } from "../../store/threadSlice";
 import Topnav from "../navs/Topnav";
 import {
   createThreadMessage,
@@ -27,6 +35,7 @@ function Home() {
   const dispatch = useDispatch();
   const router = useRouter();
   const [inputMessage, setInputMessage] = useState("");
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
   // Get threadData and redirect flag from Redux
   const threadData = useSelector(
@@ -60,6 +69,22 @@ function Home() {
     Alert.alert("Feature Unavailable", "File attachment coming soon.");
   };
 
+  const handleRefresh = async () => {
+    setIsRefreshing(true);
+    try {
+      await Promise.all([
+        dispatch(getUserMetadata({}) as any),
+        dispatch(getAllThreads() as any),
+        dispatch(getLawyerHub() as any),
+        dispatch(resetThreadData()),
+      ]);
+    } catch (error) {
+      console.error("Refresh error:", error);
+    } finally {
+      setIsRefreshing(false);
+    }
+  };
+
   // Redirect to chat page when thread is created
   useEffect(() => {
     if (shouldRedirectToChat && threadData?.id) {
@@ -71,16 +96,22 @@ function Home() {
 
   return (
     <CustomSafeAreaView>
-      {/* This View will capture taps anywhere inside and dismiss the keyboard */}
-      <View
+      <Topnav page="home" />
+      <ScrollView
         style={styles.outer}
-        onStartShouldSetResponder={() => true}
-        onResponderRelease={() => {
-          Keyboard.dismiss();
-        }}
+        contentContainerStyle={styles.scrollContent}
+        keyboardShouldPersistTaps="handled"
+        refreshControl={
+          <RefreshControl
+            refreshing={isRefreshing}
+            onRefresh={handleRefresh}
+            colors={["#3F65A9"]}
+            tintColor="#3F65A9"
+            progressViewOffset={-50}
+          />
+        }
+        onScrollBeginDrag={Keyboard.dismiss}
       >
-        <Topnav page="home" />
-
         <View style={styles.container}>
           <Text style={styles.title1}>Welcome {user?.firstName}</Text>
           <Text style={styles.title2}>How Can we help you?</Text>
@@ -140,7 +171,7 @@ function Home() {
             </TouchableOpacity>
           </View>
         </View>
-      </View>
+      </ScrollView>
     </CustomSafeAreaView>
   );
 }
@@ -151,10 +182,13 @@ const styles = StyleSheet.create({
   outer: {
     flex: 1,
   },
+  scrollContent: {
+    flexGrow: 1,
+  },
   container: {
     flex: 1,
-    justifyContent: "center", // centers vertically
-    alignItems: "center", // centers horizontally
+    justifyContent: "center",
+    alignItems: "center",
     padding: 10,
   },
   title1: {

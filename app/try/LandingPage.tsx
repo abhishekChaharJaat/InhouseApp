@@ -7,7 +7,9 @@ import {
   Alert,
   Keyboard,
   KeyboardAvoidingView,
+  Linking,
   Platform,
+  RefreshControl,
   ScrollView,
   StyleSheet,
   Text,
@@ -29,6 +31,7 @@ const LandingPage = () => {
   const dispatch = useDispatch();
   const router = useRouter();
   const [inputMessage, setInputMessage] = useState("");
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
   const awaitingResponse = useSelector(
     (state: RootState) => state.message.awaitingResponse
@@ -75,6 +78,12 @@ const LandingPage = () => {
     Alert.alert("Feature Unavailable", "File attachment coming soon.");
   };
 
+  const handleRefresh = async () => {
+    setIsRefreshing(true);
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+    setIsRefreshing(false);
+  };
+
   return (
     <CustomSafeAreaView>
       <Topnav page="try" />
@@ -89,6 +98,15 @@ const LandingPage = () => {
             style={styles.container}
             contentContainerStyle={styles.contentContainer}
             keyboardShouldPersistTaps="handled"
+            refreshControl={
+              <RefreshControl
+                refreshing={isRefreshing}
+                onRefresh={handleRefresh}
+                colors={["#3F65A9"]}
+                tintColor="#3F65A9"
+                progressViewOffset={-50}
+              />
+            }
           >
             <View style={styles.heroSection}>
               {/* Header */}

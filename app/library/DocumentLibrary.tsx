@@ -4,9 +4,8 @@ import { getAllGeneratedDocs } from "@/store/messageSlice";
 import { useAuth } from "@clerk/clerk-expo";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
-  ActivityIndicator,
   FlatList,
   Modal,
   StyleSheet,
@@ -17,6 +16,7 @@ import {
 import { useDispatch, useSelector } from "react-redux";
 import { formatDateTime } from "../helpers";
 import Topnav from "../navs/Topnav";
+import DocumentSkeleton from "./DocumentSkeleton";
 
 const DocumentLibrary = () => {
   const dispatch = useDispatch();
@@ -32,6 +32,16 @@ const DocumentLibrary = () => {
   useEffect(() => {
     dispatch(getAllGeneratedDocs() as any);
   }, [dispatch]);
+
+  // Sort documents by creation date (most recent first)
+  const sortedDocuments = useMemo(() => {
+    if (!documents || documents.length === 0) return [];
+    return [...documents].sort((a, b) => {
+      const dateA = new Date(a.document_creation_time).getTime();
+      const dateB = new Date(b.document_creation_time).getTime();
+      return dateB - dateA; // Most recent first
+    });
+  }, [documents]);
 
   const handleMenuOpen = (doc: any) => {
     setSelectedDoc(doc);
@@ -114,9 +124,11 @@ const DocumentLibrary = () => {
     return (
       <CustomSafeAreaView>
         <Topnav page="home" />
-        <View style={[styles.container, styles.centerContent]}>
-          <ActivityIndicator size="large" color="#000" />
-          <Text style={styles.loadingText}>Loading your documents...</Text>
+        <View style={styles.container}>
+          <Text style={styles.header}>Document Library</Text>
+          <DocumentSkeleton />
+          <DocumentSkeleton />
+          <DocumentSkeleton />
         </View>
       </CustomSafeAreaView>
     );
@@ -151,7 +163,7 @@ const DocumentLibrary = () => {
       <View style={styles.container}>
         <Text style={styles.header}>Document Library</Text>
 
-        {documents.length === 0 ? (
+        {sortedDocuments.length === 0 ? (
           <View style={styles.emptyState}>
             <Ionicons name="document-text-outline" size={64} color="#ccc" />
             <Text style={styles.emptyText}>No documents yet</Text>
@@ -161,7 +173,7 @@ const DocumentLibrary = () => {
           </View>
         ) : (
           <FlatList
-            data={documents}
+            data={sortedDocuments}
             renderItem={renderDocument}
             keyExtractor={(item, index) =>
               item.document_id ? `${item.document_id}-${index}` : `doc-${index}`

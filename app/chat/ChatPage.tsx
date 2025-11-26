@@ -17,6 +17,7 @@ import {
   Keyboard,
   KeyboardAvoidingView,
   Platform,
+  RefreshControl,
   StyleSheet,
   Text,
   TouchableWithoutFeedback,
@@ -51,6 +52,7 @@ function ChatPage({ threadId }: any) {
 
   const dispatch = useDispatch();
   const [inputMessage, setInputMessage] = useState("");
+  const [isRefreshing, setIsRefreshing] = useState(false);
   const flatListRef = useRef<FlatList<any>>(null);
 
   useEffect(() => {
@@ -127,6 +129,12 @@ function ChatPage({ threadId }: any) {
     Alert.alert("Feature Unavailable", "File attachment coming soon.");
   };
 
+  const handleRefresh = async () => {
+    setIsRefreshing(true);
+    await (dispatch as any)(fetchThreadMessages(threadId));
+    setIsRefreshing(false);
+  };
+
   return (
     <CustomSafeAreaView>
       <Topnav page="chat" title={threadData?.title} threadId={threadId} />
@@ -171,6 +179,15 @@ function ChatPage({ threadId }: any) {
               }
               onLayout={() =>
                 flatListRef.current?.scrollToEnd({ animated: false })
+              }
+              refreshControl={
+                <RefreshControl
+                  refreshing={isRefreshing}
+                  onRefresh={handleRefresh}
+                  colors={["#3F65A9"]}
+                  tintColor="#3F65A9"
+                  progressViewOffset={-50}
+                />
               }
             />
           )}
