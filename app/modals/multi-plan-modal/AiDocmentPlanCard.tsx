@@ -1,16 +1,16 @@
+import { PLANS } from "@/app/utils/constants";
+import { handlePlanUpgrade } from "@/app/utils/helpers";
+import { AppDispatch } from "@/store";
 import React from "react";
 import {
-  View,
+  ActivityIndicator,
+  StyleSheet,
   Text,
   TouchableOpacity,
-  StyleSheet,
+  View,
   ViewStyle,
-  ActivityIndicator,
 } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
-import { AppDispatch } from "@/store";
-import { PLANS } from "@/app/constants";
-import { handlePlanUpgrade } from "@/app/helpers";
 
 type Props = {
   onSelect?: () => void;

@@ -1,8 +1,5 @@
 // Shimmer.tsx - Enhanced loading component with different message types and progress
-import {
-  LOADING_MESSAGE_TYPES,
-  LOADING_MESSAGES,
-} from "@/app/constants";
+import { LOADING_MESSAGE_TYPES, LOADING_MESSAGES } from "@/app/utils/constants";
 import { RootState } from "@/store";
 import React, { useEffect, useRef, useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
@@ -112,7 +109,8 @@ const Shimmer = () => {
     // Calculate timing
     const timePerMessage = timeRange / messages.length;
     const progressUpdateInterval = timeRange < 60 ? 2000 : 5000; // 2s or 5s
-    const progressIncrement = 100 / ((timeRange * 1000) / progressUpdateInterval);
+    const progressIncrement =
+      100 / ((timeRange * 1000) / progressUpdateInterval);
 
     // Initialize
     setText(messages[0]?.text || "");
@@ -125,9 +123,7 @@ const Shimmer = () => {
       currentLoadingType === LOADING_MESSAGE_TYPES.DOC_GENERATION &&
       currentPayload?.created_at
     ) {
-      const startTime = new Date(
-        currentPayload.created_at + "Z"
-      ).getTime();
+      const startTime = new Date(currentPayload.created_at + "Z").getTime();
       const currentTime = new Date().getTime();
       const elapsedTime = currentTime - startTime;
       const elapsedSeconds = Math.floor(elapsedTime / 1000);
@@ -156,9 +152,7 @@ const Shimmer = () => {
           currentLoadingType === LOADING_MESSAGE_TYPES.DOC_GENERATION &&
           currentPayload?.created_at
         ) {
-          const startTime = new Date(
-            currentPayload.created_at + "Z"
-          ).getTime();
+          const startTime = new Date(currentPayload.created_at + "Z").getTime();
           const currentTime = new Date().getTime();
           const elapsedTime = currentTime - startTime;
           const elapsedSeconds = Math.floor(elapsedTime / 1000);
@@ -221,9 +215,7 @@ const Shimmer = () => {
           {/* Progress bar */}
           <View style={styles.progressContainer}>
             <View style={styles.progressBar}>
-              <View
-                style={[styles.progressFill, { width: `${progress}%` }]}
-              />
+              <View style={[styles.progressFill, { width: `${progress}%` }]} />
             </View>
             <Text style={styles.progressText}>{Math.ceil(progress)}%</Text>
           </View>

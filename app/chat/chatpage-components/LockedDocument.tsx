@@ -1,5 +1,5 @@
 // LockedDocument.tsx
-import { handleLegalReviewButtonClicked } from "@/app/helpers";
+import { handleLegalReviewButtonClicked } from "@/app/utils/helpers";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import React, { useEffect, useState } from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";

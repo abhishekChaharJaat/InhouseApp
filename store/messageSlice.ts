@@ -1,4 +1,5 @@
-import { getToken } from "@/app/helpers";
+import { getAnonymousUserId } from "@/app/utils/anonymousId";
+import { getToken } from "@/app/utils/helpers";
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import axios from "axios";
 
@@ -14,6 +15,26 @@ export const fetchThreadMessages = createAsyncThunk(
       }
       const url = `${BASE_ENDPOINT}/api/thread/${threadId}/list-messages`;
       const headers = { Authorization: `Bearer ${token}` };
+      const response = await axios.get(url, { headers });
+      return response.data;
+    } catch (error: any) {
+      const errorMessage =
+        error.response?.data?.detail ||
+        error.message ||
+        "Failed to fetch messages";
+      return rejectWithValue(errorMessage);
+    }
+  }
+);
+
+// Fetch messages for unauthenticated (anonymous) users on try page
+export const fetchAnonymousThreadMessages = createAsyncThunk(
+  "chat/fetchAnonymousThreadMessages",
+  async (threadId: any, { rejectWithValue }) => {
+    try {
+      const anonymousId = await getAnonymousUserId();
+      const url = `${BASE_ENDPOINT}/api/thread/${threadId}/list-messages`;
+      const headers = { "anonymous-user-id": anonymousId };
       const response = await axios.get(url, { headers });
       return response.data;
     } catch (error: any) {
@@ -230,6 +251,38 @@ const messageSlice = createSlice({
         state.loadingMessages = false;
         state.error = action.payload;
         console.log("Error ", action.payload);
+      })
+      // Anonymous thread messages (for try page / unauthenticated users)
+      .addCase(fetchAnonymousThreadMessages.pending, (state) => {
+        state.loadingMessages = true;
+        state.error = null;
+      })
+      .addCase(fetchAnonymousThreadMessages.fulfilled, (state, action) => {
+        state.loadingMessages = false;
+        const {
+          thread_id,
+          thread_title,
+          messages,
+          message_feedback,
+          messaging_disabled,
+          reference_thread_id,
+          document_rating,
+        } = action.payload;
+        state.threadData = {
+          id: thread_id,
+          title: thread_title,
+          messages,
+          message_feedback: message_feedback || {},
+          messaging_disabled,
+          reference_thread_id,
+          document_rating: document_rating || {},
+        };
+        console.log("anonymous messages: ", action.payload);
+      })
+      .addCase(fetchAnonymousThreadMessages.rejected, (state, action) => {
+        state.loadingMessages = false;
+        state.error = action.payload;
+        console.log("Error fetching anonymous messages: ", action.payload);
       })
       .addCase(getAllGeneratedDocs.pending, (state) => {
         state.loadingDocuments = true;

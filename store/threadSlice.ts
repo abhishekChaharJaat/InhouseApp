@@ -1,4 +1,4 @@
-import { getToken } from "@/app/helpers";
+import { getToken } from "@/app/utils/helpers";
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import axios from "axios";
 
@@ -36,7 +36,10 @@ export const getAllThreads = createAsyncThunk(
     } catch (error: any) {
       const status = error.response?.status || null;
       // User not found in backend (new user) - return empty threads instead of error
-      if (status === 404 || error.response?.data?.error === "UserNotFoundException") {
+      if (
+        status === 404 ||
+        error.response?.data?.error === "UserNotFoundException"
+      ) {
         return {
           today: [],
           yesterday: [],

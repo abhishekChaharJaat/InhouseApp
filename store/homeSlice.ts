@@ -1,5 +1,5 @@
 // store/homeSlice.ts
-import { getToken } from "@/app/helpers";
+import { getToken } from "@/app/utils/helpers";
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import axios from "axios";
 

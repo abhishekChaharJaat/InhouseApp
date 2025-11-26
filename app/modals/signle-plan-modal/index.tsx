@@ -1,6 +1,6 @@
 // SinglePlanModal.tsx
-import { PLANS } from "@/app/constants";
-import { showSinglePlanModal } from "@/app/helpers";
+import { PLANS } from "@/app/utils/constants";
+import { showSinglePlanModal } from "@/app/utils/helpers";
 import { Ionicons } from "@expo/vector-icons";
 import React from "react";
 import {

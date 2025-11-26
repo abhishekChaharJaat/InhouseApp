@@ -1,5 +1,8 @@
-import { DRAWER } from "@/app/constants";
-import { closeReferralDrawer, handleConsultationCheckout } from "@/app/helpers";
+import { DRAWER } from "@/app/utils/constants";
+import {
+  closeReferralDrawer,
+  handleConsultationCheckout,
+} from "@/app/utils/helpers";
 import { AppDispatch } from "@/store";
 import {
   resetStoreReferralStatus,

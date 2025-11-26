@@ -1,6 +1,6 @@
 // UnlockedDocument.tsx
-import { handleLegalReviewButtonClicked } from "@/app/helpers";
 import ViewDocumentModal from "@/app/modals/ViewDocumentModal";
+import { handleLegalReviewButtonClicked } from "@/app/utils/helpers";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import React, { useEffect, useState } from "react";
 import {

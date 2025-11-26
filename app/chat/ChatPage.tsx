@@ -2,13 +2,16 @@
 import CustomSafeAreaView from "@/app/components/CustomSafeAreaView";
 import { RootState } from "@/store";
 import {
+  fetchAnonymousThreadMessages,
   fetchThreadMessages,
+  resetThreadData,
   setAwaitingResponse,
   setChatInputMessage,
   setLoadingMessagePayload,
   setMessagingDisabled,
   updateLoadingMessageType,
 } from "@/store/messageSlice";
+import { useAuth } from "@clerk/clerk-expo";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
   ActivityIndicator,
@@ -34,6 +37,7 @@ import Shimmer from "./chatpage-components/Shimmer";
 import RenderMessages from "./RenderMessages";
 
 function ChatPage({ threadId }: any) {
+  const { isSignedIn } = useAuth();
   const threadData = useSelector(
     (state: RootState) => state.message.threadData
   );
@@ -55,9 +59,15 @@ function ChatPage({ threadId }: any) {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const flatListRef = useRef<FlatList<any>>(null);
 
+  // Fetch messages - use appropriate function based on auth status
   useEffect(() => {
-    (dispatch as any)(fetchThreadMessages(threadId));
-  }, [threadId, dispatch]);
+    if (isSignedIn) {
+      (dispatch as any)(fetchThreadMessages(threadId));
+    } else {
+      // Anonymous user - use anonymous fetch
+      (dispatch as any)(fetchAnonymousThreadMessages(threadId));
+    }
+  }, [threadId, dispatch, isSignedIn]);
 
   const messages = threadData?.messages ?? [];
 
@@ -131,7 +141,12 @@ function ChatPage({ threadId }: any) {
 
   const handleRefresh = async () => {
     setIsRefreshing(true);
-    await (dispatch as any)(fetchThreadMessages(threadId));
+    dispatch(resetThreadData());
+    if (isSignedIn) {
+      await (dispatch as any)(fetchThreadMessages(threadId));
+    } else {
+      await (dispatch as any)(fetchAnonymousThreadMessages(threadId));
+    }
     setIsRefreshing(false);
   };
 

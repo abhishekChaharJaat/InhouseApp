@@ -1,5 +1,5 @@
 // ChatHistory.js
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useMemo, useState } from "react";
 import {
   ActivityIndicator,
   SectionList,
@@ -16,8 +16,8 @@ import { getAllThreads } from "@/store/threadSlice";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { useDispatch, useSelector } from "react-redux";
-import { formatDateTime } from "../helpers";
 import Topnav from "../navs/Topnav";
+import { formatDateTime } from "../utils/helpers";
 
 const ChatHistory = () => {
   const [query, setQuery] = useState("");

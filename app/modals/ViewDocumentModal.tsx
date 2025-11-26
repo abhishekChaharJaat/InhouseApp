@@ -1,4 +1,4 @@
-import { handleLegalReviewButtonClicked } from "@/app/helpers";
+import { handleLegalReviewButtonClicked } from "@/app/utils/helpers";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import React from "react";
 import {

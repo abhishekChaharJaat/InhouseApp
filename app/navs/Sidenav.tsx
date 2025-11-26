@@ -13,7 +13,7 @@ import {
 } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
 // 👇 proper icons
-import { handleLegalReviewButtonClicked } from "@/app/helpers";
+import { handleLegalReviewButtonClicked } from "@/app/utils/helpers";
 import { resetThreadData } from "@/store/messageSlice";
 import {
   Ionicons,

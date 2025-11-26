@@ -1,6 +1,6 @@
 // CounselDedicatedCard.tsx
-import { PLANS } from "@/app/constants";
-import { handlePlanUpgrade } from "@/app/helpers";
+import { PLANS } from "@/app/utils/constants";
+import { handlePlanUpgrade } from "@/app/utils/helpers";
 import { AppDispatch } from "@/store";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import React from "react";

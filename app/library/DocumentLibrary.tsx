@@ -14,8 +14,8 @@ import {
   View,
 } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
-import { formatDateTime } from "../helpers";
 import Topnav from "../navs/Topnav";
+import { formatDateTime } from "../utils/helpers";
 import DocumentSkeleton from "./DocumentSkeleton";
 
 const DocumentLibrary = () => {

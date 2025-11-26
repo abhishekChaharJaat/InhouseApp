@@ -110,11 +110,16 @@ export default function Topnav({ page, title, threadId }: any) {
               >
                 {title || "New Thread"}
               </Text>
-              <Image
-                source={require("@/assets/app-images/inhouse-text-logo.png")}
-                style={styles.logoImage}
-                resizeMode="contain"
-              />
+              <TouchableOpacity
+                style={[styles.button, styles.darkButton]}
+                onPress={() => {
+                  dispatch(setShowAuthModal({ show: true, type: "signup" }));
+                }}
+              >
+                <Text style={[styles.buttonText, styles.darkButtonText]}>
+                  Sign Up
+                </Text>
+              </TouchableOpacity>
             </>
           )}
           {isWSConnected && <View style={styles.dot}></View>}

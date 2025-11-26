@@ -1,9 +1,9 @@
 // components/QuickActions.tsx
-import { handleLegalReviewButtonClicked } from "@/app/helpers";
 import {
   addMessageToThread,
   sendWebSocketMessage,
 } from "@/app/providers/wsClient";
+import { handleLegalReviewButtonClicked } from "@/app/utils/helpers";
 import { Ionicons } from "@expo/vector-icons";
 import React from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";

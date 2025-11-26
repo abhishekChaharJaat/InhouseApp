@@ -1,17 +1,17 @@
 // ProDedicatedPlanCard.tsx
+import { PLANS } from "@/app/utils/constants";
+import { handlePlanUpgrade } from "@/app/utils/helpers";
+import { AppDispatch } from "@/store";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 import React from "react";
 import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
   ActivityIndicator,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
-import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useDispatch, useSelector } from "react-redux";
-import { AppDispatch } from "@/store";
-import { PLANS } from "@/app/constants";
-import { handlePlanUpgrade } from "@/app/helpers";
 
 export default function ProDedicatedPlanCard({
   docTitle = "AI Generated Document",

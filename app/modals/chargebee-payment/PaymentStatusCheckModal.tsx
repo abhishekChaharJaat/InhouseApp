@@ -1,6 +1,6 @@
 // PaymentStatusCheckModal.tsx
-import { PLANS } from "@/app/constants";
-import { showReferralDrawer } from "@/app/helpers";
+import { PLANS } from "@/app/utils/constants";
+import { showReferralDrawer } from "@/app/utils/helpers";
 import { AppDispatch } from "@/store";
 import {
   getPaymentStatus,

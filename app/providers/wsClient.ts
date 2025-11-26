@@ -14,7 +14,7 @@ import {
   updateThreadDataTitle,
 } from "@/store/messageSlice";
 import { getAllThreads } from "@/store/threadSlice";
-import * as SecureStore from "expo-secure-store";
+import { getAnonymousUserId } from "@/app/utils/anonymousId";
 import { Alert } from "react-native";
 const WS_BASE_ENDPOINT =
   process.env.EXPO_PUBLIC_WS_BASE_ENDPOINT || "wss://api-dev.inhouse.app";
@@ -578,29 +578,5 @@ export const connectAnonymousWebSocket =
     }
   };
 
-export const getAnonymousUserId = async (): Promise<string> => {
-  try {
-    // Try to get existing ID
-    let anonymousId = await SecureStore.getItemAsync("anonymous_user_id");
-    if (!anonymousId) {
-      // Generate new ID if doesn't exist
-      anonymousId = generateAnonymousId();
-      await SecureStore.setItemAsync("anonymous_user_id", anonymousId);
-      console.log("Generated new anonymous ID:", anonymousId);
-    }
-
-    return anonymousId;
-  } catch (error) {
-    console.error("Error managing anonymous ID:", error);
-    // Fallback to generating a new ID if storage fails
-    return generateAnonymousId();
-  }
-};
-
-const generateAnonymousId = (): string => {
-  return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function (c) {
-    const r = (Math.random() * 16) | 0;
-    const v = c === "x" ? r : (r & 0x3) | 0x8;
-    return v.toString(16);
-  });
-};
+// Re-export getAnonymousUserId for backward compatibility
+export { getAnonymousUserId };
