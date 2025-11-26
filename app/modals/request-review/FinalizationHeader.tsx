@@ -1,18 +1,19 @@
 import React from "react";
 import { Image, StyleSheet, Text, View } from "react-native";
+import { useSelector } from "react-redux";
 
 function FinalizationHeader() {
+  const metadata = useSelector((state: any) => state.onboarding.userMetadata);
   const title = "Submit additional details to a lawyer";
-  const name = "Matt Janda";
-  const role = "Matt Janda - Verified Inhouse Counsel";
+  const name = metadata?.lawyer_info.name;
+  const role = `${metadata?.lawyer_info.name} - Verified Inhouse Counsel`;
   const avatarUri = false; // put an image URL string here if you have one
 
-  const processText =
-    "A member of the Inhouse legal team will review the work you did with the A.I. and any extra notes you leave in the box below and be in touch with any questions.";
+  const processText = `${metadata?.lawyer_info.name} will review the work you did with the A.I. and any extra notes you leave in the box below and be in touch with any questions.`;
 
   const initials = name
     .split(" ")
-    .map((n) => n[0])
+    .map((n: any) => n[0])
     .join("")
     .toUpperCase();
 
@@ -56,11 +57,11 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   title: {
-    fontSize: 22,
+    fontSize: 18,
     fontStyle: "italic",
     fontWeight: "700",
     color: "#1b2b48",
-    marginBottom: 8,
+    marginBottom: 14,
   },
   row: {
     flexDirection: "row",

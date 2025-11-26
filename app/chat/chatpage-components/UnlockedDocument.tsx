@@ -1,7 +1,8 @@
 // UnlockedDocument.tsx
 import { handleLegalReviewButtonClicked } from "@/app/helpers";
+import ViewDocumentModal from "@/app/modals/ViewDocumentModal";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
-import React from "react";
+import React, { useState } from "react";
 import {
   Linking,
   StyleSheet,
@@ -14,6 +15,7 @@ import { useDispatch, useSelector } from "react-redux";
 
 export default function UnlockedDocument({ message }: any) {
   const dispatch = useDispatch();
+  const [viewModalVisible, setViewModalVisible] = useState(false);
   const googleDocId = message?.payload?.google_doc_id;
   const docTitle = message?.payload?.doc_title || "Untitled Document";
   const userMetadata = useSelector(
@@ -23,10 +25,9 @@ export default function UnlockedDocument({ message }: any) {
   const threadData = useSelector((state: any) => state.message.threadData);
   if (!googleDocId) return null;
   const previewUrl = `https://docs.google.com/document/d/${googleDocId}/preview?rm=minimal`;
-  const viewUrl = `https://docs.google.com/document/d/${googleDocId}/view`;
   const pdfUrl = `https://docs.google.com/document/d/${googleDocId}/export?format=pdf`;
 
-  const handleViewDoc = () => Linking.openURL(viewUrl);
+  const handleViewDoc = () => setViewModalVisible(true);
   const handleDownloadPdf = () => Linking.openURL(pdfUrl);
   const handleRequestFinalization = () => {
     const btn = {
@@ -79,15 +80,17 @@ export default function UnlockedDocument({ message }: any) {
 
         {/* PREVIEW */}
         <View style={styles.previewContainer}>
-          <WebView
-            source={{ uri: previewUrl }}
-            style={styles.webview}
-            javaScriptEnabled
-            domStorageEnabled
-            startInLoadingState
-            scrollEnabled={false}
-            nestedScrollEnabled={false}
-          />
+          <View pointerEvents="none" style={styles.webviewWrapper}>
+            <WebView
+              source={{ uri: previewUrl }}
+              style={styles.webview}
+              javaScriptEnabled
+              domStorageEnabled
+              startInLoadingState
+              scrollEnabled={false}
+              nestedScrollEnabled={false}
+            />
+          </View>
 
           {/* VIEW DOC BUTTON */}
           <TouchableOpacity
@@ -108,12 +111,12 @@ export default function UnlockedDocument({ message }: any) {
         {/* FOOTER */}
         <View style={styles.footer}>
           <View style={styles.footerLeft}>
-            <MaterialCommunityIcons
+            {/* <MaterialCommunityIcons
               name="briefcase-outline"
               size={18}
               color="#1b2b48"
               style={{ marginRight: 10 }}
-            />
+            /> */}
             <Text style={styles.footerText}>
               Have your document finalized by an expert lawyer to ensure it’s
               airtight.
@@ -125,10 +128,24 @@ export default function UnlockedDocument({ message }: any) {
             onPress={handleRequestFinalization}
             activeOpacity={0.8}
           >
-            <Text style={styles.footerButtonText}>Request Finalization</Text>
+            <MaterialCommunityIcons
+              name="briefcase-outline"
+              size={18}
+              color="#1b2b48"
+              style={{ marginRight: 6 }}
+            />
+            <Text style={styles.footerButtonText}>Finalization</Text>
           </TouchableOpacity>
         </View>
       </View>
+
+      {/* View Document Modal */}
+      <ViewDocumentModal
+        visible={viewModalVisible}
+        onClose={() => setViewModalVisible(false)}
+        googleDocId={googleDocId}
+        docTitle={docTitle}
+      />
     </View>
   );
 }
@@ -195,11 +212,14 @@ const styles = StyleSheet.create({
     padding: 8,
   },
 
+  webviewWrapper: {
+    flex: 1,
+    marginTop: -100,
+    marginHorizontal: -8,
+  },
   webview: {
     flex: 1,
     backgroundColor: "transparent",
-    marginTop: -100,
-    marginHorizontal: -8,
   },
 
   /** VIEW DOC BUTTON **/
@@ -230,11 +250,11 @@ const styles = StyleSheet.create({
 
   /** FOOTER **/
   footer: {
-    flexDirection: "column",
+    flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    paddingHorizontal: 14,
-    paddingVertical: 6,
+    paddingHorizontal: 8,
+    paddingVertical: 8,
     backgroundColor: "#fef9ffff",
     borderTopWidth: 1,
     borderTopColor: "#E6D9FF",
@@ -252,19 +272,21 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 13,
     color: "#1b2b48",
+    fontWeight: "500",
   },
 
   footerButton: {
+    flexDirection: "row",
     borderWidth: 1,
     borderColor: "#1b2b48",
-    paddingVertical: 14,
-    paddingHorizontal: 18,
+    paddingVertical: 16,
+    paddingHorizontal: 16,
     borderRadius: 999,
     backgroundColor: "white",
   },
 
   footerButtonText: {
-    fontSize: 14,
+    fontSize: 13.5,
     fontWeight: "600",
     color: "#1b2b48",
   },

@@ -60,11 +60,11 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   title: {
-    fontSize: 22,
+    fontSize: 18,
     fontStyle: "italic",
     fontWeight: "700",
     color: "#1b2b48",
-    marginBottom: 8,
+    marginBottom: 18,
   },
 
   row: {

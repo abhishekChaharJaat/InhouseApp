@@ -190,18 +190,31 @@ const DocumentLibrary = () => {
               <Text style={styles.menuItemText}>View Doc</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity style={styles.menuItem} onPress={handleDownloadPDF}>
+            <TouchableOpacity
+              style={styles.menuItem}
+              onPress={handleDownloadPDF}
+            >
               <Ionicons name="document-outline" size={20} color="#000" />
               <Text style={styles.menuItemText}>Download as PDF</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity style={styles.menuItem} onPress={handleDownloadDoc}>
+            <TouchableOpacity
+              style={styles.menuItem}
+              onPress={handleDownloadDoc}
+            >
               <Ionicons name="document-text-outline" size={20} color="#000" />
               <Text style={styles.menuItemText}>Download as Doc</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity style={styles.menuItem} onPress={handleRequestFinalize}>
-              <Ionicons name="checkmark-circle-outline" size={20} color="#000" />
+            <TouchableOpacity
+              style={styles.menuItem}
+              onPress={handleRequestFinalize}
+            >
+              <Ionicons
+                name="checkmark-circle-outline"
+                size={20}
+                color="#000"
+              />
               <Text style={styles.menuItemText}>Request Finalize</Text>
             </TouchableOpacity>
 
@@ -323,17 +336,7 @@ const styles = StyleSheet.create({
   },
   menuButton: {
     padding: 8,
-    borderWidth: 1,
     borderRadius: 50,
-    borderColor: "#e7e6e6ff",
-    // iOS shadow
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.15,
-    shadowRadius: 4,
-
-    // Android shadow
-    elevation: 2,
   },
 
   modalOverlay: {
