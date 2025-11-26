@@ -4,6 +4,7 @@ import React, { useEffect, useState } from "react";
 import {
   Animated,
   Dimensions,
+  Image,
   Pressable,
   StyleSheet,
   Text,
@@ -108,7 +109,11 @@ export default function SideNav() {
 
         {/* Header */}
         <View style={styles.header}>
-          <Text style={styles.logoText}>Inhouse</Text>
+          <Image
+            source={require("@/assets/app-images/inhouse-text-logo.png")}
+            style={styles.logoImage}
+            resizeMode="contain"
+          />
         </View>
 
         {/* Content */}
@@ -272,15 +277,13 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "space-between",
     marginBottom: 32,
     marginHorizontal: 10,
     zIndex: 2,
   },
-  logoText: {
-    fontSize: 26,
-    fontWeight: "700",
-    letterSpacing: 0.3,
+  logoImage: {
+    width: 120,
+    height: 36,
   },
 
   // Content

@@ -1,12 +1,13 @@
 import { clearUserMetadata } from "@/store/onboardingSlice";
 import { useClerk, useUser } from "@clerk/clerk-expo";
-import { AntDesign, Feather, Ionicons } from "@expo/vector-icons";
+import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import React, { useState } from "react";
 import {
   ActivityIndicator,
   Image,
   Modal,
+  Platform,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -84,29 +85,46 @@ export const UserProfile = () => {
                 </View>
               </View>
 
+              {/* Profile Option */}
               <TouchableOpacity
                 style={styles.dropdownButton}
                 onPress={() => {
                   setOpen(false);
                   router.push("/profile/ProfileSettings");
-                  // alert("Personalize clicked!");
                 }}
               >
-                <Feather name="sliders" size={20} color="#444" />
-                <Text style={styles.dropdownButtonText}>Personalize</Text>
+                <Ionicons name="person-outline" size={20} color="#444" />
+                <Text style={styles.dropdownButtonText}>Profile</Text>
               </TouchableOpacity>
 
+              {/* Security Option */}
               <TouchableOpacity
                 style={styles.dropdownButton}
+                onPress={() => {
+                  setOpen(false);
+                  router.push("/profile/DeviceSessions");
+                }}
+              >
+                <Ionicons
+                  name="shield-checkmark-outline"
+                  size={20}
+                  color="#444"
+                />
+                <Text style={styles.dropdownButtonText}>Security</Text>
+              </TouchableOpacity>
+
+              {/* Logout Option */}
+              <TouchableOpacity
+                style={[styles.dropdownButton, styles.logoutButton]}
                 onPress={handleSignOut}
                 disabled={isLoggingOut}
               >
                 {isLoggingOut ? (
-                  <ActivityIndicator size="small" color="#444" />
+                  <ActivityIndicator size="small" color="#EF4444" />
                 ) : (
-                  <AntDesign name="logout" size={20} color="#444" />
+                  <Ionicons name="log-out-outline" size={20} color="#EF4444" />
                 )}
-                <Text style={styles.dropdownButtonText}>
+                <Text style={[styles.dropdownButtonText, styles.logoutText]}>
                   {isLoggingOut ? "Logging out..." : "Logout"}
                 </Text>
               </TouchableOpacity>
@@ -146,7 +164,7 @@ const styles = StyleSheet.create({
   },
 
   dropdown: {
-    marginTop: 60,
+    marginTop: Platform.OS === "ios" ? 120 : 60,
     marginRight: 16,
     width: 260,
     backgroundColor: "#fff",
@@ -212,6 +230,17 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontWeight: "500",
     color: "#333",
+  },
+
+  logoutButton: {
+    marginTop: 8,
+    paddingTop: 12,
+    borderTopWidth: 1,
+    borderTopColor: "#e5e5e5",
+  },
+
+  logoutText: {
+    color: "#EF4444",
   },
 });
 

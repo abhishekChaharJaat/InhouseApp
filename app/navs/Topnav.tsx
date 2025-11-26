@@ -4,7 +4,7 @@ import { useAuth } from "@clerk/clerk-expo";
 import { MaterialIcons } from "@expo/vector-icons";
 import { navigate } from "expo-router/build/global-state/routing";
 import React from "react";
-import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
 import { setShowSidenav } from "../../store/homeSlice";
 import ThreadOptionsModal from "../modals/thread-options-modal";
@@ -23,7 +23,11 @@ export default function Topnav({ page, title, threadId }: any) {
           </TouchableOpacity>
 
           {page === "home" ? (
-            <Text style={styles.homeTitle}>Inhouse</Text>
+            <Image
+              source={require("@/assets/app-images/inhouse-text-logo.png")}
+              style={styles.logoImage}
+              resizeMode="contain"
+            />
           ) : page === "chat" ? (
             <Text
               style={styles.chatTitle}
@@ -55,7 +59,11 @@ export default function Topnav({ page, title, threadId }: any) {
         <View style={styles.container}>
           {page === "try" ? (
             <>
-              <Text style={styles.homeTitle}>Inhouse</Text>
+              <Image
+                source={require("@/assets/app-images/inhouse-text-logo.png")}
+                style={styles.logoImage}
+                resizeMode="contain"
+              />
               <View style={styles.buttonContainer}>
                 {/* Log In - White */}
                 <TouchableOpacity
@@ -102,7 +110,11 @@ export default function Topnav({ page, title, threadId }: any) {
               >
                 {title || "New Thread"}
               </Text>
-              <Text style={styles.homeTitle}>Inhouse</Text>
+              <Image
+                source={require("@/assets/app-images/inhouse-text-logo.png")}
+                style={styles.logoImage}
+                resizeMode="contain"
+              />
             </>
           )}
           {isWSConnected && <View style={styles.dot}></View>}
@@ -132,10 +144,9 @@ const styles = StyleSheet.create({
     elevation: 0,
   },
 
-  homeTitle: {
-    fontSize: 26,
-    fontWeight: "700",
-    color: "#1b2b48",
+  logoImage: {
+    width: 110,
+    height: 32,
   },
   chatTitle: {
     fontSize: 16,

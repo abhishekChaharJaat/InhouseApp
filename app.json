@@ -1,10 +1,10 @@
 {
   "expo": {
-    "name": "inhouseApp",
+    "name": "Inhouse",
     "slug": "inhouseApp",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/icon.png",
+    "icon": "./assets/app-images/inhouse-rounded-logo.png",
     "scheme": "inhouseapp",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,

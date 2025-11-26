@@ -251,17 +251,6 @@ export default function ProfileSettings() {
           </TouchableOpacity>
         </View>
 
-        {/* Device Sessions Link */}
-        <TouchableOpacity
-          style={styles.menuItem}
-          onPress={() => router.push("/profile/DeviceSessions")}
-        >
-          <View style={styles.menuItemLeft}>
-            <Ionicons name="phone-portrait-outline" size={22} color="#1b2b48" />
-            <Text style={styles.menuItemText}>Device Sessions</Text>
-          </View>
-          <Ionicons name="chevron-forward" size={20} color="#9CA3AF" />
-        </TouchableOpacity>
       </ScrollView>
     </CustomSafeAreaView>
   );
@@ -422,25 +411,5 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontSize: 16,
     fontWeight: "600",
-  },
-  menuItem: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    marginHorizontal: 24,
-    paddingVertical: 16,
-    paddingHorizontal: 16,
-    backgroundColor: "#F9FAFB",
-    borderRadius: 12,
-  },
-  menuItemLeft: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 12,
-  },
-  menuItemText: {
-    fontSize: 15,
-    fontWeight: "500",
-    color: "#1b2b48",
   },
 });
