@@ -60,11 +60,15 @@ export const getLawyerHub = createAsyncThunk(
 
       return response.data;
     } catch (error: any) {
+      const status = error.response?.status || null;
+      // User not found in backend (new user) - return empty data instead of error
+      if (status === 404 || error.response?.data?.error === "UserNotFoundException") {
+        return [];
+      }
       const errorMessage =
         error.response?.data?.detail ||
         error.message ||
         "Failed to fetch lawyer hub data";
-      const status = error.response?.status || null;
       return rejectWithValue({ error: errorMessage, status });
     }
   }

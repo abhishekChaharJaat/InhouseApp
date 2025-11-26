@@ -34,6 +34,17 @@ export const getAllThreads = createAsyncThunk(
       const response = await axios.get(url, { headers });
       return response.data;
     } catch (error: any) {
+      const status = error.response?.status || null;
+      // User not found in backend (new user) - return empty threads instead of error
+      if (status === 404 || error.response?.data?.error === "UserNotFoundException") {
+        return {
+          today: [],
+          yesterday: [],
+          previous_7_days: [],
+          previous_30_days: [],
+          older: [],
+        };
+      }
       const errorMessage =
         error.response?.data?.detail ||
         error.message ||

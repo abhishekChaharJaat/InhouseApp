@@ -334,10 +334,26 @@ export const handleLegacyMessage = (message: any) => {
  */
 export const handleWebSocketMessage = (event: MessageEvent) => {
   try {
-    // Ignore connection success message
-    if (event.data === "Connection successful!") {
-      console.log("WebSocket connection successful");
-      return;
+    // Ignore non-JSON string messages (connection messages, errors, etc.)
+    if (typeof event.data === "string") {
+      // Check for known text messages
+      if (
+        event.data === "Connection successful!" ||
+        event.data.startsWith("Failed") ||
+        event.data.startsWith("Error") ||
+        event.data.startsWith("Unauthorized") ||
+        event.data.startsWith("Invalid")
+      ) {
+        console.log("WebSocket text message:", event.data);
+        return;
+      }
+
+      // Try to check if it's valid JSON before parsing
+      const firstChar = event.data.trim().charAt(0);
+      if (firstChar !== "{" && firstChar !== "[") {
+        console.log("WebSocket non-JSON message:", event.data);
+        return;
+      }
     }
 
     const message = JSON.parse(event.data);

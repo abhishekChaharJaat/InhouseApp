@@ -4,8 +4,11 @@ const initialState = {
   token: null,
   isSigningIn: false,
   isSigningUp: false,
+  isVerifyingOtp: false,
   signInError: null as any,
   signUpError: null as any,
+  otpError: null as any,
+  pendingVerification: false,
   showAuthModal: {
     show: false,
     type: "signin",
@@ -41,25 +44,48 @@ export const signInUser = createAsyncThunk(
 export const signUpUser = createAsyncThunk(
   "auth/signUp",
   async (params: any, { rejectWithValue }) => {
-    const { signUp, setActive, firstName, lastName, emailAddress, password } =
-      params;
+    const { signUp, firstName, lastName, emailAddress, password } = params;
     try {
-      const signUpAttempt = await signUp.create({
+      await signUp.create({
         firstName,
         lastName,
         emailAddress,
         password,
       });
 
-      if (signUpAttempt.status === "complete") {
-        await setActive({ session: signUpAttempt.createdSessionId });
+      // Send email verification code
+      await signUp.prepareEmailAddressVerification({ strategy: "email_code" });
+
+      return { pendingVerification: true };
+    } catch (err: any) {
+      console.log("SignUp Error:", JSON.stringify(err, null, 2));
+      return rejectWithValue(
+        err?.errors?.[0]?.longMessage ||
+          err?.errors?.[0]?.message ||
+          "Failed to sign up. Please try again."
+      );
+    }
+  }
+);
+
+export const verifyOtp = createAsyncThunk(
+  "auth/verifyOtp",
+  async (params: any, { rejectWithValue }) => {
+    const { signUp, setActive, code } = params;
+    try {
+      const completeSignUp = await signUp.attemptEmailAddressVerification({
+        code,
+      });
+
+      if (completeSignUp.status === "complete") {
+        await setActive({ session: completeSignUp.createdSessionId });
         return { success: true };
       } else {
-        return rejectWithValue("Signup incomplete. Please check your details.");
+        return rejectWithValue("Verification incomplete. Please try again.");
       }
     } catch (err: any) {
       return rejectWithValue(
-        err?.errors?.[0]?.message || "Failed to sign up. Please try again."
+        err?.errors?.[0]?.message || "Invalid verification code."
       );
     }
   }
@@ -74,6 +100,12 @@ const authSlice = createSlice({
     },
     clearSignUpError: (state) => {
       state.signUpError = null;
+    },
+    clearOtpError: (state) => {
+      state.otpError = null;
+    },
+    resetPendingVerification: (state) => {
+      state.pendingVerification = false;
     },
     setToken: (state, action) => {
       state.token = action.payload;
@@ -102,12 +134,25 @@ const authSlice = createSlice({
         state.isSigningUp = true;
         state.signUpError = null;
       })
-      .addCase(signUpUser.fulfilled, (state) => {
+      .addCase(signUpUser.fulfilled, (state, action) => {
         state.isSigningUp = false;
+        state.pendingVerification = action.payload.pendingVerification;
       })
       .addCase(signUpUser.rejected, (state, action) => {
         state.isSigningUp = false;
         state.signUpError = action.payload;
+      })
+      .addCase(verifyOtp.pending, (state) => {
+        state.isVerifyingOtp = true;
+        state.otpError = null;
+      })
+      .addCase(verifyOtp.fulfilled, (state) => {
+        state.isVerifyingOtp = false;
+        state.pendingVerification = false;
+      })
+      .addCase(verifyOtp.rejected, (state, action) => {
+        state.isVerifyingOtp = false;
+        state.otpError = action.payload;
       });
   },
 });
@@ -115,6 +160,8 @@ const authSlice = createSlice({
 export const {
   clearSignInError,
   clearSignUpError,
+  clearOtpError,
+  resetPendingVerification,
   setToken,
   setShowAuthModal,
 } = authSlice.actions;

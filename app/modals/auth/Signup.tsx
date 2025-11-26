@@ -1,5 +1,10 @@
 import CustomSafeAreaView from "@/app/components/CustomSafeAreaView";
-import { setShowAuthModal, signUpUser } from "@/store/authSlice";
+import {
+  resetPendingVerification,
+  setShowAuthModal,
+  signUpUser,
+  verifyOtp,
+} from "@/store/authSlice";
 import { useSignUp } from "@clerk/clerk-expo";
 import { useRouter } from "expo-router";
 import React from "react";
@@ -21,39 +26,136 @@ export default function Signup({ isModal, setAuthMode }: any) {
   const { signUp, isLoaded, setActive } = useSignUp();
   const router = useRouter();
   const dispatch = useDispatch();
-  const isSigningUp = useSelector((state: any) => state.auth.isSigningUp);
+  const { isSigningUp, isVerifyingOtp, pendingVerification } = useSelector(
+    (state: any) => state.auth
+  );
 
   const [firstName, setFirstName] = React.useState("");
   const [lastName, setLastName] = React.useState("");
   const [emailAddress, setEmailAddress] = React.useState("");
   const [password, setPassword] = React.useState("");
   const [showPassword, setShowPassword] = React.useState(false);
+  const [otpCode, setOtpCode] = React.useState("");
 
   const onSignUpPress = async () => {
     if (!isLoaded || isSigningUp) return;
+
+    console.log("Starting signup with:", { firstName, lastName, emailAddress });
+
     const result = await (dispatch as any)(
       signUpUser({
         signUp,
-        setActive,
         firstName,
         lastName,
         emailAddress,
         password,
       })
     );
+
+    console.log("Signup result:", JSON.stringify(result, null, 2));
+
+    if (result.meta?.requestStatus === "rejected") {
+      Alert.alert("Signup Error", result.payload || "Failed to sign up");
+    }
+  };
+
+  const onVerifyOtpPress = async () => {
+    if (!isLoaded || isVerifyingOtp || !otpCode) return;
+    const result = await (dispatch as any)(
+      verifyOtp({
+        signUp,
+        setActive,
+        code: otpCode,
+      })
+    );
     if (result.meta?.requestStatus === "fulfilled") {
       dispatch(setShowAuthModal({ show: false, type: "" }));
       router.replace("/home/Home");
     } else if (result.meta?.requestStatus === "rejected") {
-      Alert.alert("Error", result.payload || "Failed to sign up");
+      Alert.alert("Error", result.payload || "Invalid verification code");
     }
+  };
+
+  const onBackToSignup = () => {
+    dispatch(resetPendingVerification());
+    setOtpCode("");
   };
 
   const onGooglePress = () => {
     Alert.alert("Google sign-up", "Connect this to your Google OAuth flow.");
   };
 
-  const content = (
+  // OTP Verification Screen
+  const otpContent = (
+    <ScrollView
+      keyboardShouldPersistTaps="handled"
+      contentContainerStyle={isModal ? styles.modalContainer : styles.container}
+    >
+      <View style={isModal ? styles.modalInner : styles.inner}>
+        {!isModal && (
+          <View style={styles.header}>
+            <Text style={styles.logo}>Inhouse</Text>
+          </View>
+        )}
+
+        <View style={styles.card}>
+          <Text style={styles.title}>Verify your email</Text>
+          <Text style={styles.otpSubtitle}>
+            We've sent a verification code to{"\n"}
+            <Text style={styles.otpEmail}>{emailAddress}</Text>
+          </Text>
+
+          <View style={styles.fieldGroup}>
+            <Text style={styles.fieldLabel}>Verification code</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="Enter 6-digit code"
+              placeholderTextColor="#9CA3AF"
+              value={otpCode}
+              onChangeText={setOtpCode}
+              keyboardType="number-pad"
+              maxLength={6}
+              autoFocus
+            />
+          </View>
+
+          <TouchableOpacity
+            style={[
+              styles.primaryButton,
+              (isVerifyingOtp || !otpCode) && styles.primaryButtonDisabled,
+            ]}
+            activeOpacity={0.9}
+            onPress={onVerifyOtpPress}
+            disabled={isVerifyingOtp || !otpCode}
+          >
+            {isVerifyingOtp ? (
+              <ActivityIndicator color="#ffffff" />
+            ) : (
+              <Text style={styles.primaryButtonText}>
+                Verify <Text style={styles.primaryButtonArrow}>▸</Text>
+              </Text>
+            )}
+          </TouchableOpacity>
+
+          <View style={styles.footer}>
+            <Text style={styles.footerText}>Didn't receive the code?</Text>
+            <TouchableOpacity onPress={onBackToSignup}>
+              <Text style={styles.footerLink}> Go back</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+
+        {!isModal && (
+          <Text style={styles.copyright}>
+            © 2025 Inhouse. All Rights Reserved
+          </Text>
+        )}
+      </View>
+    </ScrollView>
+  );
+
+  // Signup Form Screen
+  const signupContent = (
     <ScrollView
       keyboardShouldPersistTaps="handled"
       contentContainerStyle={isModal ? styles.modalContainer : styles.container}
@@ -190,6 +292,8 @@ export default function Signup({ isModal, setAuthMode }: any) {
       </View>
     </ScrollView>
   );
+
+  const content = pendingVerification ? otpContent : signupContent;
 
   if (isModal) {
     return content;
@@ -390,5 +494,18 @@ const styles = StyleSheet.create({
   modalInner: {
     flex: 1,
     justifyContent: "center",
+  },
+
+  // OTP styles
+  otpSubtitle: {
+    fontSize: 14,
+    color: "#6B7280",
+    textAlign: "center",
+    marginBottom: 24,
+    lineHeight: 20,
+  },
+  otpEmail: {
+    color: "#111827",
+    fontWeight: "600",
   },
 });
