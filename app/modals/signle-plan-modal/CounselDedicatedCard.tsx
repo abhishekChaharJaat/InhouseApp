@@ -189,9 +189,9 @@ const styles = StyleSheet.create({
   },
 
   primaryButton: {
-    backgroundColor: "#111827",
+    backgroundColor: "#1b2b48",
     borderRadius: 999,
-    paddingVertical: 12,
+    paddingVertical: 16,
     paddingHorizontal: 20,
     alignItems: "center",
     justifyContent: "center",

@@ -21,6 +21,9 @@ export default function UnlockedDocument({ message }: any) {
   const userMetadata = useSelector(
     (state: any) => state.onboarding.userMetadata
   );
+  const lawyerHubData = useSelector(
+    (state: any) => state.onboarding.lawyerHubData
+  );
   if (!googleDocId) return null;
   const threadData = useSelector((state: any) => state.message.threadData);
   if (!googleDocId) return null;
@@ -56,19 +59,16 @@ export default function UnlockedDocument({ message }: any) {
   };
 
   useEffect(() => {
-    if (!threadData.id) return;
-    let legalReviewMessages = threadData?.messages.filter(
-      (msg: any) => msg.message_type === "legal_review_message"
+    const thread = lawyerHubData?.find(
+      (lead: any) => lead.thread_id === threadData?.id
     );
-    let documentGenerated = threadData?.messages.some(
-      (msg: any) => msg.message_type === "document_generated"
-    );
-    if (legalReviewMessages && documentGenerated) {
+    console.log("thread ", thread);
+    if (!thread?.finalization_requested) return;
+
+    if (thread?.finalization_requested) {
       setFinalized(true);
-    } else {
-      setFinalized(false);
     }
-  }, [threadData]);
+  }, [lawyerHubData]);
 
   return (
     <View style={styles.wrapper}>

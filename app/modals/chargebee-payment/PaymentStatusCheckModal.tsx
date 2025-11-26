@@ -10,7 +10,7 @@ import {
   storeReferral,
 } from "@/store/homeSlice";
 import { addLegalReviewMessage } from "@/store/messageSlice";
-import { getUserMetadata } from "@/store/onboardingSlice";
+import { getLawyerHub, getUserMetadata } from "@/store/onboardingSlice";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import React, { useEffect, useRef, useState } from "react";
 import {
@@ -83,6 +83,7 @@ export default function PaymentStatusCheckModal() {
     ) {
       // Payment confirmed and subscription updated
       handleSuccess();
+      dispatch(getLawyerHub());
     }
   }, [paymentStatus, userMetadata?.subscription_type, selectedPaymentPlanName]);
 

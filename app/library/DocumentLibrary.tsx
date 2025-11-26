@@ -26,19 +26,37 @@ const DocumentLibrary = () => {
   const dispatch = useDispatch();
   const router = useRouter();
   const { getToken } = useAuth();
+
+  const [selectedDoc, setSelectedDoc] = useState<any>(null);
+  const [menuVisible, setMenuVisible] = useState(false);
+  const [finalized, setFinalized] = useState(false);
   const { documents, loadingDocuments, documentsError } = useSelector(
     (state: any) => state.message
   );
   const userMetadata = useSelector(
     (state: any) => state.onboarding.userMetadata
   );
-  const [selectedDoc, setSelectedDoc] = useState<any>(null);
-  const [menuVisible, setMenuVisible] = useState(false);
+  const lawyerHubData = useSelector(
+    (state: any) => state.onboarding.lawyerHubData
+  );
 
   // fetch all docs
   useEffect(() => {
     dispatch(getAllGeneratedDocs() as any);
   }, [dispatch]);
+
+  useEffect(() => {
+    const thread = lawyerHubData?.find(
+      (lead: any) => lead.thread_id === selectedDoc?.thread_id
+    );
+    if (!thread?.finalization_requested || thread === undefined) {
+      setFinalized(false);
+      return;
+    }
+    if (thread?.finalization_requested) {
+      setFinalized(true);
+    }
+  }, [lawyerHubData, selectedDoc]);
 
   // Sort documents by creation date (most recent first)
   const sortedDocuments = useMemo(() => {
@@ -87,9 +105,15 @@ const DocumentLibrary = () => {
 
   const handleRequestFinalize = () => {
     //  request finalize functionality
+    if (finalized) return;
+
     const btn = {
       text: "Request Finaliztion",
-      eligible_offers: selectedDoc?.eligible_offers,
+      eligible_offers: {
+        ai_document: null,
+        lawyer_consultation: null,
+        lawyer_finalization: "default",
+      },
     };
     handleLegalReviewButtonClicked(
       btn,
@@ -243,7 +267,7 @@ const DocumentLibrary = () => {
               <Text style={styles.menuItemText}>View Document</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity
+            {/* <TouchableOpacity
               style={styles.menuItem}
               onPress={handleDownloadPDF}
             >
@@ -257,18 +281,22 @@ const DocumentLibrary = () => {
             >
               <Ionicons name="document-text-outline" size={20} color="#000" />
               <Text style={styles.menuItemText}>Download as Doc</Text>
-            </TouchableOpacity>
+            </TouchableOpacity> */}
 
             <TouchableOpacity
               style={styles.menuItem}
               onPress={handleRequestFinalize}
             >
               <Ionicons
-                name="checkmark-circle-outline"
+                name={
+                  finalized ? "checkmark-circle-outline" : "briefcase-outline"
+                }
                 size={20}
-                color="#000"
+                color={finalized ? "#3dca44ff" : "#1b2b48"}
               />
-              <Text style={styles.menuItemText}>Request Finalization</Text>
+              <Text style={styles.menuItemText}>
+                {finalized ? "Finalization Requested" : "Request Finalization"}
+              </Text>
             </TouchableOpacity>
 
             <TouchableOpacity
