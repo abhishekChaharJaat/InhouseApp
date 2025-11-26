@@ -1,5 +1,6 @@
 import CustomSafeAreaView from "@/app/components/CustomSafeAreaView";
 import { setToken } from "@/store/authSlice";
+import { setViewDocInModal } from "@/store/homeSlice";
 import { getAllGeneratedDocs } from "@/store/messageSlice";
 import { useAuth } from "@clerk/clerk-expo";
 import { Ionicons } from "@expo/vector-icons";
@@ -15,7 +16,10 @@ import {
 } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
 import Topnav from "../navs/Topnav";
-import { formatDateTime } from "../utils/helpers";
+import {
+  formatDateTime,
+  handleLegalReviewButtonClicked,
+} from "../utils/helpers";
 import DocumentSkeleton from "./DocumentSkeleton";
 
 const DocumentLibrary = () => {
@@ -24,6 +28,9 @@ const DocumentLibrary = () => {
   const { getToken } = useAuth();
   const { documents, loadingDocuments, documentsError } = useSelector(
     (state: any) => state.message
+  );
+  const userMetadata = useSelector(
+    (state: any) => state.onboarding.userMetadata
   );
   const [selectedDoc, setSelectedDoc] = useState<any>(null);
   const [menuVisible, setMenuVisible] = useState(false);
@@ -54,10 +61,16 @@ const DocumentLibrary = () => {
   };
 
   const handleViewDoc = () => {
-    if (selectedDoc?.thread_id) {
-      router.push(`/chat/${selectedDoc.thread_id}` as any);
+    if (selectedDoc?.document_id) {
+      dispatch(
+        setViewDocInModal({
+          show: true,
+          googleDocId: selectedDoc?.document_id,
+          threadId: selectedDoc?.thread_id,
+        })
+      );
+      handleMenuClose();
     }
-    handleMenuClose();
   };
 
   const handleDownloadPDF = () => {
@@ -73,8 +86,18 @@ const DocumentLibrary = () => {
   };
 
   const handleRequestFinalize = () => {
-    // TODO: Implement request finalize functionality
-    console.log("Request Finalize:", selectedDoc);
+    //  request finalize functionality
+    const btn = {
+      text: "Request Finaliztion",
+      eligible_offers: selectedDoc?.eligible_offers,
+    };
+    handleLegalReviewButtonClicked(
+      btn,
+      dispatch,
+      userMetadata,
+      selectedDoc?.thread_id,
+      selectedDoc?.is_document_locked
+    );
     handleMenuClose();
   };
 
@@ -197,9 +220,27 @@ const DocumentLibrary = () => {
           onPress={handleMenuClose}
         >
           <View style={styles.menuContainer}>
+            {/* Document Name Header */}
+            <View style={styles.menuHeader}>
+              <Ionicons
+                name={
+                  selectedDoc?.is_document_locked
+                    ? "lock-closed"
+                    : "document-text-outline"
+                }
+                size={24}
+                color="#777676ff"
+              />
+              <Text style={styles.menuHeaderText} numberOfLines={2}>
+                {selectedDoc?.document_name ||
+                  selectedDoc?.document_title ||
+                  "Untitled Document"}
+              </Text>
+            </View>
+
             <TouchableOpacity style={styles.menuItem} onPress={handleViewDoc}>
               <Ionicons name="eye-outline" size={20} color="#000" />
-              <Text style={styles.menuItemText}>View Doc</Text>
+              <Text style={styles.menuItemText}>View Document</Text>
             </TouchableOpacity>
 
             <TouchableOpacity
@@ -227,7 +268,7 @@ const DocumentLibrary = () => {
                 size={20}
                 color="#000"
               />
-              <Text style={styles.menuItemText}>Request Finalize</Text>
+              <Text style={styles.menuItemText}>Request Finalization</Text>
             </TouchableOpacity>
 
             <TouchableOpacity
@@ -364,6 +405,21 @@ const styles = StyleSheet.create({
     maxWidth: 300,
     overflow: "hidden",
   },
+  menuHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    padding: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: "#f0f0f0",
+    backgroundColor: "#f8f8f8",
+  },
+  menuHeaderText: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: "#000",
+    marginLeft: 6,
+    flex: 1,
+  },
   menuItem: {
     flexDirection: "row",
     alignItems: "center",
@@ -384,7 +440,7 @@ const styles = StyleSheet.create({
   cancelText: {
     fontSize: 16,
     fontWeight: "600",
-    color: "#666",
+    color: "#d32f2f",
     textAlign: "center",
   },
 });

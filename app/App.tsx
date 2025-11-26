@@ -23,6 +23,7 @@ import {
   handleWebSocketMessage,
   setWebSocketInstance,
 } from "./providers/wsClient";
+import ViewDocumentModal from "./modals/ViewDocumentModal";
 
 // -------------------------------------------------------
 // AppContent – runs inside Clerk + Redux providers
@@ -49,11 +50,6 @@ export function AppContent() {
 
       // If user just logged in and there's a pending thread ID, redirect to chat
       if (justLoggedIn && unauthThreadId) {
-        console.log(
-          "✅ User logged in with pending thread, redirecting to:",
-          unauthThreadId
-        );
-        // Small delay to ensure auth state is fully settled
         setTimeout(() => {
           router.push(`/chat/${unauthThreadId}`);
           dispatch(clearPendingThreadId());
@@ -165,6 +161,7 @@ export function AppContent() {
       <NotSupportedModal />
       {!isSignedIn && <AuthModal />}
       <ContactHelp />
+      <ViewDocumentModal />
       <SideNav />
       <SinglePlanModal />
       <MultiPlanModal />

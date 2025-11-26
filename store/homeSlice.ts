@@ -76,7 +76,6 @@ export const getConsultationCheckoutUrl = createAsyncThunk(
     { rejectWithValue }
   ) => {
     const token = await getToken();
-
     try {
       if (!token) {
         throw new Error("Authentication token not available");
@@ -203,6 +202,11 @@ const initialState = {
     drawerType: "",
     btnText: "",
   },
+  viewDocInModal: {
+    show: false as boolean,
+    googleDocId: "" as string,
+    threadId: "" as string,
+  },
   // Payment state
   openChargebeePaymentModal: false,
   checkoutUrl: null as { url: string; payment_id: string } | null,
@@ -224,6 +228,7 @@ const initialState = {
     email: string;
     phone?: string;
     description?: string;
+    thread_id: string;
     state?: string;
   } | null,
 };
@@ -279,6 +284,9 @@ const homeSlice = createSlice({
     resetStoreReferralStatus: (state) => {
       state.storeReferralStatus = "idle";
       state.storeReferralError = null;
+    },
+    setViewDocInModal: (state, action) => {
+      state.viewDocInModal = action.payload;
     },
   },
   extraReducers: (builder) => {
@@ -376,6 +384,7 @@ export const {
   // Referral actions
   setReferralFormData,
   resetStoreReferralStatus,
+  setViewDocInModal,
 } = homeSlice.actions;
 
 export default homeSlice.reducer;

@@ -133,10 +133,10 @@ export default function PaymentStatusCheckModal() {
     ) {
       dispatch(
         storeReferral({
-          name: referralFormData.name || "",
+          name: referralFormData.name || userMetadata?.first_name,
           email: referralFormData.email || userMetadata?.email || "",
           phone: referralFormData.phone || "",
-          thread_id: referralDrawerDetails?.threadId || null,
+          thread_id: referralFormData?.threadId || null,
           description: referralFormData.description || "",
           state: referralFormData.state || "",
           type: "consultation",
@@ -144,9 +144,7 @@ export default function PaymentStatusCheckModal() {
       );
       // Add legal review message to thread for instant display
       dispatch(addLegalReviewMessage());
-      // Clear the form data
       dispatch(setReferralFormData(null));
-
       // Show the referral drawer with success screen after a delay
       setTimeout(() => {
         handleClose();

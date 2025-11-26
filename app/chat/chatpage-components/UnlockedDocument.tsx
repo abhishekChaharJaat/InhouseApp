@@ -1,6 +1,6 @@
 // UnlockedDocument.tsx
-import ViewDocumentModal from "@/app/modals/ViewDocumentModal";
 import { handleLegalReviewButtonClicked } from "@/app/utils/helpers";
+import { setViewDocInModal } from "@/store/homeSlice";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import React, { useEffect, useState } from "react";
 import {
@@ -15,7 +15,6 @@ import { useDispatch, useSelector } from "react-redux";
 
 export default function UnlockedDocument({ message }: any) {
   const dispatch = useDispatch();
-  const [viewModalVisible, setViewModalVisible] = useState(false);
   const [finalized, setFinalized] = useState(false);
   const googleDocId = message?.payload?.google_doc_id;
   const docTitle = message?.payload?.doc_title || "Untitled Document";
@@ -28,7 +27,15 @@ export default function UnlockedDocument({ message }: any) {
   const previewUrl = `https://docs.google.com/document/d/${googleDocId}/preview?rm=minimal`;
   const pdfUrl = `https://docs.google.com/document/d/${googleDocId}/export?format=pdf`;
 
-  const handleViewDoc = () => setViewModalVisible(true);
+  const handleViewDoc = () => {
+    dispatch(
+      setViewDocInModal({
+        show: true,
+        googleDocId: googleDocId,
+        threadId: threadData?.id,
+      })
+    );
+  };
   const handleDownloadPdf = () => Linking.openURL(pdfUrl);
   const handleRequestFinalization = () => {
     const btn = {
@@ -166,14 +173,6 @@ export default function UnlockedDocument({ message }: any) {
           </View>
         )}
       </View>
-
-      {/* View Document Modal */}
-      <ViewDocumentModal
-        visible={viewModalVisible}
-        onClose={() => setViewModalVisible(false)}
-        googleDocId={googleDocId}
-        docTitle={docTitle}
-      />
     </View>
   );
 }

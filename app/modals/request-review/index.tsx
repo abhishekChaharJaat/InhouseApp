@@ -9,7 +9,6 @@ import {
   setReferralFormData,
   storeReferral,
 } from "@/store/homeSlice";
-import { addLegalReviewMessage } from "@/store/messageSlice";
 import { useAuth, useUser } from "@clerk/clerk-expo";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import React, { useEffect, useState } from "react";
@@ -84,8 +83,7 @@ function Referraldrawer() {
   useEffect(() => {
     if (storeReferralStatus === "success") {
       setReviewRequested(true);
-      // Add legal review message to thread for instant display
-      dispatch(addLegalReviewMessage());
+      // dispatch(addLegalReviewMessage());
     }
   }, [storeReferralStatus]);
 
@@ -123,20 +121,27 @@ function Referraldrawer() {
 
   // For consultation checkout ($99) - save form data and proceed to payment
   const onConsultationCheckout = () => {
+    const userName =
+      name.trim() ||
+      `${userMetadata?.first_name || ""} ${
+        userMetadata?.last_name || ""
+      }`.trim();
+    console.log("threadid ", threadData?.id);
     // Save form data to redux for use after payment success
     dispatch(
       setReferralFormData({
-        name: name,
+        name: userName,
         email: user?.emailAddresses[0]?.emailAddress || "",
         phone: "",
         description: details,
+        threadId: threadData?.id || threadId,
         state: userMetadata?.individual_info?.state_of_residence || "",
       })
     );
 
     handleConsultationCheckout({
       dispatch,
-      threadId,
+      threadId: threadData?.id || threadId,
     });
   };
 

@@ -1,4 +1,5 @@
 import { handleLegalReviewButtonClicked } from "@/app/utils/helpers";
+import { setViewDocInModal } from "@/store/homeSlice";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import React from "react";
 import {
@@ -12,27 +13,21 @@ import {
 } from "react-native";
 import { WebView } from "react-native-webview";
 import { useDispatch, useSelector } from "react-redux";
-
 const { height: SCREEN_HEIGHT } = Dimensions.get("window");
 
-interface ViewDocumentModalProps {
-  visible: boolean;
-  onClose: () => void;
-  googleDocId: string | null;
-  docTitle?: string;
-}
-
-const ViewDocumentModal: React.FC<ViewDocumentModalProps> = ({
-  visible,
-  onClose,
-  googleDocId,
-  docTitle = "Untitled Document",
-}) => {
+const ViewDocumentModal = () => {
   const dispatch = useDispatch();
   const userMetadata = useSelector(
     (state: any) => state.onboarding.userMetadata
   );
   const threadData = useSelector((state: any) => state.message.threadData);
+  const { threadId, googleDocId, show } = useSelector(
+    (state: any) => state.home.viewDocInModal
+  );
+
+  const onClose = () => {
+    dispatch(setViewDocInModal({ show: false, googleDocId: "", threadId: "" }));
+  };
 
   if (!googleDocId) return null;
 
@@ -62,7 +57,7 @@ const ViewDocumentModal: React.FC<ViewDocumentModalProps> = ({
 
   return (
     <Modal
-      visible={visible}
+      visible={show}
       transparent={true}
       animationType="slide"
       onRequestClose={onClose}
