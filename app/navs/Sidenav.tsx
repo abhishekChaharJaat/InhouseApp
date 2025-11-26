@@ -53,10 +53,10 @@ export default function SideNav() {
   };
 
   const handleClick = (type: any) => {
+    setShowTaskMenu(false);
     dispatch(setShowSidenav(false));
     switch (type) {
       case "ask_inhouse_ai": {
-        setShowTaskMenu(false);
         dispatch(resetThreadData());
         navigate("/home/Home");
         break;

@@ -88,7 +88,8 @@ export const UserProfile = () => {
                 style={styles.dropdownButton}
                 onPress={() => {
                   setOpen(false);
-                  alert("Personalize clicked!");
+                  router.push("/profile/ProfileSettings");
+                  // alert("Personalize clicked!");
                 }}
               >
                 <Feather name="sliders" size={20} color="#444" />

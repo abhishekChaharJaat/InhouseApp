@@ -2,7 +2,7 @@
 import ChatBox from "@/app/chat/chatpage-components/ChatBox";
 import CustomSafeAreaView from "@/app/components/CustomSafeAreaView";
 import { RootState } from "@/store";
-import { setChatInputMessage, clearRedirectFlag } from "@/store/messageSlice";
+import { clearRedirectFlag, setChatInputMessage } from "@/store/messageSlice";
 import { useUser } from "@clerk/clerk-expo";
 import { useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
@@ -15,12 +15,12 @@ import {
   View,
 } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
+import Topnav from "../navs/Topnav";
 import {
   createThreadMessage,
   sendWebSocketMessage,
   setPendingInitialMessage,
 } from "../providers/wsClient";
-import Topnav from "../navs/Topnav";
 
 function Home() {
   const { user } = useUser();
@@ -159,9 +159,11 @@ const styles = StyleSheet.create({
   },
   title1: {
     fontSize: 24,
+    fontFamily: "Lora",
     fontWeight: "400",
     marginBottom: 20,
     textAlign: "center",
+    color: "#1b2b48",
   },
   title2: {
     fontSize: 28,
@@ -169,6 +171,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     textAlign: "center",
     fontStyle: "italic",
+    color: "#1b2b48",
   },
   pillBox: {
     flexDirection: "row",

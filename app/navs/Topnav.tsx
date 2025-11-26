@@ -8,7 +8,7 @@ import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
 import { setShowSidenav } from "../../store/homeSlice";
 import ThreadOptionsModal from "../modals/thread-options-modal";
-import { UserProfile } from "./UserProfile";
+import { UserProfile } from "../profile/UserProfile";
 export default function Topnav({ page, title, threadId }: any) {
   const dispatch = useDispatch();
   const { isSignedIn } = useAuth();
