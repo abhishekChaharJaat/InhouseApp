@@ -14,7 +14,7 @@ const initialState = {
   pendingPasswordReset: false,
   showAuthModal: {
     show: false,
-    type: "signin",
+    type: "",
   },
 };
 

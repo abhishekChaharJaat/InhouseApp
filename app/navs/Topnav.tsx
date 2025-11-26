@@ -30,7 +30,7 @@ export default function Topnav({ page, title, threadId }: any) {
               numberOfLines={1}
               ellipsizeMode="tail"
             >
-              {title}
+              {title || "New Thread"}
             </Text>
           ) : (
             ""
@@ -88,14 +88,19 @@ export default function Topnav({ page, title, threadId }: any) {
                   dispatch(resetThreadData());
                 }}
               >
-                <MaterialIcons name="add" size={32} color="#333" />
+                <MaterialIcons
+                  style={styles.plusButton}
+                  name="add"
+                  size={32}
+                  color="#333"
+                />
               </TouchableOpacity>
               <Text
                 style={styles.chatTitle}
                 numberOfLines={1}
                 ellipsizeMode="tail"
               >
-                {title}
+                {title || "New Thread"}
               </Text>
               <Text style={styles.homeTitle}>Inhouse</Text>
             </>
@@ -124,15 +129,13 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 3 }, // horizontal offset 0, vertical offset 2
     shadowOpacity: 0.1,
     shadowRadius: 3,
-
-    // No elevation for Android - using border only
     elevation: 0,
   },
 
   homeTitle: {
     fontSize: 26,
     fontWeight: "700",
-    color: "#333",
+    color: "#1b2b48",
   },
   chatTitle: {
     fontSize: 16,
@@ -182,5 +185,12 @@ const styles = StyleSheet.create({
   },
   whiteButtonText: {
     color: "#1b2b48",
+  },
+  plusButton: {
+    borderWidth: 1,
+    padding: 1,
+    borderRadius: 50,
+    borderColor: "#eeebebff",
+    backgroundColor: "#e9e8e8ff",
   },
 });

@@ -11,13 +11,22 @@ export const authStyles = StyleSheet.create({
     justifyContent: "space-between",
   },
   modalContainer: {
+    paddingHorizontal: 24,
+    backgroundColor: "#ffffff",
+    paddingTop: 20,
+    paddingBottom: 24,
+  },
+  modalInner: {
+    alignItems: "center",
+  },
+  // For screens with keyboard input (OTP, Forgot Password, Reset Password)
+  modalContainerTall: {
     flexGrow: 1,
     paddingHorizontal: 24,
     backgroundColor: "#ffffff",
     paddingTop: 0,
-  },
-  modalInner: {
-    flex: 1,
+    paddingBottom: 24,
+    minHeight: "80%",
     justifyContent: "center",
   },
 
@@ -42,8 +51,10 @@ export const authStyles = StyleSheet.create({
   title: {
     fontSize: 22,
     fontWeight: "700",
-    color: "#111827",
+    color: "#1b2b48",
+    fontFamily: "Lora",
     marginBottom: 24,
+
     textAlign: "center",
   },
 
@@ -80,17 +91,10 @@ export const authStyles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  googleIconCircle: {
-    width: 22,
-    height: 22,
-    borderRadius: 11,
-    backgroundColor: "#fff",
-    alignItems: "center",
-    justifyContent: "center",
-    marginRight: 8,
-  },
-  googleIconText: {
-    fontSize: 14,
+  googleIcon: {
+    width: 20,
+    height: 20,
+    marginRight: 10,
   },
   googleText: {
     fontSize: 15,

@@ -163,7 +163,7 @@ export const handleLegalReviewButtonClicked = (
   }
   // not authenticated and not free
   if (!userMetadata?.subscription_type) {
-    dispatch(setShowAuthModal({ show: true, type: "signin" }));
+    dispatch(setShowAuthModal({ show: true, type: "signup" }));
     return;
   }
 

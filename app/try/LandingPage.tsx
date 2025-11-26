@@ -11,7 +11,6 @@ import {
   ScrollView,
   StyleSheet,
   Text,
-  TouchableOpacity,
   TouchableWithoutFeedback,
   View,
 } from "react-native";
@@ -24,6 +23,7 @@ import {
   sendWebSocketMessage,
   setPendingInitialMessage,
 } from "../providers/wsClient";
+import Trustmakers from "./TrustMakersCarousel";
 
 const LandingPage = () => {
   const dispatch = useDispatch();
@@ -100,7 +100,7 @@ const LandingPage = () => {
               <View style={styles.subtitleContainer}>
                 <Text style={styles.subtitle}>
                   • Get advice and documents from the world's most trusted AI
-                  legal platform, and
+                  legal platform.
                 </Text>
                 <Text style={styles.subtitle}>
                   • loop in a lawyer for total confidence before sign-off.
@@ -119,26 +119,30 @@ const LandingPage = () => {
                 />
               </View>
               <View style={styles.pillBox}>
-                <TouchableOpacity style={styles.pill} onPress={() => {}}>
-                  <Text style={styles.text}>Draft customer contract</Text>
-                </TouchableOpacity>
-
-                <TouchableOpacity style={styles.pill} onPress={() => {}}>
-                  <Text style={styles.text}>Start a company</Text>
-                </TouchableOpacity>
-
-                <TouchableOpacity style={styles.pill} onPress={() => {}}>
-                  <Text style={styles.text}>Review redlines</Text>
-                </TouchableOpacity>
-
-                <TouchableOpacity style={styles.pill} onPress={() => {}}>
-                  <Text style={styles.text}>Protect my ip</Text>
-                </TouchableOpacity>
+                <Trustmakers />
               </View>
-
-              {/* Info text */}
-              <Text style={styles.infoText}>
-                Try Inhouse AI for free - no credit card required
+            </View>
+            <View style={styles.footerContainer}>
+              <Text style={styles.footerText}>
+                AI can make mistakes, always consult a lawyer. Read our{" "}
+                <Text
+                  style={styles.link}
+                  onPress={() =>
+                    Linking.openURL("https://www.inhouse.ai/terms-of-service")
+                  }
+                >
+                  Terms
+                </Text>{" "}
+                and{" "}
+                <Text
+                  style={styles.link}
+                  onPress={() =>
+                    Linking.openURL("https://www.inhouse.ai/privacy-policy")
+                  }
+                >
+                  Privacy Policy
+                </Text>
+                .
               </Text>
             </View>
           </ScrollView>
@@ -157,14 +161,14 @@ const styles = StyleSheet.create({
   },
   contentContainer: {
     flexGrow: 1,
-    paddingHorizontal: 20,
+    paddingHorizontal: 10,
   },
   heroSection: {
     flex: 1,
-    justifyContent: "center",
+    justifyContent: "flex-start",
     alignItems: "center",
     gap: 16,
-    paddingVertical: 40,
+    paddingTop: 30,
   },
   title: {
     fontSize: 24,
@@ -172,21 +176,19 @@ const styles = StyleSheet.create({
     color: "#1B2B48",
     textAlign: "center",
     lineHeight: 38,
+    fontFamily: "Georgia",
     fontStyle: "italic",
-    marginBottom: 8,
-  },
-  subtitleContainer: {
-    gap: 4,
   },
   subtitle: {
     fontSize: 14,
     color: "#1B2B48",
     textAlign: "center",
+    fontFamily: "Lora",
     lineHeight: 24,
   },
   chatBoxContainer: {
     width: "100%",
-    marginTop: 16,
+    marginTop: 10,
   },
   infoText: {
     fontSize: 14,
@@ -194,26 +196,20 @@ const styles = StyleSheet.create({
     textAlign: "center",
     marginTop: 12,
   },
-  pillBox: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    justifyContent: "center",
+
+  footerContainer: {
+    marginTop: 30,
+    paddingHorizontal: 20,
     alignItems: "center",
-    columnGap: 10,
   },
-  pill: {
-    paddingHorizontal: 18,
-    paddingVertical: 10,
-    borderRadius: 30,
-    borderWidth: 1,
-    borderColor: "#E0E0E0",
-    backgroundColor: "#fff",
-    alignSelf: "flex-start",
-    marginVertical: 6,
+  footerText: {
+    textAlign: "center",
+    color: "#838282ff",
+    fontSize: 13,
+    lineHeight: 20,
   },
-  text: {
-    fontSize: 16,
-    color: "#000",
-    fontWeight: "500",
+  link: {
+    textDecorationLine: "underline",
+    color: "#3F65A9",
   },
 });

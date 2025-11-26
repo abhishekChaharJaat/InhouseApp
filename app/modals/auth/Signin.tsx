@@ -10,6 +10,7 @@ import React from "react";
 import {
   ActivityIndicator,
   Alert,
+  Image,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
@@ -54,7 +55,11 @@ export default function Signin({ isModal, setAuthMode }: any) {
   };
 
   const onGooglePress = () => {
-    Alert.alert("Google sign-in", "Wire this to your Google OAuth flow.");
+    Alert.alert(
+      "Google Sign-in Unavailable",
+      "Google sign-in is currently unavailable. Please use email and password to sign in.",
+      [{ text: "OK" }]
+    );
   };
 
   // Show Reset Password screen (after code is sent)
@@ -106,9 +111,13 @@ export default function Signin({ isModal, setAuthMode }: any) {
             onPress={onGooglePress}
           >
             <View style={styles.googleContent}>
-              <View style={styles.googleIconCircle}>
-                <Text style={styles.googleIconText}>G</Text>
-              </View>
+              <Image
+                source={{
+                  uri: "https://www.google.com/favicon.ico",
+                }}
+                style={styles.googleIcon}
+                resizeMode="contain"
+              />
               <Text style={styles.googleText}>Continue with Google</Text>
             </View>
           </TouchableOpacity>
@@ -183,11 +192,9 @@ export default function Signin({ isModal, setAuthMode }: any) {
           </View>
         </View>
 
-        {!isModal && (
-          <Text style={styles.copyright}>
-            © 2025 Inhouse. All Rights Reserved
-          </Text>
-        )}
+        <Text style={styles.copyright}>
+          © 2025 Inhouse. All Rights Reserved
+        </Text>
       </View>
     </ScrollView>
   );

@@ -48,7 +48,7 @@ export default function ForgotPassword({
   return (
     <ScrollView
       keyboardShouldPersistTaps="handled"
-      contentContainerStyle={isModal ? styles.modalContainer : styles.container}
+      contentContainerStyle={isModal ? styles.modalContainerTall : styles.container}
     >
       <View style={isModal ? styles.modalInner : styles.inner}>
         {!isModal && (
@@ -104,11 +104,9 @@ export default function ForgotPassword({
           </View>
         </View>
 
-        {!isModal && (
-          <Text style={styles.copyright}>
-            © 2025 Inhouse. All Rights Reserved
-          </Text>
-        )}
+        <Text style={styles.copyright}>
+          © 2025 Inhouse. All Rights Reserved
+        </Text>
       </View>
     </ScrollView>
   );
