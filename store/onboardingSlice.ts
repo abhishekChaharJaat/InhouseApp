@@ -24,9 +24,9 @@ export const getUserMetadata = createAsyncThunk(
 
       let url = `${BASE_ENDPOINT}/api/user/get-metadata`;
       // Add threadId as query parameter if provided
-      // if (threadId && threadId !== "null") {
-      //   url += `?anonymous_thread_id=${threadId}`;
-      // }
+      if (threadId && threadId !== "null") {
+        url += `?anonymous_thread_id=${threadId}`;
+      }
 
       const headers = { Authorization: `Bearer ${token}` };
       const response = await axios.get(url, { headers });

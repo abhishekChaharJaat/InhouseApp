@@ -1,6 +1,8 @@
 import CustomSafeAreaView from "@/app/components/CustomSafeAreaView";
-import { signUpUser } from "@/store/authSlice";
+import { clearPendingThreadId, signUpUser } from "@/store/authSlice";
+import { getUserMetadata } from "@/store/onboardingSlice";
 import { useSignUp } from "@clerk/clerk-expo";
+import { router } from "expo-router";
 import React from "react";
 import {
   ActivityIndicator,
@@ -21,7 +23,7 @@ import OtpVerification from "./OtpVerification";
 export default function Signup({ isModal, setAuthMode }: any) {
   const { signUp, isLoaded } = useSignUp();
   const dispatch = useDispatch();
-  const { isSigningUp, pendingVerification } = useSelector(
+  const { isSigningUp, pendingVerification, unauthThreadId } = useSelector(
     (state: any) => state.auth
   );
 
@@ -43,9 +45,18 @@ export default function Signup({ isModal, setAuthMode }: any) {
         password,
       })
     );
-
     if (result.meta?.requestStatus === "rejected") {
       Alert.alert("Signup Error", result.payload || "Failed to sign up");
+    } else {
+      // If there's a pending thread ID, call getUserMetadata first to migrate the thread
+      if (unauthThreadId) {
+        // Wait for getUserMetadata to complete (migrates anonymous thread to user)
+        await (dispatch as any)(getUserMetadata({ threadId: unauthThreadId }));
+        router.replace(`/chat/${unauthThreadId}`);
+        dispatch(clearPendingThreadId());
+      } else {
+        router.replace("/home/Home");
+      }
     }
   };
 
@@ -59,9 +70,7 @@ export default function Signup({ isModal, setAuthMode }: any) {
 
   // Show OTP verification screen
   if (pendingVerification) {
-    return (
-      <OtpVerification isModal={isModal} emailAddress={emailAddress} />
-    );
+    return <OtpVerification isModal={isModal} emailAddress={emailAddress} />;
   }
 
   // Signup Form Screen

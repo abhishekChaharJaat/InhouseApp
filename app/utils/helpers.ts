@@ -1,5 +1,5 @@
 import { AppDispatch } from "@/store";
-import { setShowAuthModal } from "@/store/authSlice";
+import { setShowAuthModal, setUnauthThreadId } from "@/store/authSlice";
 import {
   getCheckoutUrl,
   getConsultationCheckoutUrl,
@@ -164,6 +164,8 @@ export const handleLegalReviewButtonClicked = (
   // not authenticated and not free
   if (!userMetadata?.subscription_type) {
     dispatch(setShowAuthModal({ show: true, type: "signup" }));
+    dispatch(setUnauthThreadId(chatId));
+
     return;
   }
 

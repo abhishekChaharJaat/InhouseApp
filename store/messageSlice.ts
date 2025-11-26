@@ -277,7 +277,6 @@ const messageSlice = createSlice({
           reference_thread_id,
           document_rating: document_rating || {},
         };
-        console.log("anonymous messages: ", action.payload);
       })
       .addCase(fetchAnonymousThreadMessages.rejected, (state, action) => {
         state.loadingMessages = false;

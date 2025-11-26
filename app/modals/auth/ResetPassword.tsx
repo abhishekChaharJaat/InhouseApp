@@ -1,4 +1,11 @@
-import { resetPassword, setShowAuthModal } from "@/store/authSlice";
+import { RootState } from "@/store";
+import {
+  clearPendingThreadId,
+  resetPassword,
+  setShowAuthModal,
+} from "@/store/authSlice";
+import { getUserMetadata } from "@/store/onboardingSlice";
+import { AppDispatch } from "@/store";
 import { useSignIn } from "@clerk/clerk-expo";
 import { useRouter } from "expo-router";
 import React from "react";
@@ -28,7 +35,9 @@ export default function ResetPassword({
   const { signIn, isLoaded, setActive } = useSignIn();
   const router = useRouter();
   const dispatch = useDispatch();
-  const { isResettingPassword } = useSelector((state: any) => state.auth);
+  const { isResettingPassword, unauthThreadId } = useSelector(
+    (state: RootState) => state.auth
+  );
 
   const [resetCode, setResetCode] = React.useState("");
   const [newPassword, setNewPassword] = React.useState("");
@@ -41,7 +50,15 @@ export default function ResetPassword({
     );
     if (result.meta?.requestStatus === "fulfilled") {
       dispatch(setShowAuthModal({ show: false, type: "" }));
-      router.replace("/home/Home");
+      // Redirect to chat page if there's a pending thread ID, otherwise go to home
+      if (unauthThreadId) {
+        // Wait for getUserMetadata to complete (migrates anonymous thread to user)
+        await (dispatch as AppDispatch)(getUserMetadata({ threadId: unauthThreadId }));
+        router.replace(`/chat/${unauthThreadId}`);
+        dispatch(clearPendingThreadId());
+      } else {
+        router.replace("/home/Home");
+      }
     } else if (result.meta?.requestStatus === "rejected") {
       Alert.alert("Error", result.payload || "Failed to reset password");
     }
@@ -50,7 +67,9 @@ export default function ResetPassword({
   return (
     <ScrollView
       keyboardShouldPersistTaps="handled"
-      contentContainerStyle={isModal ? styles.modalContainerTall : styles.container}
+      contentContainerStyle={
+        isModal ? styles.modalContainerTall : styles.container
+      }
     >
       <View style={isModal ? styles.modalInner : styles.inner}>
         {!isModal && (

@@ -1,8 +1,11 @@
+import { RootState } from "@/store";
 import {
+  clearPendingThreadId,
   resetPendingVerification,
   setShowAuthModal,
   verifyOtp,
 } from "@/store/authSlice";
+import { getUserMetadata } from "@/store/onboardingSlice";
 import { useSignUp } from "@clerk/clerk-expo";
 import { useRouter } from "expo-router";
 import React from "react";
@@ -30,7 +33,9 @@ export default function OtpVerification({
   const { signUp, isLoaded, setActive } = useSignUp();
   const router = useRouter();
   const dispatch = useDispatch();
-  const { isVerifyingOtp } = useSelector((state: any) => state.auth);
+  const { isVerifyingOtp, unauthThreadId } = useSelector(
+    (state: RootState) => state.auth
+  );
 
   const [otpCode, setOtpCode] = React.useState("");
 
@@ -45,7 +50,15 @@ export default function OtpVerification({
     );
     if (result.meta?.requestStatus === "fulfilled") {
       dispatch(setShowAuthModal({ show: false, type: "" }));
-      router.replace("/home/Home");
+      // If there's a pending thread ID, call getUserMetadata first to migrate the thread
+      if (unauthThreadId) {
+        // Wait for getUserMetadata to complete (migrates anonymous thread to user)
+        await (dispatch as any)(getUserMetadata({ threadId: unauthThreadId }));
+        router.replace(`/chat/${unauthThreadId}`);
+        dispatch(clearPendingThreadId());
+      } else {
+        router.replace("/home/Home");
+      }
     } else if (result.meta?.requestStatus === "rejected") {
       Alert.alert("Error", result.payload || "Invalid verification code");
     }
@@ -59,7 +72,9 @@ export default function OtpVerification({
   return (
     <ScrollView
       keyboardShouldPersistTaps="handled"
-      contentContainerStyle={isModal ? styles.modalContainerTall : styles.container}
+      contentContainerStyle={
+        isModal ? styles.modalContainerTall : styles.container
+      }
     >
       <View style={isModal ? styles.modalInner : styles.inner}>
         {!isModal && (

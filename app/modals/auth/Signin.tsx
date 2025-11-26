@@ -1,9 +1,11 @@
 import CustomSafeAreaView from "@/app/components/CustomSafeAreaView";
 import {
+  clearPendingThreadId,
   resetPendingPasswordReset,
   setShowAuthModal,
   signInUser,
 } from "@/store/authSlice";
+import { getUserMetadata } from "@/store/onboardingSlice";
 import { useSignIn } from "@clerk/clerk-expo";
 import { useRouter } from "expo-router";
 import React from "react";
@@ -28,7 +30,7 @@ export default function Signin({ isModal, setAuthMode }: any) {
   const { signIn, setActive, isLoaded } = useSignIn();
   const router = useRouter();
   const dispatch = useDispatch();
-  const { isSigningIn, pendingPasswordReset } = useSelector(
+  const { isSigningIn, pendingPasswordReset, unauthThreadId } = useSelector(
     (state: any) => state.auth
   );
 
@@ -43,7 +45,15 @@ export default function Signin({ isModal, setAuthMode }: any) {
     );
     if (result.meta?.requestStatus === "fulfilled") {
       dispatch(setShowAuthModal({ show: false, type: "" }));
-      router.replace("/home/Home");
+      // If there's a pending thread ID, call getUserMetadata first to migrate the thread
+      if (unauthThreadId) {
+        // Wait for getUserMetadata to complete (migrates anonymous thread to user)
+        await (dispatch as any)(getUserMetadata({ threadId: unauthThreadId }));
+        router.replace(`/chat/${unauthThreadId}`);
+        dispatch(clearPendingThreadId());
+      } else {
+        router.replace("/home/Home");
+      }
     } else if (result.meta?.requestStatus === "rejected") {
       Alert.alert("Error", result.payload || "Failed to sign in");
     }

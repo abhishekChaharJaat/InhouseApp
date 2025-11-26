@@ -1,12 +1,13 @@
 // app/_layout.tsx
+import { clearPendingThreadId } from "@/store/authSlice";
 import { setWSConnected } from "@/store/homeSlice";
 import { getAllThreads } from "@/store/threadSlice";
 import { useAuth } from "@clerk/clerk-expo";
-import { Stack } from "expo-router";
-import React, { useEffect } from "react";
+import { Stack, useRouter } from "expo-router";
+import React, { useEffect, useRef } from "react";
 import { AppState } from "react-native";
-import { useDispatch } from "react-redux";
-import { AppDispatch } from "../store";
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch, RootState } from "../store";
 import { getLawyerHub, getUserMetadata } from "../store/onboardingSlice";
 import AuthModal from "./modals/auth/AuthModal";
 import ChargebeePaymentModal from "./modals/chargebee-payment";
@@ -29,13 +30,37 @@ import {
 export function AppContent() {
   const { getToken, isSignedIn, isLoaded } = useAuth();
   const dispatch = useDispatch<AppDispatch>();
+  const router = useRouter();
+  const unauthThreadId = useSelector(
+    (state: RootState) => state.auth.unauthThreadId
+  );
+  // Track previous isSignedIn to detect login transition
+  const wasSignedIn = useRef(isSignedIn);
+
   // Call on mount and when user signs in
   useEffect(() => {
     if (isSignedIn) {
-      dispatch(getUserMetadata({}) as any);
+      // Check if user just logged in (transition from false to true)
+      const justLoggedIn = !wasSignedIn.current && isSignedIn;
+      // Pass pending thread ID to getUserMetadata for anonymous thread migration
+      dispatch(getUserMetadata({ threadId: unauthThreadId }) as any);
       dispatch(getAllThreads() as any);
       dispatch(getLawyerHub());
+
+      // If user just logged in and there's a pending thread ID, redirect to chat
+      if (justLoggedIn && unauthThreadId) {
+        console.log(
+          "✅ User logged in with pending thread, redirecting to:",
+          unauthThreadId
+        );
+        // Small delay to ensure auth state is fully settled
+        setTimeout(() => {
+          router.push(`/chat/${unauthThreadId}`);
+          dispatch(clearPendingThreadId());
+        }, 500);
+      }
     }
+    wasSignedIn.current = isSignedIn;
   }, [isSignedIn]);
 
   // Refresh metadata when app comes to foreground

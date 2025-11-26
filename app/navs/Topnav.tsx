@@ -1,4 +1,8 @@
-import { setShowAuthModal } from "@/store/authSlice";
+import {
+  clearPendingThreadId,
+  setShowAuthModal,
+  setUnauthThreadId,
+} from "@/store/authSlice";
 import { resetThreadData } from "@/store/messageSlice";
 import { useAuth } from "@clerk/clerk-expo";
 import { MaterialIcons } from "@expo/vector-icons";
@@ -93,6 +97,7 @@ export default function Topnav({ page, title, threadId }: any) {
               <TouchableOpacity
                 onPress={() => {
                   navigate("/try/LandingPage");
+                  dispatch(clearPendingThreadId());
                   dispatch(resetThreadData());
                 }}
               >
@@ -114,6 +119,7 @@ export default function Topnav({ page, title, threadId }: any) {
                 style={[styles.button, styles.darkButton]}
                 onPress={() => {
                   dispatch(setShowAuthModal({ show: true, type: "signup" }));
+                  dispatch(setUnauthThreadId(threadId));
                 }}
               >
                 <Text style={[styles.buttonText, styles.darkButtonText]}>

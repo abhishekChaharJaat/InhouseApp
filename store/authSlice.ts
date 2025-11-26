@@ -16,6 +16,8 @@ const initialState = {
     show: false,
     type: "",
   },
+  // Thread ID to pass to getUserMetadata after login (for anonymous thread migration)
+  unauthThreadId: null as string | null,
 };
 
 export const signInUser = createAsyncThunk(
@@ -176,6 +178,16 @@ const authSlice = createSlice({
         show: action.payload.show,
         type: action.payload.type,
       };
+      // Store thread ID if provided (for anonymous thread migration after login)
+      if (action.payload.threadId) {
+        state.unauthThreadId = action.payload.threadId;
+      }
+    },
+    setUnauthThreadId: (state, action) => {
+      state.unauthThreadId = action.payload;
+    },
+    clearPendingThreadId: (state) => {
+      state.unauthThreadId = null;
     },
   },
   extraReducers: (builder) => {
@@ -251,5 +263,7 @@ export const {
   resetPendingPasswordReset,
   setToken,
   setShowAuthModal,
+  setUnauthThreadId,
+  clearPendingThreadId,
 } = authSlice.actions;
 export default authSlice.reducer;
